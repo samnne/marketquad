@@ -1,31 +1,28 @@
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "expo-router";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
-import clsx from "clsx";
+import { useMessage, useType, useUser } from "@/store/zustand";
 import { supabase } from "@/supabase/authHelper";
 import { signUpUser } from "@/supabase/supabase";
 import { getUserSupabase, matchUVIC } from "@/utils/functions";
-import { useMessage, useType, useUser } from "@/store/zustand";
+import { useRouter } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import { colors } from "@/constants/theme";
 
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { BASE_URL } from "@/constants/constants";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -67,7 +64,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       const { user, app_user } = await getUserSupabase();
       if (user) {
         setUser({ ...user, app_user });
-        router.replace("/");
+        router.replace("/home");
       }
     };
 
@@ -101,10 +98,10 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           password: formData.password,
         });
         if (error) {
-          console.log(formData.email, formData.password)
+          console.log(formData.email, formData.password);
           setError(true);
           setMessage("Email or Password is incorrect");
-          console.log(error)
+          console.log(error);
           return;
         }
         return router.push("/(tabs)/profile");
@@ -119,7 +116,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         setMessage("Email or Password is incorrect");
         return;
       }
-      handleLogin()
+      handleLogin();
     } catch (err) {
       console.error(err);
       setError(true);
@@ -191,7 +188,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
 
       // 4. Navigate ONLY after state is set
       setSuccess(true);
-      router.replace("/");
+      router.replace("/home");
     } catch (err) {
       console.error(err);
       setError(true);

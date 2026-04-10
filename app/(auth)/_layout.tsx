@@ -1,18 +1,17 @@
+import ErrorMessage from "@/components/Modals/ErrorMessage";
+import SuccessMessage from "@/components/Modals/SuccessMessage";
+import { useMessage } from "@/store/zustand";
+import { Slot } from "expo-router";
 import {
-  View,
-  Text,
-  Image,
-  ScrollView,
   Dimensions,
+  Image,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
-import { useMessage } from "@/store/zustand";
-import SuccessMessage from "@/components/Modals/SuccessMessage";
-import ErrorMessage from "@/components/Modals/ErrorMessage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Slot } from "expo-router";
-import { useEffect } from "react";
 
 const { width } = Dimensions.get("window");
 const isTablet = width >= 768;
@@ -81,7 +80,7 @@ const AuthContent = () => (
           Welcome to <Text className="font-bold text-primary">MarketQuad</Text>
         </Text>
         <Text className="font-light text-sm text-secondary">
-          UVic's student only Marketplace. Built by a Student for Students.
+          UVic student only Marketplace. Built by a Student for Students.
         </Text>
       </View>
     </View>
