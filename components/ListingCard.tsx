@@ -14,13 +14,17 @@ const ListingCard = ({ listing }: { listing: any }) => {
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-  }));  
+  }));
 
   return (
     <AnimatedPressable
       style={animatedStyle}
-      onPressIn={() => { scale.value = withSpring(0.95, { stiffness: 400 }); }}
-      onPressOut={() => { scale.value = withSpring(1,    { stiffness: 400 }); }}
+      onPressIn={() => {
+        scale.value = withSpring(0.95, { stiffness: 400 });
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, { stiffness: 400 });
+      }}
       onPress={() => setSelectedListing(listing)}
       className="bg-pill rounded-3xl overflow-hidden  shadow-lg shadow-black/20 flex-col"
     >
@@ -60,14 +64,15 @@ const ListingCard = ({ listing }: { listing: any }) => {
       {/* ── Info ── */}
       <View className="p-4 gap-1">
         <Text className="text-base font-bold text-text" numberOfLines={1}>
-          {listing.price != "0" ? `$${listing.price}` : "FREE"} · {listing.title}
+          {listing.price != "0" ? `$${listing.price}` : "FREE"} ·{" "}
+          {listing.title}
         </Text>
 
         <Text className="text-sm font-bold text-accent/50">
           {listing.condition}
         </Text>
 
-        <Text className="text-sm text-secondary" numberOfLines={2}>
+        <Text className="text-sm text-secondary truncate" numberOfLines={2}>
           {listing.description}
         </Text>
       </View>
@@ -76,3 +81,4 @@ const ListingCard = ({ listing }: { listing: any }) => {
 };
 
 export default ListingCard;
+

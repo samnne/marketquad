@@ -1,30 +1,28 @@
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  Modal,
-  Image,
-  ActivityIndicator,
-} from "react-native";
-import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "expo-router";
-import Animated, {
-  FadeInDown,
-  FadeInUp,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
-import { getUserSupabase, BASE_URL } from "@/utils/functions";
+import Carousel from "@/components/Carousel";
+import StarRating from "@/components/StarRating";
+import { colors } from "@/constants/theme";
 import { createConvo } from "@/lib/conversations.lib";
 import { deleteListingAction } from "@/lib/listing.lib";
-import { colors } from "@/constants/theme";
-import StarRating from "@/components/StarRating";
-import Carousel from "@/components/Carousel";
+import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
+import { BASE_URL, getUserSupabase } from "@/utils/functions";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { usePathname, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View
+} from "react-native";
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
+} from "react-native-reanimated";
 import LocationPreview from "./ListingMap";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -76,7 +74,7 @@ const ListingModal = ({ listing }: { listing: any }) => {
         headers: { Authorization: listing.lid },
       });
       const data = await res.json();
-      console.log(data)
+      console.log(data);
       setLocalReviews(data.count ?? 0);
       setSelectedListing(listing);
     };
@@ -93,17 +91,20 @@ const ListingModal = ({ listing }: { listing: any }) => {
         router.replace("/sign-in");
         return;
       }
-      const existing = listing.conversations.find(con => {
-        return con?.listingId === listing?.lid
-      })  
-      console.log(existing)
-      
-      const newCon = await createConvo({
-        listingId: listing.lid,
-        buyerId: data.app_user.uid,
-        sellerId: listing.sellerId,
-        initialMessage: message,
-      }, existing);
+      const existing = listing.conversations.find((con) => {
+        return con?.listingId === listing?.lid;
+      });
+      console.log(existing);
+
+      const newCon = await createConvo(
+        {
+          listingId: listing.lid,
+          buyerId: data.app_user.uid,
+          sellerId: listing.sellerId,
+          initialMessage: message,
+        },
+        existing,
+      );
       setSelectedListing({
         ...listing,
         conversations: [...listing.conversations, newCon],
@@ -122,7 +123,10 @@ const ListingModal = ({ listing }: { listing: any }) => {
     if (!user?.id) return;
     const res = await deleteListingAction(listing.lid, user.id);
     if (res?.success) {
+      const filtered = userListings.filter((ld) => ld.lid !== listing.lid);
+      setUserListings(filtered);
       setSelectedListing({});
+
       router.replace("/listings");
     }
   };

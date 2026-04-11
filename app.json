@@ -30,6 +30,8 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
@@ -71,6 +73,12 @@
         "projectId": "f6fcf1b5-debb-4f21-966a-eaa9e1f94ce5"
       }
     },
-    "owner": "samuelechefu"
+    "owner": "samuelechefu",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f6fcf1b5-debb-4f21-966a-eaa9e1f94ce5"
+    }
   }
 }

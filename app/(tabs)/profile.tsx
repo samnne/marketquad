@@ -52,7 +52,7 @@ export default function ProfileScreen() {
 
   const { refreshing, onRefresh } = useRefresh({
     func: async () => {
-      const { user: u, error, app_user } = await getUserSupabase();
+      const { user: u, app_user } = await getUserSupabase();
 
       if (!u) return;
       const ulst = await getUserListings(u.id);
@@ -63,6 +63,7 @@ export default function ProfileScreen() {
       });
       const data = await res.json();
       setUser({ ...user, app_user: { ...app_user, rating: data?.rating } });
+      return;
     },
   });
 

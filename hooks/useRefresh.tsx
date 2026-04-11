@@ -5,11 +5,14 @@ export function useRefresh({ func }: { func: Function }) {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await func();
-    setTimeout(() => {
+    try {
+      await func();
+    } catch (error) {
+      console.log(error);
+    } finally {
       setRefreshing(false);
-    }, 2000);
-  }, []);
+    }
+  }, [func]);
 
   return { refreshing, onRefresh };
 }

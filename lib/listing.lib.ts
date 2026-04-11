@@ -28,7 +28,6 @@ export const getUserListings = async (uid: string) => {
     },
     body: JSON.stringify({ uid }),
   });
-  
 
   return safeJson(response);
 };

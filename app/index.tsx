@@ -1,7 +1,7 @@
 import { colors } from "@/constants/theme";
 import Feather from "@expo/vector-icons/Feather";
 import { styled } from "nativewind";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Pressable, Text, TouchableOpacity } from "react-native";
 import {
   SafeAreaView as RNSAV,
@@ -9,7 +9,7 @@ import {
 } from "react-native-safe-area-context";
 
 import { db } from "@/db/db";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { AnimatePresence, MotiView, useAnimationState, View } from "moti";
 const SafeAreaView = styled(RNSAV);
 
@@ -75,17 +75,16 @@ const Index = () => {
   const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
   const [pressed, setPressed] = useState(false);
   const router = useRouter();
-  useEffect(() => {
-    const val = db.getItem(ONBOARDING_KEY);
-    if (val === ONBOARDING_VALUE) {
-      router.replace("/(auth)/sign-in");
-    }
-  }, []);
   const buttonAnimState = useAnimationState({
     from: { width: "0%", opacity: 0 },
     hidden: { width: "0%", opacity: 0 },
     visible: { width: "33%", opacity: 1 },
   });
+
+  const val = db.getItem(ONBOARDING_KEY);
+  if (val === ONBOARDING_VALUE) {
+    return <Redirect href={"/(auth)/sign-in"} />;
+  }
 
   const nextStep = () => {
     if (currentStep < STEPS.length - 1) {
