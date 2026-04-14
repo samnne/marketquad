@@ -4,7 +4,7 @@
     "slug": "marketquad",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/ios-light.png",
     "scheme": "mqphone",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,6 +13,10 @@
       "bundleIdentifier": "com.samuelechefu.marketquad",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "icon": {
+        "light": "./assets/ios-light.png",
+        "dark": "./assets/ios-light.png"
       }
     },
     "platforms": [
@@ -21,10 +25,9 @@
     ],
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#ffffff",
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "monochromeImage": "./assets/adaptive-icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -33,7 +36,8 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
-      ]
+      ],
+      "package": "com.samuelechefu.marketquad"
     },
     "web": {
       "output": "static",
@@ -45,7 +49,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/splash-icon-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -60,6 +64,13 @@
         {
           "requestLocationPermission": true,
           "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/ios-light.png",
+          "color": "#ffffff"
         }
       ]
     ],

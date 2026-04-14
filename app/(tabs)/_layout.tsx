@@ -1,6 +1,7 @@
 import { HapticTab } from "@/components/HapticTab";
 import { tabs } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
+
 import { TAB_ORDER } from "@/hooks/useTabDirection";
 import { usePrefs, useTabStore } from "@/store/zustand";
 import { TabIconProps } from "@/type";

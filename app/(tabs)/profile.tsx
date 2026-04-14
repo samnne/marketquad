@@ -2,6 +2,7 @@ import DeleteModal from "@/components/Modals/DeleteModal";
 import ProfileSections from "@/components/ProfileSections";
 import { BASE_URL } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
+import { useNotifications } from "@/context/NotificationContext";
 import { useRefresh } from "@/hooks/useRefresh";
 import { getUserListings } from "@/lib/listing.lib";
 import { getPreferences } from "@/lib/preferences.lib";
@@ -49,7 +50,8 @@ export default function ProfileScreen() {
   const { reset: lisReset } = useListings();
   const { setError, setSuccess } = useMessage();
   const [deleteUser, setDeleteUser] = useState(false);
-
+  const noti = useNotifications()
+  console.log(noti)
   const { refreshing, onRefresh } = useRefresh({
     func: async () => {
       const { user: u, app_user } = await getUserSupabase();
@@ -62,7 +64,7 @@ export default function ProfileScreen() {
         headers: { Authorization: u.id },
       });
       const data = await res.json();
-    
+
       setUser({ ...user, app_user: { ...app_user, rating: data?.rating } });
       return;
     },
@@ -193,10 +195,10 @@ export default function ProfileScreen() {
 
             {/* Edit button */}
             <Pressable
-              onPress={() => {}}
+              onPress={() => router.push('/reports')}
               className="w-8 h-8 rounded-[9px] bg-background border border-primary items-center justify-center shrink-0"
             >
-              <FontAwesome name="pencil" size={12} color={colors.accent} />
+              <FontAwesome name="flag" size={12} color={colors.accent} />
             </Pressable>
           </View>
 
