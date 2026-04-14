@@ -70,11 +70,22 @@ MarketQuad uses secure authentication strategies (JWT / session-based) to protec
 
 ## 📸 Screenshots
 
-![market](https://github.com/user-attachments/assets/abca3c68-9502-4339-a45b-de2a82a2d0e8)![convos](https://github.com/user-attachments/assets/19aa52a9-0359-452a-b361-3a03827ae96b)
-![marketquad](https://github.com/user-attachments/assets/f3528769-62fe-4ff2-9473-de930288ab27)
-![profile](https://github.com/user-attachments/assets/bd7f4189-4880-4509-bbb7-ad70d56f8f69)
-![new](https://github.com/user-attachments/assets/20880ce1-f610-4c49-ae8b-5a141135d179)
-![home_page](https://github.com/user-attachments/assets/ab09884f-7586-4138-9430-d948ba95df3b)
+## 📸 Screenshots
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/abca3c68-9502-4339-a45b-de2a82a2d0e8" width="300"/>
+  <img src="https://github.com/user-attachments/assets/19aa52a9-0359-452a-b361-3a03827ae96b" width="300"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f3528769-62fe-4ff2-9473-de930288ab27" width="300"/>
+  <img src="https://github.com/user-attachments/assets/bd7f4189-4880-4509-bbb7-ad70d56f8f69" width="300"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/20880ce1-f610-4c49-ae8b-5a141135d179" width="300"/>
+  <img src="https://github.com/user-attachments/assets/ab09884f-7586-4138-9430-d948ba95df3b" width="300"/>
+</p>
 
 
 ## 🌱 Future Improvements
