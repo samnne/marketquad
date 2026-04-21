@@ -1,7 +1,9 @@
-import { useConvos, useListings, useUser } from "@/store/zustand";
+import { BASE_URL } from "@/constants/constants";
+import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { supabase } from "@/supabase/authHelper";
 import { cleanUP } from "@/utils/functions";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 
 const DeleteModal = ({
@@ -16,26 +18,79 @@ const DeleteModal = ({
   const { reset: lisReset } = useListings();
   const { reset: userReset } = useUser();
   const { reset: convoReset } = useConvos();
+  const { setError, setMessage } = useMessage();
   const router = useRouter();
+  const [cantDelete, setCantDelete] = useState(true);
 
+  useEffect(() => {
+    const canEvenDelete = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/api/auth`, {
+          headers: {
+            Authorization: session.id,
+          },
+        });
+        const data = await response.json();
+        const reports = data.reports;
+        const notResolved = reports.filter(
+          (report) => report?.status !== "RESOLVED",
+        );
+        if (notResolved.length === 0) {
+          setCantDelete(false);
+        }
+      } catch (err) {}
+    };
+    canEvenDelete();
+  }, []);
   function closeModal() {
     setDeleteUser(false);
   }
 
   async function handleDeleteUser() {
+    if (cantDelete) return;
     if (session?.id) {
-      await supabase.auth.admin.deleteUser(session?.uid, true);
+      try {
+        const response = await fetch(`${BASE_URL}/api/auth`, {
+          method: "DELETE",
+          headers: {
+            Authorization: session.id,
+          },
+        });
+        const data = await response.json();
+        const success = data.success;
+        console.log(data);
+        if (!success) {
+          setError(true);
+          setMessage(
+            "Error deleting account,\nplease contact us at \ncontact@market-quad.com!",
+          );
+          return;
+        }
+        if (success) {
+          await supabase.auth.admin.deleteUser(session.id);
+          await supabase.auth.signOut();
+        }
+        cleanUP(
+          { reset: lisReset },
+          { reset: userReset },
+          { reset: convoReset },
+        );
+        setDeleteUser(false);
+        router.push("/(auth)/sign-in");
+      } catch (err) {
+        setError(true);
+        setMessage(
+          "Error deleting account,\nplease contact us at \ncontact@market-quad.com!",
+        );
+      }
     }
-    cleanUP({ reset: lisReset }, { reset: userReset }, { reset: convoReset });
-    setDeleteUser(false);
-    router.push("/(auth)/sign-in");
   }
 
   return (
     <Modal
       visible={deleteUser}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={closeModal}
     >
       {/* Backdrop */}
@@ -43,7 +98,7 @@ const DeleteModal = ({
         activeOpacity={1}
         onPress={closeModal}
         className="flex-1 bg-black/50 items-center justify-center px-6"
-      >stop press from bubbling to backdrop 
+      >
         {/* Modal Card */}
         <TouchableOpacity
           activeOpacity={1}
@@ -73,13 +128,13 @@ const DeleteModal = ({
           <View className="gap-2">
             <TouchableOpacity
               onPress={handleDeleteUser}
-              className="bg-red-500 py-3.5 rounded-2xl items-center"
+              className={`${cantDelete ? "opacity-50" : "opacity-100"} bg-red-500 py-3.5 rounded-2xl items-center`}
+              disabled={cantDelete}
             >
               <Text className="text-white text-[14px] font-bold">
                 Yes, delete my account
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               onPress={closeModal}
               className="bg-[#f0fdf8] border border-[#c8f5e8] py-3.5 rounded-2xl items-center"

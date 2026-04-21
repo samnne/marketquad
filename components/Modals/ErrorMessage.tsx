@@ -1,6 +1,7 @@
 import { useMessage } from "@/store/zustand";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { MotiView } from "moti";
+import { useEffect } from "react";
 import { Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -11,7 +12,12 @@ type ErrorMessageProps = {
 const ErrorMessage = ({ message = "An error occurred" }: ErrorMessageProps) => {
   const { setError } = useMessage();
   const insets = useSafeAreaInsets();
-
+  useEffect(()=>{
+    const timeout = setTimeout(()=>{
+      setError(false)
+    }, 3000)
+    return () => clearTimeout(timeout)
+  }, [setError])
   return (
     <MotiView
       from={{ opacity: 0, translateX: 12, scale: 0.95 }}

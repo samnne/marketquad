@@ -26,12 +26,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function getInitials(name?: string, email?: string) {
   if (name)
-    return name
-      .split(" ")
-      .map((w) => w[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
+    return name[0]
   if (email) return email[0].toUpperCase();
   return "?";
 }
@@ -109,10 +104,11 @@ export default function ProfileScreen() {
       } catch (err) {
         console.error(err);
         setError(true);
+        setMessage("Something went wrong...")
       }
     };
     mountUserListings();
-  }, [user, setConvos, setError, setUserListings, userListings.length]);
+  }, [user, setConvos, setError, setUserListings, userListings.length, setMessage]);
 
   const handleLogout = async () => {
     Alert.alert("Log out", "Are you sure you want to log out?", [
@@ -138,15 +134,15 @@ export default function ProfileScreen() {
   const unreadCount =
     convos?.filter((c) => (c.unreadCount ?? 0) > 0).length ?? 0;
   const soldCount = userListings?.filter((l) => l.sold).length ?? 0;
-  const initials = getInitials(user?.name, user?.email);
-  const isVerified = user?.user_metadata?.email_verified;
+  const initials = getInitials(user?.app_user?.name, user?.app_user?.email);
+  const isVerified = user?.app_user?.isVerified;
   const rating = user?.app_user?.rating;
-  const displayName = user?.name ?? user?.email?.split("@")[0] ?? "Welcome";
+  const displayName = user?.app_user?.name ?? user?.app_user?.email?.split("@")[0] ?? "Welcome";
 
   const stats = [
     { num: userListings?.length ?? 0, label: "Listings" },
     { num: soldCount, label: "Sold" },
-    { num: rating ? Number(rating).toFixed(1) : "—", label: "Rating" },
+    { num: rating > 0 ? Number(rating).toFixed(1) : "—", label: "Rating" },
   ];
 
   return (
@@ -181,7 +177,7 @@ export default function ProfileScreen() {
                 {displayName}
               </Text>
               <Text className="text-[12px] text-secondary" numberOfLines={1}>
-                {user?.email}
+                {user?.app_user?.email}
               </Text>
               <View className="flex-row flex-wrap gap-1.5 mt-1">
                 <View

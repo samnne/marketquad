@@ -30,13 +30,9 @@ import Animated, {
 import * as z from "zod";
 import { colors, components } from "@/constants/theme";
 
-import {
-  
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LocationInput from "../Inputs/LocationInput";
 import { Ionicons } from "@expo/vector-icons";
-
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -263,7 +259,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
       if (imageUrls)
         setImages(imageUrls.map((uri: string) => ({ uri, isRemote: true })));
     }
-  }, [pathname, ]);
+  }, [pathname]);
 
   useEffect(() => {
     const result = ListingFormSchema.safeParse({
@@ -411,6 +407,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
     }
   };
 
+  
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -552,7 +549,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
           <View className="p-3">
             <LocationInput
               llSetter={setLatLong}
-              ll={latLong}
+              latLong={latLong}
               onLocationName={(name) =>
                 setFormData((p) => ({ ...p, defaultLocation: name }))
               }

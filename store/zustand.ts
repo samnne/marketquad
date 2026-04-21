@@ -29,7 +29,7 @@ export type ListingStore = {
 export const useListings: UseBoundStore<StoreApi<ListingStore>> = create(
   (set) => {
     return {
-      listings: [],
+      listings: [] as Listing[],
       setListings: (listings: Listing[]) => set({ listings: listings }),
       selectedListing: null,
       setSelectedListing: (listing: Listing) =>

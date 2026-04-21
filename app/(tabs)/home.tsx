@@ -70,12 +70,13 @@ export default function HomeScreen() {
     const mount = async () => {
       await fetchListings({ setter: setListings });
     };
-    mount()
+    mount();
   }, [setListings]);
   const active = useMemo(
-    () => listings.filter((l) => !l.sold && !l.archived),
+    () => (listings ?? []).filter((l) => !l.sold && !l.archived),
     [listings],
   );
+
   const filtered = useMemo(
     () =>
       activeCategory === "All"
@@ -83,16 +84,19 @@ export default function HomeScreen() {
         : active.filter((l) => l.category === activeCategory),
     [active, activeCategory],
   );
+
   const hot = useMemo(
     () =>
-      [...active].sort((a, b) => (b.views ?? 0) - (a.views ?? 0)).slice(0, 8),
-    [active],
-  );
-  const forYou = useMemo(
-    () => [...active].sort(() => 0.5 - Math.random()).slice(0, 10),
+      [...(active ?? [])]
+        .sort((a, b) => (b.views ?? 0) - (a.views ?? 0))
+        .slice(0, 8),
     [active],
   );
 
+  const forYou = useMemo(
+    () => [...(active ?? [])].sort(() => 0.5 - Math.random()).slice(0, 10),
+    [active],
+  );
   const isFiltered = activeCategory !== "All";
 
   return (
@@ -142,7 +146,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
             ) : (
-              forYou.map((l) => <ListingCard key={l.lid} listing={l} />)
+              filtered?.map((l) => <ListingCard key={l.lid} listing={l} />)
             )}
           </View>
         ) : (
@@ -152,7 +156,7 @@ export default function HomeScreen() {
               onSeeAll={() => router.push("/listings?sort=views")}
             />
 
-            {hot.map((l) => (
+            {hot?.map((l) => (
               <ListingCard key={l.lid} listing={l} />
             ))}
 
@@ -160,7 +164,7 @@ export default function HomeScreen() {
               label="Fresh Listings"
               onSeeAll={() => router.push("/listings")}
             />
-            {forYou.map((l) => (
+            {forYou?.map((l) => (
               <ListingCard key={l.lid} listing={l} />
             ))}
           </>

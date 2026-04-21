@@ -250,7 +250,7 @@ const ConversationsScreen = () => {
                     }}
                   >
                     <Image
-                      source={{uri: listing?.imageUrls[0]}}
+                      source={{uri: listing?.imageUrls?.length > 0 ? listing?.imageUrls[0] : "#"}}
                       className="flex-1 w-full rounded-2xl"
                       resizeMode="cover"
                     />

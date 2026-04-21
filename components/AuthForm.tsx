@@ -37,14 +37,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
   const { setError, setSuccess, setMessage } = useMessage();
   const { setUser } = useUser();
   const { changeType } = useType();
-  const otpRefs = useRef<(TextInput | null)[]>([
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-  ]);
+  const inputRef = useRef<TextInput>(null);
 
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOTP] = useState("");
@@ -79,6 +72,33 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const sendOTP = async (val = false) => {
+    if (!formData.email) {
+      setError(true);
+      setMessage("Email is required.");
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: formData.email,
+
+        options: {
+          shouldCreateUser: val,
+          data: {
+            name: formData.name,
+          },
+        },
+      });
+      if (error) {
+        setError(true);
+        setMessage("Failed to send OTP. Please try again.");
+      }
+      changeType("otp");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // ── Handlers ──
   const handleLogin = async () => {
     setLoadingLogin(true);
@@ -88,36 +108,29 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         setMessage("Please enter a valid UVic email address.");
         return;
       }
-      const user = await supabase
+
+      const { data: userData } = await supabase
         .from("User")
         .select("*")
-        .eq("email", formData.email);
-      console.log(user.error);
-      if (user.data && user.data[0]?.isVerified) {
+        .eq("email", formData.email)
+        .single();
+
+      if (userData?.isVerified) {
         const { error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
         if (error) {
-          console.log(formData.email, formData.password);
           setError(true);
           setMessage("Email or Password is incorrect");
-          console.log(error);
           return;
         }
         return router.replace("/(tabs)/profile");
       }
-      const { error } = await supabase.auth.signInWithOtp({
-        email: formData.email,
-        options: { shouldCreateUser: false },
-      });
-      if (error) {
-        console.log(error);
-        setError(true);
-        setMessage("Email or Password is incorrect");
-        return;
-      }
-      handleLogin();
+
+      // unverified — send OTP then go to OTP screen
+      await sendOTP();
+      setCounter(60);
     } catch (err) {
       console.error(err);
       setError(true);
@@ -126,7 +139,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       setLoadingLogin(false);
     }
   };
-
   const handleSignUp = async () => {
     setLoadingSignup(true);
     try {
@@ -136,13 +148,15 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         setMessage("Please fill in all required fields.");
         return;
       }
-      const { error } = await signUpUser(email, password, name);
-      if (error) {
+      if (!matchUVIC(email)) {
         setError(true);
-        setMessage("Sign up failed. Please try again.");
+        setMessage("Please use a valid UVic email address.");
         return;
       }
-      changeType("otp");
+
+      await sendOTP(true); // shouldCreateUser: true — only on sign-up
+      setCounter(60);
+      changeType("otp"); // ← this was missing
     } catch (err) {
       console.error(err);
       setError(true);
@@ -153,12 +167,15 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
   };
 
   const handleOTP = async () => {
-    if (counter !== 0 || !otp || otp.length !== 6) {
+    const email = formData.email;
+    const name = formData.name;
+
+    if (!otp || otp.length !== 6) {
       setError(true);
       setMessage("Please enter a valid 6-digit OTP.");
       return;
     }
-    if (!formData.email) {
+    if (!email) {
       setError(true);
       setMessage("Email is required.");
       return;
@@ -171,18 +188,29 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         error,
       } = await supabase.auth.verifyOtp({
         email: formData.email,
+
         token: otp,
         type: "email",
       });
 
-      if (error || !supabaseUser) throw new Error("Invalid OTP");
+      if (error || !supabaseUser) {
+        setError(true);
+        setMessage("No User");
+        return;
+      }
 
       // 2. Sync with your Backend
       const res = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "PUT",
-        body: JSON.stringify({ uid: supabaseUser.id }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uid: supabaseUser.id,
+          email: email,
+          name: name,
+        }),
       }).then((r) => r.json());
-
       if (!res.success) {
         setError(true);
         setMessage("Verification failed. Please try again.");
@@ -205,7 +233,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       setLoadingOtp(false);
     }
   };
- 
+
   const handleForgotPassword = async () => {
     const { error } = await supabase.auth.resetPasswordForEmail(
       formData.email,
@@ -245,61 +273,54 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
             </Text>
           </View>
 
-          {/* OTP input boxes */}
-          <View className="flex-row justify-center gap-2">
-            {[0, 1, 2, 3, 4, 5].map((i) => {
-              const isFocused = otp.length === i;
-
-              return (
+          {/* ── OTP boxes (visual) + single hidden real input ── */}
+          <Pressable onPress={() => inputRef.current?.focus()}>
+            <View className="flex-row justify-center gap-2">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
                 <View key={i} className="flex-row items-center">
                   {i === 3 && (
                     <Text className="text-secondary text-lg mx-1">—</Text>
                   )}
-                  <TextInput
-                    ref={(el) => (otpRefs.current[i] = el)}
+                  <View
                     style={[
                       otpStyles.box,
                       otp.length === i
                         ? otpStyles.focused
-                        : otpStyles.unfocused,
+                        : otp.length > i
+                          ? otpStyles.filled
+                          : otpStyles.unfocused,
                     ]}
-                    maxLength={1}
-                    keyboardType="number-pad"
-                    value={otp[i] ?? ""}
-                    autoFocus={i === 0}
-                    onChangeText={(val) => {
-                      const clean = val.replace(/\D/g, "");
-
-                      // Update OTP string
-                      const digits = otp.split("");
-                      digits[i] = clean;
-                      const next = digits.join("").slice(0, 6);
-                      setOTP(next);
-
-                      // Advance to next box
-                      if (clean && i < 5) {
-                        otpRefs.current[i + 1]?.focus();
-                      }
-                    }}
-                    onKeyPress={({ nativeEvent }) => {
-                      // On backspace, go back to previous box
-                      if (nativeEvent.key === "Backspace" && !otp[i] && i > 0) {
-                        const digits = otp.split("");
-                        digits[i - 1] = "";
-                        setOTP(digits.join(""));
-                        otpRefs.current[i - 1]?.focus();
-                      }
-                    }}
-                  />
+                  >
+                    <Text style={otpStyles.digit}>{otp[i] ?? ""}</Text>
+                  </View>
                 </View>
-              );
-            })}
-          </View>
+              ))}
+            </View>
 
-          {/* Confirm button */}
+            {/* Single real input — visually hidden but focusable */}
+            <TextInput
+              ref={inputRef}
+              value={otp}
+              onChangeText={(val) => {
+                const clean = val.replace(/\D/g, "").slice(0, 6);
+                setOTP(clean);
+                if (clean.length === 6) {
+                  inputRef.current?.blur();
+                }
+              }}
+              keyboardType="number-pad"
+              textContentType="oneTimeCode" // ← triggers Apple SMS autocomplete
+              autoComplete="one-time-code" // ← triggers Android/Google autocomplete
+              autoFocus
+              style={otpStyles.hiddenInput}
+              caretHidden
+              maxLength={6}
+            />
+          </Pressable>
+
           <SpringButton
             onPress={handleOTP}
-            disabled={loadingOtp}
+            disabled={loadingOtp || otp.length < 6}
             className="bg-primary rounded-2xl py-4 items-center"
           >
             {loadingOtp ? (
@@ -309,15 +330,15 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
             )}
           </SpringButton>
 
-          {/* Resend */}
           <View className="flex-row items-center justify-center gap-2">
             <Text className="text-secondary font-light text-sm">
               Send another OTP
             </Text>
             <Pressable
-              onPress={() => {
-                if (counter === 0) setCounter(60);
-                handleLogin();
+              onPress={async () => {
+                if (counter > 0) return;
+                setCounter(60);
+                await sendOTP();
               }}
               className="bg-accent/50 px-3 py-1.5 rounded-lg"
               disabled={counter > 0}
@@ -328,7 +349,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
             </Pressable>
           </View>
 
-          {/* Back to login */}
           <Pressable
             onPress={() => changeType("sign-in")}
             className="self-center bg-secondary/30 mt-2 px-4 py-2 rounded-2xl"
@@ -476,23 +496,35 @@ const SpringButton = ({
 };
 
 export default AuthForm;
-
 const otpStyles = StyleSheet.create({
   box: {
     width: 44,
     height: 48,
     borderWidth: 2,
     borderRadius: 12,
-    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.pill,
+  },
+  digit: {
     fontSize: 18,
     fontWeight: "bold",
-    backgroundColor: colors.pill,
     color: colors.text,
+    textAlign: "center",
   },
   focused: {
     borderColor: colors.primary,
   },
-  unfocused: {
+  filled: {
     borderColor: colors.secondary + "80",
+  },
+  unfocused: {
+    borderColor: colors.secondary + "40",
+  },
+  hiddenInput: {
+    position: "absolute",
+    width: 1,
+    height: 1,
+    opacity: 0,
   },
 });

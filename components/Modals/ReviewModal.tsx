@@ -8,7 +8,7 @@ import {
   Alert,
   StyleSheet,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { colors } from "@/constants/theme";
 import { useMessage, useUser } from "@/store/zustand";
@@ -31,6 +31,30 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [reviewedAlready, setReviewedAlready] = useState(false);
+
+  useEffect(() => {
+    const getHasUserReviewed = async () => {
+      try {
+        const response = await fetch(`${BASE_URL}/api/reviews`, {
+          headers: {
+            Authorization: user?.id!,
+          },
+        });
+
+        const data = await response.json();
+        const reviews = data?.reviews;
+        const writtenByMe = reviews.filter((rv) => rv.reviewerId === user?.id);
+     
+        const review = writtenByMe.find((rv) => rv?.revieweeId === otherUser?.uid);
+        if (review) setReviewedAlready(true);
+      } catch (err) {
+        setError(true);
+        setMessage("Error Fetching Reviews");
+      }
+    };
+    getHasUserReviewed();
+  }, []);
 
   const ratingLabel = [
     "Tap a star to rate",
@@ -44,6 +68,11 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
   const handleSubmit = async () => {
     if (!rating) {
       Alert.alert("Rating required", "Please select a star rating.");
+      return;
+    }
+    if (reviewedAlready) {
+      setMessage("You have reviewed this person already");
+      setError(true);
       return;
     }
     setSubmitting(true);
@@ -139,6 +168,13 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
               {ratingLabel}
             </Text>
           </View>
+          {reviewedAlready && (
+            <View className="bg-pill border border-secondary/25 rounded-2xl p-4">
+              <Text className="text-center text-[13px] text-secondary">
+                You&apos;ve already reviewed {otherUser?.name ?? "this person"}.
+              </Text>
+            </View>
+          )}
 
           {/* Comment */}
           <View className="gap-1.5">
@@ -159,7 +195,7 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
           {/* Submit */}
           <Pressable
             onPress={handleSubmit}
-            disabled={submitting || rating === 0}
+            disabled={submitting || rating === 0 || reviewedAlready}
             className={`w-full py-3.5 rounded-2xl items-center ${
               rating > 0 ? "bg-text" : "bg-text/30"
             }`}

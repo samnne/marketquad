@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { colors } from "@/constants/theme";
-import { useUser } from "@/store/zustand";
+import { useMessage, useUser } from "@/store/zustand";
 
 const REASONS = [
   { value: "SPAM", label: "Spam" },
@@ -36,7 +36,7 @@ export function ReportUserSheet({
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const {setError, setMessage} = useMessage()
   const { user } = useUser();
   const handleSubmit = async () => {
     if (!selectedReason)
@@ -71,7 +71,11 @@ export function ReportUserSheet({
         return;
       }
      
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        setMessage("Failed to submit, something went wrong.")
+        setError(true)
+        return 
+      }
 
       Alert.alert("Report Submitted", "Our team will review it shortly.");
       onClose();

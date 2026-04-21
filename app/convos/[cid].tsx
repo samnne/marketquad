@@ -206,6 +206,7 @@ const CID = () => {
     }
   };
 
+ 
   const listing = selectedConvo?.listing;
 
   // --- Render Helpers ---
@@ -352,7 +353,8 @@ const CID = () => {
           <TouchableOpacity
             onPress={() => {
               setSelectedListing(listing);
-              router.navigate(`/listings`);
+              
+              router.navigate(`/listings/${listing?.lid}`);
             }}
             className="bg-green-600 px-3 py-1.5 rounded-lg"
           >

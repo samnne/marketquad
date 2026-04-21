@@ -26,7 +26,6 @@ export const getUserListings = async (uid: string) => {
     headers: {
       Authorization: uid,
     },
-    body: JSON.stringify({ uid }),
   });
 
   return safeJson(response);
@@ -53,10 +52,13 @@ export const newListingAction = async (
   newListing: listingFormData,
   sellerId: string,
 ) => {
+  if (!sellerId) throw new Error("No seller ID provided");
+
   const response = await fetch(`${BASE_URL}/api/listings`, {
     method: "POST",
     headers: {
       Authorization: sellerId,
+      "Content-Type": "application/json", // ← also missing this
     },
     body: JSON.stringify({ ...newListing, sellerId }),
   });
@@ -70,9 +72,10 @@ export const editListingAction = async (
   const response = await fetch(
     `${BASE_URL}/api/listings/${listingToEdit.lid}`,
     {
-      headers: {
-        Authorization: sellerId,
-      },
+     headers: {
+  Authorization: sellerId,
+  "Content-Type": "application/json",
+},
       method: "PUT",
       body: JSON.stringify({ ...listingToEdit, sellerId }),
     },

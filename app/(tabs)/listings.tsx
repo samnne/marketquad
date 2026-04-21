@@ -82,7 +82,10 @@ export default function ListingsScreen() {
             `${BASE_URL}/api/listings/search?q=${encodeURIComponent(searchQuery)}`,
             { headers: { Authorization: user ? user.user?.id! : "0" } },
           );
-          if (!response.ok) throw new Error("Failed to fetch");
+          if (!response.ok) {
+            setError(true)
+            setMessage("Error Fetching Listings")
+          }
           const data = await response.json();
 
           if (data.success) setSearchResults(data.listings);
@@ -178,10 +181,10 @@ export default function ListingsScreen() {
         entering={FadeInDown.duration(300)}
         className="px-4 pt-4 pb-3"
       >
-        <View className="bg-pill border border-secondary/50 rounded-2xl px-4 py-2.5 flex-row items-center gap-2.5">
+        <View className="bg-pill border border-secondary/50 rounded-2xl px-4 py-3 flex-row items-center gap-2.5">
           <Text className="text-text opacity-40 text-base">⌕</Text>
           <TextInput
-            className="flex-1 text-[13px] text-text"
+            className="flex-1 text-[13px]  text-text"
             value={searchInput}
             onChangeText={setSearchInput}
             onSubmitEditing={handleSearch}

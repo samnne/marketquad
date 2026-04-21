@@ -77,7 +77,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
           return (
             <Pressable
-              key={route.key}
+              key={`${route.key}9237136`}
               onPress={() => handlePress(route, state.routes.indexOf(route))}
               style={{ flex: 1, alignItems: "center", gap: 4 }}
             >
@@ -199,7 +199,7 @@ const TabsLayout = () => {
       >
         {tabs.map((tab) => (
           <Tabs.Screen
-            key={tab.name}
+            key={`wewrq${tab.name}fewqrw`}
             name={tab.name}
             options={{
               title: tab.title,
@@ -210,7 +210,7 @@ const TabsLayout = () => {
           />
         ))}
         <Tabs.Screen
-          key={newSingle.name}
+          key={`${newSingle.name}feqfubvdsjin`}
           name={newSingle.name}
           options={{
             title: newSingle.title,
