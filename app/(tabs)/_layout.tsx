@@ -5,16 +5,17 @@ import { colors, components } from "@/constants/theme";
 import * as Haptics from "expo-haptics";
 import { TAB_ORDER } from "@/hooks/useTabDirection";
 import { useMessage, usePrefs, useTabStore } from "@/store/zustand";
-import { TabIconProps } from "@/type";
+
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { AnimatePresence, Text } from "moti";
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactElement, ReactNode, useEffect } from "react";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SuccessMessage from "@/components/Modals/SuccessMessage";
 import ErrorMessage from "@/components/Modals/ErrorMessage";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
@@ -136,7 +137,15 @@ const TabsLayout = () => {
     loadPrefs();
   }, []);
 
-  function TabIcon({ focused, icon, title }: TabIconProps): ReactNode {
+  function TabIcon({
+    focused,
+    icon,
+    title,
+  }: {
+    focused: boolean;
+    icon: ({ color }: { color: string }) => ReactElement;
+    title: string;
+  }): ReactNode {
     return (
       <View className={`size-30  items-center pb-2  justify-center`}>
         <View className={`  size-10 items-center justify-center rounded-full`}>

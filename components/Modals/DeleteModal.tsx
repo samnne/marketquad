@@ -2,6 +2,7 @@ import { BASE_URL } from "@/constants/constants";
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { supabase } from "@/supabase/authHelper";
 import { cleanUP } from "@/utils/functions";
+import { User } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
@@ -13,7 +14,7 @@ const DeleteModal = ({
 }: {
   deleteUser: boolean;
   setDeleteUser: Function;
-  session: UserSession;
+  session: User | null;
 }) => {
   const { reset: lisReset } = useListings();
   const { reset: userReset } = useUser();
@@ -24,6 +25,9 @@ const DeleteModal = ({
 
   useEffect(() => {
     const canEvenDelete = async () => {
+      if(!session){
+        return
+      }
       try {
         const response = await fetch(`${BASE_URL}/api/auth`, {
           headers: {
@@ -33,12 +37,14 @@ const DeleteModal = ({
         const data = await response.json();
         const reports = data.reports;
         const notResolved = reports.filter(
-          (report) => report?.status !== "RESOLVED",
+          (report: {status: string}) => report?.status !== "RESOLVED",
         );
         if (notResolved.length === 0) {
           setCantDelete(false);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.log(err)
+      }
     };
     canEvenDelete();
   }, []);
@@ -82,6 +88,7 @@ const DeleteModal = ({
         setMessage(
           "Error deleting account,\nplease contact us at \ncontact@market-quad.com!",
         );
+        console.error(err)
       }
     }
   }

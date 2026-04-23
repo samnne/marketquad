@@ -3,9 +3,9 @@ import { colors, components } from "@/constants/theme";
 import { useRefresh } from "@/hooks/useRefresh";
 import { getConvos } from "@/lib/conversations.lib";
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
-import { Conversation } from "@/type";
+
 import { deleteConvo, fetchConvos, getUserSupabase } from "@/utils/functions";
-import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
+import {  FontAwesome6 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Image } from "moti";
 import { useEffect, useState } from "react";
@@ -79,6 +79,7 @@ const ConversationsScreen = () => {
       setConvos(tempConvos);
     } catch (error) {
       setError(true);
+      console.log(error)
       setMessage("Error fetching messages");
       setLoading(false);
     } finally {
@@ -106,7 +107,7 @@ const ConversationsScreen = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              const res = await deleteConvo(cid, user?.id);
+              const res = await deleteConvo(cid, user?.id!);
               if (res?.success) {
                 const removedConvos = selectedListing?.conversations?.filter(
                   (convo: Conversation) => convo?.cid !== cid,

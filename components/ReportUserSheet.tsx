@@ -10,6 +10,7 @@ import {
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { colors } from "@/constants/theme";
 import { useMessage, useUser } from "@/store/zustand";
+import { Redirect } from "expo-router";
 
 const REASONS = [
   { value: "SPAM", label: "Spam" },
@@ -39,6 +40,9 @@ export function ReportUserSheet({
   const {setError, setMessage} = useMessage()
   const { user } = useUser();
   const handleSubmit = async () => {
+    if(!user){
+      return <Redirect href={'/sign-in'} />
+    }
     if (!selectedReason)
       return Alert.alert(
         "Select a reason",
@@ -118,7 +122,7 @@ export function ReportUserSheet({
             className="text-sm mt-1 text-center"
             style={{ color: "#6b9e8f" }}
           >
-            You're reporting{" "}
+            You&apos;re reporting{" "}
             <Text className="font-semibold" style={{ color: colors.primary }}>
               {targetName}
             </Text>

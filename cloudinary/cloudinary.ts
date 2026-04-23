@@ -1,7 +1,7 @@
 import { BASE_URL } from "@/constants/constants";
 
 import plimit from "p-limit";
-export async function getCloudinarySignature(uid) {
+export async function getCloudinarySignature(uid: string) {
   const res = await fetch(`${BASE_URL}/api/cloudinary`, {
     headers: {
       Authorization: uid,
@@ -22,7 +22,7 @@ export async function uploadImages(
 
   const imagesToUpload = images.map((image) =>
     limit(() =>
-      uploadImage(image, { timestamp, signature, cloudName, apiKey }),
+      uploadImage(image, uid, { timestamp, signature, cloudName, apiKey }),
     ),
   );
 
@@ -31,6 +31,7 @@ export async function uploadImages(
 
 export async function uploadImage(
   uri: string,
+  uid: string,
   credentials?: {
     timestamp: string;
     signature: string;

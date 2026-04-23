@@ -1,6 +1,6 @@
 import { useMessage, useType, useUser } from "@/store/zustand";
 import { supabase } from "@/supabase/authHelper";
-import { signUpUser } from "@/supabase/supabase";
+
 import { getUserSupabase, matchUVIC } from "@/utils/functions";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -103,7 +103,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [otp, setOTP] = useState("");
-  const [loggingIn, setLoggingIn] = useState(false)
+  const [loggingIn, setLoggingIn] = useState(false);
   const [counter, setCounter] = useState(0);
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingSignup, setLoadingSignup] = useState(false);
@@ -124,7 +124,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       }
     };
     mountSession();
-  }, []);
+  }, [router, setUser]);
 
   // ── OTP resend countdown ──
   useEffect(() => {
@@ -158,7 +158,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
 
   const handleLogin = async () => {
     setLoadingLogin(true);
-    setLoggingIn(true)
+    setLoggingIn(true);
     try {
       if (!formData.email || !matchUVIC(formData.email)) {
         setError(true);
@@ -175,7 +175,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         setMessage("User doesn't match our records.");
         return;
       }
-      console.log(userData)
+      console.log(userData);
       if (userData?.isVerified) {
         const { error } = await supabase.auth.signInWithPassword({
           email: formData.email,
@@ -262,10 +262,10 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       setUser({ ...supabaseUser, app_user: res.app_user });
       setSuccess(true);
       setMessage("Verification successful!");
-      if (loggingIn){
+      if (loggingIn) {
         router.replace("/home");
       } else {
-        router.push('/onboarding')
+        router.push("/onboarding");
       }
     } catch (err) {
       console.error(err);
@@ -277,9 +277,12 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
   };
 
   const handleForgotPassword = async () => {
-    const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-      redirectTo: `${process.env.EXPO_PUBLIC_BASE_URL}/update-password`,
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      formData.email,
+      {
+        redirectTo: `${process.env.EXPO_PUBLIC_BASE_URL}/update-password`,
+      },
+    );
     if (error) {
       setError(true);
       setMessage("Failed to send password reset email.");
@@ -290,7 +293,11 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
   };
 
   const handleSubmit = () => {
-    type === "sign-in" ? handleLogin() : handleSignUp();
+    if (type === "sign-in") {
+      handleLogin();
+    } else {
+      handleSignUp();
+    }
   };
 
   // ─── OTP View ───────────────────────────────
@@ -311,7 +318,10 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           </View>
 
           {/* OTP digit boxes */}
-          <Pressable onPress={() => inputRef.current?.focus()} style={s.otpBoxRow}>
+          <Pressable
+            onPress={() => inputRef.current?.focus()}
+            style={s.otpBoxRow}
+          >
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <View key={i} style={s.otpBoxGroup}>
                 {i === 3 && <View style={s.otpSpacer} />}
@@ -321,8 +331,8 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
                     otp.length === i
                       ? s.otpBoxFocused
                       : otp.length > i
-                      ? s.otpBoxFilled
-                      : s.otpBoxEmpty,
+                        ? s.otpBoxFilled
+                        : s.otpBoxEmpty,
                   ]}
                 >
                   <Text style={s.otpDigit}>{otp[i] ?? ""}</Text>
@@ -364,7 +374,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
 
           {/* Resend row */}
           <View style={s.resendRow}>
-            <Text style={s.resendLabel}>Didn't receive it?</Text>
+            <Text style={s.resendLabel}>Didn&apos;t receive it?</Text>
             <Pressable
               onPress={async () => {
                 if (counter > 0) return;
@@ -374,7 +384,12 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
               disabled={counter > 0}
               style={[s.resendBtn, counter > 0 && s.resendBtnDisabled]}
             >
-              <Text style={[s.resendBtnText, counter > 0 && s.resendBtnTextDisabled]}>
+              <Text
+                style={[
+                  s.resendBtnText,
+                  counter > 0 && s.resendBtnTextDisabled,
+                ]}
+              >
                 {counter > 0 ? `Resend in ${counter}s` : "Resend"}
               </Text>
             </Pressable>
@@ -382,7 +397,11 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
 
           {/* Back */}
           <Pressable onPress={() => changeType("sign-in")} style={s.backBtn}>
-            <FontAwesome6 name="arrow-left" size={12} color={colors.secondary} />
+            <FontAwesome6
+              name="arrow-left"
+              size={12}
+              color={colors.secondary}
+            />
             <Text style={s.backBtnText}>Back to sign in</Text>
           </Pressable>
         </View>
@@ -486,9 +505,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           onPress={() => changeType(isSignIn ? "sign-up" : "sign-in")}
           hitSlop={8}
         >
-          <Text style={s.toggleLink}>
-            {isSignIn ? "Sign up" : "Sign in"}
-          </Text>
+          <Text style={s.toggleLink}>{isSignIn ? "Sign up" : "Sign in"}</Text>
         </Pressable>
       </View>
     </View>

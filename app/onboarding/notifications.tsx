@@ -9,7 +9,7 @@ import {
   useSafeAreaInsets,
   SafeAreaView as RNSAV,
 } from "react-native-safe-area-context";
-import notisVideo from "@/assets/Scene.mp4" 
+import notisVideo from "@/assets/Scene.mp4";
 import * as Notifications from "expo-notifications";
 import { SpringButton, StepDots } from "@/components/Onboarding";
 import { styled } from "nativewind";
@@ -22,13 +22,13 @@ const NotifPreview = ({
   title,
   body,
   time,
-  player
+  player,
 }: {
   icon: string;
   title: string;
   body: string;
   time: string;
-  player: VideoPlayer
+  player: VideoPlayer;
 }) => (
   //   <View className="flex-row items-start gap-3 bg-pill border border-secondary/15 rounded-2xl px-4 py-3.5">
   //     <View className="w-9 h-9 rounded-xl bg-primary/10 items-center justify-center mt-0.5">
@@ -43,8 +43,12 @@ const NotifPreview = ({
   //     </View>
   //   </View>
   <View className="flex-row flex-1 w-full mix-blend-screen  justify-center items-center gap-3 ">
-    <VideoView player={player}   style={{width: 320, height: 320, }} contentFit="contain"  nativeControls={false} />
-    
+    <VideoView
+      player={player}
+      style={{ width: 320, height: 320 }}
+      contentFit="contain"
+      nativeControls={false}
+    />
   </View>
 );
 
@@ -63,11 +67,11 @@ const OnboardingNotifications = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, setUser } = useUser();
-    const player = useVideoPlayer(notisVideo, (player) => {
-        player.loop = false;
-        player.muted = true;
-        player.play();
-    })
+  const player = useVideoPlayer(notisVideo, (player) => {
+    player.loop = false;
+    player.muted = true;
+    player.play();
+  });
   const [loading, setLoading] = useState(false);
 
   const finish = () => {
@@ -77,6 +81,10 @@ const OnboardingNotifications = () => {
   const handleEnable = async () => {
     setLoading(true);
     try {
+      if (!user) {
+        router.reload()
+        return
+      }
       const { status } = await Notifications.requestPermissionsAsync();
       const enabled = status === "granted";
 
@@ -87,18 +95,21 @@ const OnboardingNotifications = () => {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
-              Authorization: user.id,
+              Authorization: user.id!,
             },
             body: JSON.stringify({ notifications_enabled: enabled }),
           },
         );
-      } catch (_) {}
+      } catch (err) {
+        console.log(err);
+      }
 
       setUser({
         ...user,
         app_user: { ...user?.app_user, notifications_enabled: enabled },
       });
-    } catch (_) {
+    } catch (err) {
+      console.log(err);
     } finally {
       setLoading(false);
       finish();

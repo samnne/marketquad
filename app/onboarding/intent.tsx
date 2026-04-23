@@ -1,30 +1,21 @@
 import { useUser } from "@/store/zustand";
-import { BASE_URL } from "@/constants/constants";
+import { BASE_URL, INTENTS } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
-import { useSafeAreaInsets, SafeAreaView as RNSAV } from "react-native-safe-area-context";
+import {
+  useSafeAreaInsets,
+  SafeAreaView as RNSAV,
+} from "react-native-safe-area-context";
 import { IntentCard, SpringButton, StepDots } from "@/components/Onboarding";
 import { styled } from "nativewind";
 
-
-
-
 type Intent = "buying" | "selling" | "both";
 
-
 const SafeAreaView = styled(RNSAV);
-
-
-
 
 // ── Main screen ──────────────────────────────────────────────────
 const OnboardingIntent = () => {
@@ -37,6 +28,10 @@ const OnboardingIntent = () => {
   const [error, setError] = useState("");
 
   const handleContinue = async () => {
+    if (!user) {
+      router.reload();
+      return;
+    }
     if (!intent) return;
     setLoading(true);
     setError("");
@@ -44,7 +39,7 @@ const OnboardingIntent = () => {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/intent`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: user.id },
-        body: JSON.stringify({  intent }),
+        body: JSON.stringify({ intent }),
       }).then((r) => r.json());
 
       if (!res.success) {
@@ -52,7 +47,7 @@ const OnboardingIntent = () => {
         return;
       }
 
-      setUser({ ...user, app_user: { ...user?.app_user, ...res.user } });
+      setUser({ ...user, app_user: { ...user?.app_user, ...res?.user } });
       router.push("/onboarding/categories"); // → screen 4
     } catch (err) {
       console.error(err);
@@ -63,13 +58,18 @@ const OnboardingIntent = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" style={{ paddingBottom: insets.bottom }}>
+    <SafeAreaView
+      className="flex-1 bg-background"
+      style={{ paddingBottom: insets.bottom }}
+    >
       <View className="flex-1 px-6 pt-6 gap-8">
-
         {/* ── Top bar ── */}
         <View className="flex-row items-center justify-between">
           <StepDots total={5} current={2} />
-          <Pressable onPress={() => router.push("/onboarding/categories")} hitSlop={12}>
+          <Pressable
+            onPress={() => router.push("/onboarding/categories")}
+            hitSlop={12}
+          >
             <Text className="text-sm text-secondary/70 font-medium">Skip</Text>
           </Pressable>
         </View>
@@ -80,7 +80,8 @@ const OnboardingIntent = () => {
             What brings you here?
           </Text>
           <Text className="text-sm font-light text-secondary leading-5">
-            We&apos;ll personalise your feed based on this. You can change it anytime.
+            We&apos;ll personalise your feed based on this. You can change it
+            anytime.
           </Text>
         </View>
 

@@ -47,7 +47,7 @@ const OnboardingVerification = () => {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/verification`, {
         method: "PATCH",
         headers: {
-          Authorization: user?.id,
+          Authorization: user?.id!,
 
           "Content-Type": "application/json",
         },
@@ -62,7 +62,7 @@ const OnboardingVerification = () => {
         return;
       }
 
-      setUser({ ...user, app_user: { ...user?.app_user, ...res.user } });
+      setUser({ ...user, app_user: { ...user?.app_user, ...res?.user } });
       router.push("/onboarding/intent"); // → screen 3
     } catch (err) {
       console.error(err);

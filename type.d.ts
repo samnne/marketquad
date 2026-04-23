@@ -5,6 +5,20 @@ type PublicUser = {
   createdAt: string;
   rating: number;
   hidden: boolean;
+  email: string
+};
+type Conversation = {
+  cid: string;
+  listing: Listing;
+  buyerId: string;
+  sellerId: string;
+  buyer: ProfileData;
+  seller: ProfileData;
+  listingId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  messages: Message[];
+  unreadCount: number
 };
 declare module "*.mp4" {
   const src: string;
@@ -25,19 +39,42 @@ type Review = {
   } | null;
 };
 
+type Message = {
+  mid: string;
+  text: string;
+  senderId: string;
+  createdAt: Date;
+};
+
 type Listing = {
   lid: string;
   title: string;
   price: number;
   imageUrls: string[];
-  condition: string | null;
-  category: string | null;
+  condition: string;
+  category: string;
   createdAt: string;
   sold: boolean;
   archived: boolean;
   views: number;
+  description: string;
+  sellerId: string;
+  likes: [];
+  conversations: Conversation[];
+  _count: { likes: number };
 };
-
+type listingFormData = {
+  condition: string;
+  title: string;
+  latitude?: number;
+  longitude?: number;
+  description: string;
+  price: number;
+  imageUrls: File[] | string[];
+  sellerId: string;
+  views?: number;
+  category: string;
+};
 type ProfileData = {
   uid: string;
   name: string;
@@ -54,4 +91,7 @@ type ProfileData = {
   createdAt: string;
   listings: Listing[];
   reviewsReceived: Review[];
+  notif_messages: boolean;
+  notif_listings: boolean;
+  notif_sales: boolean;
 };

@@ -66,11 +66,11 @@ export const newListingAction = async (
   return safeJson(response);
 };
 export const editListingAction = async (
-  listingToEdit: listingFormData,
+  listingToEdit: listingFormData & {lid: string},
   sellerId: string,
 ) => {
   const response = await fetch(
-    `${BASE_URL}/api/listings/${listingToEdit.lid}`,
+    `${BASE_URL}/api/listings/${listingToEdit?.lid}`,
     {
      headers: {
   Authorization: sellerId,

@@ -24,7 +24,7 @@ const FavsScreen = () => {
   const loadFavs = useCallback(() => {
     const data = JSON.parse(db.getItem("SAVED_LISTINGS") ?? "[]");
     
-    const savedItems = data.filter((val) => val.sellerId !== user?.id);
+    const savedItems = data.filter((val: Listing) => val.sellerId !== user?.id);
     setSavedItems(savedItems);
   }, []);
 
@@ -49,7 +49,7 @@ const FavsScreen = () => {
         </Text>
         <Text className="text-text/50 text-sm font-medium">
           {savedItems.length} {savedItems.length === 1 ? "listing" : "listings"}{" "}
-          you're watching
+          you&apos;re watching
         </Text>
       </View>
 

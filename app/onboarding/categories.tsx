@@ -16,17 +16,17 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { useSafeAreaInsets, SafeAreaView as RNSAV } from "react-native-safe-area-context";
+import {
+  useSafeAreaInsets,
+  SafeAreaView as RNSAV,
+} from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { SpringButton, StepDots } from "@/components/Onboarding";
-const SafeAreaView = styled(RNSAV)
+const SafeAreaView = styled(RNSAV);
 // ── Re-used primitives ───────────────────────────────────────────
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-
-
 const MIN_SELECTED = 3;
-
 
 const CategoryTile = ({
   label,
@@ -86,7 +86,6 @@ const CategoryTile = ({
   );
 };
 
-
 const SelectedStrip = ({
   selected,
   onRemove,
@@ -135,11 +134,15 @@ const OnboardingCategories = () => {
 
   const toggle = (val: string) => {
     setSelected((prev) =>
-      prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val]
+      prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val],
     );
   };
 
   const handleContinue = async () => {
+    if (!user) {
+      router.reload();
+      return;
+    }
     if (!canContinue) return;
     setLoading(true);
     setError("");
@@ -168,7 +171,10 @@ const OnboardingCategories = () => {
   const remaining = MIN_SELECTED - selected.length;
 
   return (
-    <SafeAreaView className="flex-1 bg-background" style={{ paddingBottom: insets.bottom }}>
+    <SafeAreaView
+      className="flex-1 bg-background"
+      style={{ paddingBottom: insets.bottom }}
+    >
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -177,7 +183,10 @@ const OnboardingCategories = () => {
         {/* ── Top bar ── */}
         <View className="flex-row items-center justify-between">
           <StepDots total={5} current={3} />
-          <Pressable onPress={() => router.push("/onboarding/notifications")} hitSlop={12}>
+          <Pressable
+            onPress={() => router.push("/onboarding/notifications")}
+            hitSlop={12}
+          >
             <Text className="text-sm text-secondary/70 font-medium">Skip</Text>
           </Pressable>
         </View>
@@ -188,7 +197,8 @@ const OnboardingCategories = () => {
             What are you into?
           </Text>
           <Text className="text-sm font-light text-secondary leading-5">
-            Pick at least {MIN_SELECTED} categories to personalise your feed and alerts.
+            Pick at least {MIN_SELECTED} categories to personalise your feed and
+            alerts.
           </Text>
         </View>
 

@@ -3,7 +3,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-export const UVIC_LNG_LAT: number[] & LngLatLike = [-123.312603, 48.463816];
+export const UVIC_LNG_LAT: number[]  = [-123.312603, 48.463816];
 export const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
 export const tabs = [

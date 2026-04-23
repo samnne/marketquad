@@ -65,6 +65,10 @@ export default function ListingPage() {
   const { setError, setSuccess, setMessage } = useMessage();
 
   const [listing, setListing] = useState<any>(null);
+  const expression =
+    selectedListing ?
+    selectedListing.likes ?
+    selectedListing.likes.length > 0 : false : false
   const {
     liked,
     count,
@@ -72,7 +76,7 @@ export default function ListingPage() {
     loading: likeLoading,
   } = useLike(
     selectedListing?.lid ?? "",
-    selectedListing?.likes?.length > 0,
+    expression,
     selectedListing?._count?.likes ?? 0,
   );
   const [message, setFirstMessage] = useState(getRandomMsg());
@@ -176,7 +180,6 @@ export default function ListingPage() {
       await Share.share({
         title: listing.title,
         message: `Check out this listing on MarketQuad: ${listing.title} — $${listing.price}\n\nmarketquad://listings/${listing.lid}`,
-        
       });
     } catch (err) {
       console.error(err);
@@ -187,7 +190,7 @@ export default function ListingPage() {
     setActionLoading(field);
     try {
       const updated = { ...listing, [field]: !listing[field] };
-      
+
       const res = await fetch(`${BASE_URL}/api/listings`, {
         method: "PUT",
         headers: { Authorization: user.id, "Content-Type": "application/json" },
@@ -224,7 +227,7 @@ export default function ListingPage() {
   const safeImages = (listing.imageUrls ?? []).filter(
     (url: any) => typeof url === "string" && url.startsWith("http"),
   );
-  
+
   return (
     <View className="flex-1 bg-white" style={{}}>
       <KeyboardAvoidingView
@@ -322,7 +325,12 @@ export default function ListingPage() {
 
               {/* Seller row */}
               <View className="flex-row items-center gap-2.5 mt-4 pt-4 border-t border-background">
-                <Pressable onPress={() => router.push(`/profiles/${listing?.seller?.uid}`)} className="w-9 h-9 rounded-full bg-background items-center justify-center">
+                <Pressable
+                  onPress={() =>
+                    router.push(`/profiles/${listing?.seller?.uid}`)
+                  }
+                  className="w-9 h-9 rounded-full bg-background items-center justify-center"
+                >
                   <Text className="text-sm font-bold text-text/70">
                     {(listing?.seller?.name?.[0] ?? "?").toUpperCase()}
                   </Text>

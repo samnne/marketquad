@@ -4,7 +4,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
-import { usePathname, useRouter } from "expo-router";
+import {  useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { db } from "@/db/db";
 import { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ const ListingCard = ({ listing }: { listing: any }) => {
   }));
   useEffect(() => {
     const prev = JSON.parse(db.getItem("SAVED_LISTINGS") ?? "[]");
-    const isFavourite = (prev as []).find((li) => li.lid === listing.lid);
+    const isFavourite = (prev as []).find((li: Listing) => li.lid === listing.lid);
     setIsFav(isFavourite ? true : false);
   }, [listing.lid]);
 
@@ -112,7 +112,7 @@ const ListingCard = ({ listing }: { listing: any }) => {
           onPress={() => {
             const prev = JSON.parse(db.getItem("SAVED_LISTINGS") ?? "[]");
 
-            const newFavs = prev.find((li) => listing.lid === li.lid);
+            const newFavs = prev.find((li: Listing) => listing.lid === li.lid);
             if (!newFavs) {
               setIsFav(true);
               db.setItem("SAVED_LISTINGS", JSON.stringify([...prev, listing]));
@@ -122,7 +122,7 @@ const ListingCard = ({ listing }: { listing: any }) => {
             setIsFav(false);
             db.setItem(
               "SAVED_LISTINGS",
-              JSON.stringify([...prev.filter((li) => li.lid !== listing.lid)]),
+              JSON.stringify([...prev.filter((li: Listing) => li.lid !== listing.lid)]),
             );
           }}
         >
@@ -137,7 +137,7 @@ const ListingCard = ({ listing }: { listing: any }) => {
       {/* ── 4. Body Content (Caption Style) ── */}
       <View className="px-3 py-2 gap-1">
         <Text className="text-primary text-lg font-black">
-          {listing.price != "0" ? `$${listing.price}` : "FREE"}
+          {listing.price !== 0 ? `$${listing.price}` : "FREE"}
         </Text>
 
         <View className="flex-row flex-wrap">

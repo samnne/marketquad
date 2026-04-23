@@ -1,3 +1,4 @@
+import { INTENTS } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { Text, View } from "moti";
@@ -335,7 +336,7 @@ export const SuccessRing = () => {
     outerScale.value = withSpring(1, { stiffness: 700, damping: 12 });
     innerScale.value = withDelay(150, withSpring(1, { stiffness: 800, damping: 14 }));
     checkOpacity.value = withDelay(320, withTiming(1, { duration: 200 }));
-  }, []);
+  }, [innerScale, outerScale, checkOpacity]);
 
   const outerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: outerScale.value }],

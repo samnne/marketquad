@@ -33,7 +33,7 @@ function getInitials(name?: string, email?: string) {
 
 function ProfileScreen() {
   const router = useRouter();
-  
+
   const insets = useSafeAreaInsets();
   const bottomClearance = components.tabBar.height + insets.bottom;
   const {
@@ -71,7 +71,6 @@ function ProfileScreen() {
 
   // ── Mount ──
   useEffect(() => {
-    
     const mountSession = async () => {
       const { user: u, error, app_user } = await getUserSupabase();
 
@@ -82,7 +81,6 @@ function ProfileScreen() {
         return;
       }
       setUser({ ...u, app_user });
-      
     };
     mountSession();
   }, [router, setError, setUser, setMessage]);
@@ -141,8 +139,7 @@ function ProfileScreen() {
     ]);
   };
 
-  const unreadCount =
-    convos?.filter((c) => (c.unreadCount ?? 0) > 0).length ?? 0;
+  const unreadCount = 0;
   const soldCount = userListings?.filter((l) => l.sold).length ?? 0;
   const initials = getInitials(user?.app_user?.name, user?.app_user?.email);
   const isVerified = user?.app_user?.isVerified;
@@ -153,9 +150,8 @@ function ProfileScreen() {
   const stats = [
     { num: userListings?.length ?? 0, label: "Listings" },
     { num: soldCount, label: "Sold" },
-    { num: rating > 0 ? Number(rating).toFixed(1) : "—", label: "Rating" },
+    { num: rating && rating > 0 ? Number(rating).toFixed(1) : "—", label: "Rating" },
   ];
-
 
   return (
     <ScrollView
@@ -174,9 +170,12 @@ function ProfileScreen() {
         >
           <View className="flex-row items-center gap-3.5">
             {/* Avatar */}
-            <Pressable onPress={()=>{
-              router.push(`/profiles/${user?.id}`)
-            }} className="w-16 h-16 rounded-full bg-primary items-center justify-center shrink-0">
+            <Pressable
+              onPress={() => {
+                router.push(`/profiles/${user?.id}`);
+              }}
+              className="w-16 h-16 rounded-full bg-primary items-center justify-center shrink-0"
+            >
               <Text className="text-[20px] font-bold text-text">
                 {initials}
               </Text>
@@ -188,7 +187,10 @@ function ProfileScreen() {
                 className="text-[17px] font-bold text-text"
                 numberOfLines={1}
               >
-                {displayName} - <Text className="text-primary">@{user?.app_user?.username}</Text>
+                {displayName} -{" "}
+                <Text className="text-primary">
+                  @{user?.app_user?.username}
+                </Text>
               </Text>
               <Text className="text-[12px] text-secondary" numberOfLines={1}>
                 {user?.app_user?.email}
@@ -341,9 +343,7 @@ function ProfileScreen() {
       {/* ── Delete modal ── */}
       {deleteUser && (
         <DeleteModal
-          session={user}
-       
-          
+          session={user!}
           setDeleteUser={setDeleteUser}
           deleteUser={deleteUser}
         />

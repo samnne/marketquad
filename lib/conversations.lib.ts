@@ -25,7 +25,7 @@ export async function getConvo(cid: string) {
 
 export async function createConvo(
   { listingId, buyerId, sellerId, initialMessage }: NewConvo,
-  existing = null,
+  existing: Conversation | null,
 ) {
 
   const convo = await fetch(`${BASE_URL}/api/conversations`, {

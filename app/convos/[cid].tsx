@@ -7,18 +7,12 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
-  Pressable,
 } from "react-native";
 
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView as RNSAV } from "react-native-safe-area-context";
 import { styled } from "nativewind";
-import {
-  FontAwesome,
-  Ionicons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
   useConvos,
   useListings,
@@ -32,7 +26,7 @@ import { getMessagesForConvo, sendMessage } from "@/lib/messages.lib";
 import { createConvo, getConvo } from "@/lib/conversations.lib";
 import ConvoInfoModal from "@/components/Modals/ConvoInfoModal";
 import ReviewModal from "@/components/Modals/ReviewModal";
-import { Message } from "@/type";
+
 import TypingIndicator from "@/components/TypingIndicator";
 
 const SafeAreaView = styled(RNSAV);
@@ -108,8 +102,7 @@ const CID = () => {
 
     socket.on("connect", onConnect);
     socket.on("typing", ({ cid, typing }) => {
- 
-      if (cid !== params.cid) return; 
+      if (cid !== params.cid) return;
       setTyping(typing);
     });
     socket.on("message", ({ cid, message }) => {
@@ -160,15 +153,13 @@ const CID = () => {
 
   const handleChangeText = (text: string) => {
     setMessageText(text);
-    
+
     if (text.length > 3) {
-      
       socket.emit("typing", { cid: params.cid, typing: true });
-      return 
+      return;
     }
-    
+
     socket.emit("typing", { cid: params.cid, typing: false });
-   
   };
 
   const handleSendMessage = async () => {
@@ -186,14 +177,12 @@ const CID = () => {
 
     const isNullBuyerOrSeller =
       !selectedConvo?.buyerId || !selectedConvo?.sellerId;
-    const otherId = messages.find(
-      (msg) => msg?.buyerId !== user.id || msg?.sellerId !== user.id,
-    );
+    const otherId = messages.find((msg) => msg.senderId !== user?.id);
 
-    if (isNullBuyerOrSeller) {
+    if (isNullBuyerOrSeller && otherId) {
       const newCon = await createConvo(
         {
-          listingId: selectedConvo?.listingId,
+          listingId: selectedConvo?.listingId!,
           buyerId: isBuyer ? user.id : otherId.senderId,
           initialMessage: tempText,
           sellerId: isSeller ? user.id : otherId.senderId,
@@ -224,6 +213,7 @@ const CID = () => {
   // --- Render Helpers ---
 
   const renderMessage = ({ item, index }: { item: Message; index: number }) => {
+    if (!user) return null;
     const isMine = item?.senderId === user?.id;
 
     const prevMsg = messages[index - 1];
@@ -256,7 +246,8 @@ const CID = () => {
           {!isMine && (
             <View className="w-6 h-6 rounded-full bg-gray-300 items-center justify-center mr-1 mb-1">
               <Text className="text-[10px] font-bold">
-                {curUser.name?.[0].toUpperCase() || "?"}
+                {(curUser !== "Temp" && curUser?.name?.[0].toUpperCase()) ||
+                  "?"}
               </Text>
             </View>
           )}

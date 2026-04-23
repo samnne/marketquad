@@ -19,7 +19,7 @@ const isTablet = width >= 768;
 
 const AuthLayout = () => {
   const insets = useSafeAreaInsets();
-  const { error, success, setSuccess, setError, msg } = useMessage();
+  const { error, success, msg } = useMessage();
   
   return (
     <KeyboardAvoidingView
@@ -31,8 +31,8 @@ const AuthLayout = () => {
         style={{ paddingTop: insets.top }}
       >
         {/* Modals */}
-        {error && <ErrorMessage msg={msg} onDismiss={() => setError(false)} />}
-        {success && <SuccessMessage msg={msg} onDismiss={() => setSuccess(false)} />}
+        {error && <ErrorMessage message={msg}  />}
+        {success && <SuccessMessage message={msg}  />}
 
         {isTablet ? (
           /* ── Tablet: two-column layout ── */

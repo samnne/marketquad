@@ -1,10 +1,9 @@
-import { Conversation, Listing, User, UserPreferences } from "@/type";
 import { create, StoreApi, UseBoundStore } from "zustand";
 
 import { db, STORAGE_KEY } from "@/db/db";
+import { User } from "@supabase/supabase-js";
 
-type TYPEAUTH=  
-   "sign-in" | "sign-up" | "otp"
+type TYPEAUTH = "sign-in" | "sign-up" | "otp";
 
 export interface Store {
   type: TYPEAUTH;
@@ -40,23 +39,19 @@ export const useListings: UseBoundStore<StoreApi<ListingStore>> = create(
 );
 
 export type UserState = {
-  user: User | null;
+  user: ProfileData & User & {app_user: PublicUser & ProfileData}| null;
   setUser: Function;
   userListings: Listing[];
   setUserListings: Function;
   reset: Function;
-  preferences: UserPreferences | null;
-  setPreferences: (p: UserPreferences | null) => void;
 };
 export const useUser: UseBoundStore<StoreApi<UserState>> = create((set) => {
   return {
     user: null,
-    setUser: (user: User) => set({ user: user }),
+    setUser: (user: ProfileData & User & {app_user: PublicUser & ProfileData}) => set({ user: user }),
     userListings: [],
     setUserListings: (listings: Listing[]) => set({ userListings: listings }),
     reset: () => set({ user: null, userListings: [] }),
-    preferences: null,
-    setPreferences: (pref: UserPreferences | null) => set({ preferences: pref }),
   };
 });
 
@@ -89,7 +84,9 @@ export const useTabStore = create<{
   tabIndex: 0,
   setTabIndex: (tabIndex) => set({ tabIndex }),
 }));
-// store/zustand.ts — inside useConvos
+
+
+
 type ConvosState = {
   convos: Conversation[];
   selectedConvo: Conversation | null;
@@ -105,9 +102,7 @@ export const useConvos = create<ConvosState>((set) => ({
   setConvos: (convos) => set({ convos }),
   setSelectedConvo: (convo) => set({ selectedConvo: convo }),
   removeConvo: (cid) => {
-   
     return set((state) => {
-     
       return {
         convos: state.convos.filter((c) => c.cid !== cid),
       };

@@ -24,7 +24,6 @@ interface State {
   error: Error | null;
 }
 
-// ─── Class boundary (must be a class — hooks can't catch render errors) ───────
 
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false, error: null };
@@ -59,7 +58,7 @@ export class ErrorBoundary extends Component<Props, State> {
 // components/ErrorBoundary.tsx — add this hook
 export const useErrorBoundary = () => {
   const [, setState] = useState<Error | null>(null);
-    
+
   return (err: Error) => {
     setState(() => {
       throw err; // throwing inside setState triggers the boundary
