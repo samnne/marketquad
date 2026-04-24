@@ -101,7 +101,7 @@ const OnboardingNotifications = () => {
           },
         );
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
 
       setUser({
@@ -109,7 +109,7 @@ const OnboardingNotifications = () => {
         app_user: { ...user?.app_user, notifications_enabled: enabled },
       });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     } finally {
       setLoading(false);
       finish();

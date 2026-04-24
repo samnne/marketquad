@@ -44,17 +44,18 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
 
         const data = await response.json();
         const reviews = data?.reviews;
-        const writtenByMe = reviews.filter((rv) => rv.reviewerId === user?.id);
+        const writtenByMe = reviews.filter((rv: Review) => rv.reviewerId === user?.id);
      
-        const review = writtenByMe.find((rv) => rv?.revieweeId === otherUser?.uid);
+        const review = writtenByMe.find((rv: Review) => rv?.revieweeId === otherUser?.uid);
         if (review) setReviewedAlready(true);
       } catch (err) {
+        console.error(err)
         setError(true);
         setMessage("Error Fetching Reviews");
       }
     };
     getHasUserReviewed();
-  }, []);
+  }, [otherUser?.uid, setMessage, setError, user?.id]);
 
   const ratingLabel = [
     "Tap a star to rate",
@@ -81,7 +82,7 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: user.id,
+          Authorization: user?.id!,
         },
         body: JSON.stringify({
           rating,

@@ -1,9 +1,11 @@
 import { useUser } from "@/store/zustand";
 import { BASE_URL } from "@/constants/constants";
 import { colors } from "@/constants/theme";
+
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import * as ImagePicker from "expo-image-picker";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -15,16 +17,12 @@ import {
   View,
 } from "react-native";
 
-import { useSafeAreaInsets, SafeAreaView as RNSAV} from "react-native-safe-area-context";
+import { useSafeAreaInsets, SafeAreaView as RNSAV } from "react-native-safe-area-context";
 import { AvatarPlaceholder, Field, SpringButton, StepDots } from "@/components/Onboarding";
 import { styled } from "nativewind";
-const SafeAreaView = styled(RNSAV)
+import { uploadPFP } from "@/cloudinary/cloudinary";
+const SafeAreaView = styled(RNSAV);
 
-
-// ── Spring button ────────────────────────────────────────────────
-
-
-// ── Username validator ───────────────────────────────────────────
 const USERNAME_RE = /^[a-z0-9._]{3,20}$/;
 
 const getUsernameHint = (val: string) => {
@@ -34,10 +32,6 @@ const getUsernameHint = (val: string) => {
   return "✓ Looks good";
 };
 
-// ── Step indicator ───────────────────────────────────────────────
-
-
-// ── Main screen ─────────────────────────────────────────────────
 const OnboardingProfile = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -51,15 +45,44 @@ const OnboardingProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // PFP state — localUri is shown immediately, uploaded only on save
+  const [localPfpUri, setLocalPfpUri] = useState<string | null>(null);
+
   const usernameHint = getUsernameHint(username);
   const usernameOk = USERNAME_RE.test(username);
   const canContinue = name.trim().length > 0 && usernameOk;
+
+  const handlePickPhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      setError("Camera roll permission is required to set a profile photo.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setLocalPfpUri(result.assets[0].uri);
+    }
+  };
 
   const handleContinue = async () => {
     if (!canContinue) return;
     setLoading(true);
     setError("");
+
     try {
+      // Upload PFP first if user picked one
+      let pfpUrl: string | undefined;
+      if (localPfpUri) {
+        pfpUrl = await uploadPFP(localPfpUri, user?.id!);
+      }
+
       const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
         method: "PATCH",
         headers: {
@@ -67,10 +90,10 @@ const OnboardingProfile = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          uid: user?.id,
           name: name.trim(),
           username: username.trim().toLowerCase(),
           bio: bio.trim(),
+          ...(pfpUrl && { pfp_url: pfpUrl }),
         }),
       }).then((r) => r.json());
 
@@ -79,9 +102,8 @@ const OnboardingProfile = () => {
         return;
       }
 
-      // Update local user state and proceed
       setUser({ ...user, app_user: { ...user?.app_user, ...res.user } });
-      router.push("/onboarding/verification"); // → screen 2
+      router.push("/onboarding/verification");
     } catch (err) {
       console.error(err);
       setError("Network error. Please try again.");
@@ -133,15 +155,13 @@ const OnboardingProfile = () => {
             <View className="items-center">
               <AvatarPlaceholder
                 name={name}
-                onPress={() => {
-                  /* photo picker — coming later */
-                }}
+                uri={localPfpUri ?? ""}  // show local preview
+                onPress={handlePickPhoto}
               />
             </View>
 
             {/* ── Fields ── */}
             <View className="gap-5">
-              {/* Name */}
               <Field label="Display name">
                 <TextInput
                   className="w-full h-13 px-4 border border-secondary/20 rounded-2xl bg-pill text-text text-base"
@@ -154,7 +174,6 @@ const OnboardingProfile = () => {
                 />
               </Field>
 
-              {/* Username */}
               <Field
                 label="Username"
                 hint={usernameHint}
@@ -196,7 +215,6 @@ const OnboardingProfile = () => {
                 </View>
               </Field>
 
-              {/* Bio */}
               <Field
                 label="Bio"
                 hint="Optional — tell buyers a bit about yourself"
@@ -234,7 +252,7 @@ const OnboardingProfile = () => {
           </View>
         </ScrollView>
 
-        {/* ── Footer CTA — pinned above keyboard ── */}
+        {/* ── Footer CTA ── */}
         <View className="px-6 pb-4 gap-3 border-t border-secondary/10 pt-4 bg-background">
           <SpringButton
             onPress={handleContinue}
@@ -246,11 +264,7 @@ const OnboardingProfile = () => {
             ) : (
               <View className="flex-row items-center gap-2">
                 <Text className="text-base font-bold text-pill">Continue</Text>
-                <FontAwesome6
-                  name="arrow-right"
-                  size={13}
-                  color={colors.pill}
-                />
+                <FontAwesome6 name="arrow-right" size={13} color={colors.pill} />
               </View>
             )}
           </SpringButton>

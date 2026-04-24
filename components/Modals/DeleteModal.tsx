@@ -43,7 +43,7 @@ const DeleteModal = ({
           setCantDelete(false);
         }
       } catch (err) {
-        console.log(err)
+        console.error(err)
       }
     };
     canEvenDelete();
@@ -54,7 +54,7 @@ const DeleteModal = ({
 
   async function handleDeleteUser() {
     if (cantDelete) return;
-    if (session?.id) {
+    if (session) {
       try {
         const response = await fetch(`${BASE_URL}/api/auth`, {
           method: "DELETE",

@@ -14,7 +14,7 @@ import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SuccessMessage from "@/components/Modals/SuccessMessage";
 import ErrorMessage from "@/components/Modals/ErrorMessage";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -165,7 +165,7 @@ const TabsLayout = () => {
 
   return (
     <>
-      <ErrorBoundary>
+      
         <AnimatePresence>
           {success && <SuccessMessage message={msg} />}
           {error && <ErrorMessage message={msg} />}
@@ -240,7 +240,7 @@ const TabsLayout = () => {
             }}
           />
         </Tabs>
-      </ErrorBoundary>
+ 
     </>
   );
 };

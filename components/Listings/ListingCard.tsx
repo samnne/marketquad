@@ -4,12 +4,13 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
-import {  useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { db } from "@/db/db";
 import { useEffect, useState } from "react";
 import { colors } from "@/constants/theme";
 import { useLike } from "@/hooks/useLike";
+import { useUser } from "@/store/zustand";
 
 const { width: W } = Dimensions.get("window");
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -17,9 +18,14 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const ListingCard = ({ listing }: { listing: any }) => {
   const scale = useSharedValue(1);
   const router = useRouter();
+  const {user} = useUser()
+  const expression = user?.app_user?.likes?.find(
+    (l) => l.listingId === listing?.lid,
+  );
+
   const { count, liked, loading, toggle } = useLike(
     listing?.lid,
-    false,
+    expression,
     listing._count?.likes,
   );
 
@@ -29,7 +35,9 @@ const ListingCard = ({ listing }: { listing: any }) => {
   }));
   useEffect(() => {
     const prev = JSON.parse(db.getItem("SAVED_LISTINGS") ?? "[]");
-    const isFavourite = (prev as []).find((li: Listing) => li.lid === listing.lid);
+    const isFavourite = (prev as []).find(
+      (li: Listing) => li.lid === listing.lid,
+    );
     setIsFav(isFavourite ? true : false);
   }, [listing.lid]);
 
@@ -122,7 +130,9 @@ const ListingCard = ({ listing }: { listing: any }) => {
             setIsFav(false);
             db.setItem(
               "SAVED_LISTINGS",
-              JSON.stringify([...prev.filter((li: Listing) => li.lid !== listing.lid)]),
+              JSON.stringify([
+                ...prev.filter((li: Listing) => li.lid !== listing.lid),
+              ]),
             );
           }}
         >

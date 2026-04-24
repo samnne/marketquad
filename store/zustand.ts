@@ -12,7 +12,12 @@ export interface Store {
 export const useType: UseBoundStore<StoreApi<Store>> = create((set) => {
   const store: Store = {
     type: "sign-in",
-    changeType: (newType: TYPEAUTH) => set({ type: newType }),
+    changeType: (newType: TYPEAUTH) => {
+      if (newType === 'sign-up'){
+        db.setItem("ONBOARDING", 'false')
+      }
+      set({ type: newType });
+    },
   };
   return { ...store };
 });
@@ -22,7 +27,7 @@ export type ListingStore = {
   setListings: Function;
   selectedListing?: Listing | null;
   setSelectedListing: Function;
-  reset: Function;
+  reset: ()=>void;
 };
 
 export const useListings: UseBoundStore<StoreApi<ListingStore>> = create(
@@ -39,16 +44,18 @@ export const useListings: UseBoundStore<StoreApi<ListingStore>> = create(
 );
 
 export type UserState = {
-  user: ProfileData & User & {app_user: PublicUser & ProfileData}| null;
+  user: (ProfileData & User & { app_user: PublicUser & ProfileData }) | null;
   setUser: Function;
   userListings: Listing[];
   setUserListings: Function;
-  reset: Function;
+  reset: ()=> void;
 };
 export const useUser: UseBoundStore<StoreApi<UserState>> = create((set) => {
   return {
     user: null,
-    setUser: (user: ProfileData & User & {app_user: PublicUser & ProfileData}) => set({ user: user }),
+    setUser: (
+      user: ProfileData & User & { app_user: PublicUser & ProfileData },
+    ) => set({ user: user }),
     userListings: [],
     setUserListings: (listings: Listing[]) => set({ userListings: listings }),
     reset: () => set({ user: null, userListings: [] }),
@@ -85,16 +92,6 @@ export const useTabStore = create<{
   setTabIndex: (tabIndex) => set({ tabIndex }),
 }));
 
-
-
-type ConvosState = {
-  convos: Conversation[];
-  selectedConvo: Conversation | null;
-  setConvos: (convos: Conversation[]) => void;
-  setSelectedConvo: (convo: Conversation) => void;
-  removeConvo: (cid: string) => void; // ← add this
-  reset: () => void;
-};
 
 export const useConvos = create<ConvosState>((set) => ({
   convos: [],

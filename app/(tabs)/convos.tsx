@@ -1,14 +1,13 @@
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { colors, components } from "@/constants/theme";
 import { useRefresh } from "@/hooks/useRefresh";
 import { getConvos } from "@/lib/conversations.lib";
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 
 import { deleteConvo, fetchConvos, getUserSupabase } from "@/utils/functions";
-import {  FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Image } from "moti";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -64,7 +63,7 @@ const ConversationsScreen = () => {
       await fetchConvos({ setter: setConvos });
     },
   });
-  const getConvosClient = async () => {
+  const getConvosClient = useCallback(async () => {
     setLoading(true);
 
     const data = await getUserSupabase();
@@ -79,14 +78,14 @@ const ConversationsScreen = () => {
       setConvos(tempConvos);
     } catch (error) {
       setError(true);
-      console.log(error)
+      console.error(error);
       setMessage("Error fetching messages");
       setLoading(false);
     } finally {
       setLoading(false);
       setUser({ user: data.user, app_user: data.app_user });
     }
-  };
+  }, [setUser, setError, setLoading, setMessage, router, setConvos]);
 
   useEffect(() => {
     if (convos?.length > 0) {
@@ -94,7 +93,7 @@ const ConversationsScreen = () => {
       return;
     }
     getConvosClient();
-  }, []);
+  }, [getConvosClient, convos?.length]);
 
   const handleDelete = (cid: string) => {
     Alert.alert(
@@ -329,9 +328,5 @@ const ConversationsScreen = () => {
 };
 
 export default function Conversations() {
-  return (
-    <ErrorBoundary>
-      <ConversationsScreen />
-    </ErrorBoundary>
-  );
+  return <ConversationsScreen />;
 }

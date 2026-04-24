@@ -5,7 +5,7 @@ import { categories } from "@/constants/constants";
 import { components } from "@/constants/theme";
 import { useRefresh } from "@/hooks/useRefresh";
 import { useConvos, useListings, useUser } from "@/store/zustand";
-import { fetchConvos, fetchListings, getUserSupabase } from "@/utils/functions";
+import { fetchConvos, fetchListings, getUserSupabase, reportError } from "@/utils/functions";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -204,7 +204,7 @@ function HomeScreen() {
 }
 export default function Home() {
   return (
-    <ErrorBoundary>
+  <ErrorBoundary onError={reportError}>
       <HomeScreen />
     </ErrorBoundary>
   );

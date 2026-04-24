@@ -5,8 +5,19 @@ type PublicUser = {
   createdAt: string;
   rating: number;
   hidden: boolean;
-  email: string
+  email: string;
+  likes: [{ listingId: string }];
 };
+
+type ConvosState = {
+  convos: Conversation[];
+  selectedConvo: Conversation | null;
+  setConvos: (convos: Conversation[]) => void;
+  setSelectedConvo: (convo: Conversation) => void;
+  removeConvo: (cid: string) => void; // ← add this
+  reset: () => void;
+};
+
 type Conversation = {
   cid: string;
   listing: Listing;
@@ -18,7 +29,7 @@ type Conversation = {
   createdAt: Date;
   updatedAt: Date;
   messages: Message[];
-  unreadCount: number
+  unreadCount: number;
 };
 declare module "*.mp4" {
   const src: string;
@@ -32,6 +43,8 @@ type Review = {
   comment: string | null;
   role: "BUYER" | "SELLER";
   createdAt: string;
+  revieweeId: string;
+  reviewerId: string;
   reviewer: {
     uid: string;
     name: string;

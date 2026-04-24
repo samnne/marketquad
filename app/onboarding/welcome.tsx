@@ -17,13 +17,17 @@ import Animated, {
 import { SafeAreaView as RNSAV, useSafeAreaInsets } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { FeatureRow, SpringButton, StatPill, SuccessRing } from "@/components/Onboarding";
+import { useEffect } from "react";
+import { db } from "@/db/db";
 const SafeAreaView = styled(RNSAV)
 
 const OnboardingWelcome = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useUser();
-
+  useEffect(()=> {
+    db.setItem("ONBOARDING", "true")
+  }, [])
   const firstName = user?.app_user?.name?.split(" ")[0] ?? "there";
 
   return (

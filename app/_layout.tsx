@@ -10,11 +10,13 @@ import { useMessage } from "@/store/zustand";
 import * as Sentry from "@sentry/react-native";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PostHogProvider } from "posthog-react-native";
+import { Button } from "react-native";
 
 Sentry.init({
   dsn: process.env.EXP_PUBLIC_SENTRY_DSN,
   sendDefaultPii: true,
   enableLogs: true,
+
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
   integrations: [
@@ -23,20 +25,27 @@ Sentry.init({
   ],
   spotlight: __DEV__,
 });
-
 export default Sentry.wrap(function RootLayout() {
   const { success, error, msg } = useMessage();
 
   return (
     <ErrorBoundary
       onError={(err, info) => {
-        Sentry.captureException(err, { extra: { componentStack: info.componentStack } });
+        Sentry.captureException(err, {
+          extra: { componentStack: info.componentStack },
+        });
       }}
     >
-      <GestureHandlerRootView>
+      <GestureHandlerRootView style={{ flex: 1 }}>
         <PostHogProvider
           apiKey={process.env.EXPO_PUBLIC_POSTHOG_KEY!}
-          options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST }}
+          options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST, errorTracking:{
+            autocapture: {
+              uncaughtExceptions: true,
+              unhandledRejections: true,
+              console: ['error', __DEV__ ? "log" : "info", "warn"]
+            }
+          } }}
         >
           <NotificationProvider>
             <AnimatePresence>

@@ -1,5 +1,5 @@
 import { BASE_URL } from "@/constants/constants";
-import { getUserSupabase } from "@/utils/functions";
+import { getUserSupabase, sanitizeText } from "@/utils/functions";
 
 interface NewMessageProps {
   conversationId: string;
@@ -26,7 +26,7 @@ export async function sendMessage(
         }),
       },
     ).then((res) => res.json());
-   
+
     if (!message) {
       console.error("Error sending message:");
       return {

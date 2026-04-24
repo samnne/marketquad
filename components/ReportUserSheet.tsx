@@ -84,7 +84,7 @@ export function ReportUserSheet({
       Alert.alert("Report Submitted", "Our team will review it shortly.");
       onClose();
     } catch (err) {
-      console.log(err);
+      console.error(err);
       Alert.alert("Error", "Something went wrong. Please try again.");
     } finally {
       setLoading(false);

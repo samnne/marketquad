@@ -6,7 +6,7 @@ import { deleteConvo } from "@/utils/functions";
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { useRef, useState } from "react";
 import { ReportUserSheet } from "../ReportUserSheet";
-import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 type Props = {
   visible: boolean;
@@ -46,7 +46,7 @@ const ConvoInfoModal = ({
           style: "destructive",
           onPress: async () => {
             try {
-              const res = await deleteConvo(cid, user.id);
+              const res = await deleteConvo(cid, user?.id!);
               if (res?.success) {
                 const removedConvos = selectedListing?.conversations?.filter((convo: any) => convo?.cid !== cid)
 

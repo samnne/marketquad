@@ -19,6 +19,7 @@ const ONBOARDING_VALUE = "true";
 const Index = () => {
   
 
+
   const val = db.getItem(ONBOARDING_KEY);
   if (val === ONBOARDING_VALUE) {
     return <Redirect href={"/home"} />;

@@ -1,4 +1,4 @@
-import { useMessage, useType, useUser } from "@/store/zustand";
+import { useListings, useMessage, useType, useUser } from "@/store/zustand";
 import { supabase } from "@/supabase/authHelper";
 
 import { getUserSupabase, matchUVIC } from "@/utils/functions";
@@ -22,6 +22,7 @@ import Animated, {
 import { colors } from "@/constants/theme";
 import { BASE_URL } from "@/constants/constants";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { db } from "@/db/db";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -175,7 +176,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         setMessage("User doesn't match our records.");
         return;
       }
-      console.log(userData);
+
       if (userData?.isVerified) {
         const { error } = await supabase.auth.signInWithPassword({
           email: formData.email,
@@ -186,6 +187,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           setMessage(error.message);
           return;
         }
+        db.setItem("ONBOARDING", "true");
         return router.replace("/(tabs)/profile");
       }
       await sendOTP();
@@ -263,8 +265,10 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       setSuccess(true);
       setMessage("Verification successful!");
       if (loggingIn) {
+        db.setItem("ONBOARDING", "true");
         router.replace("/home");
       } else {
+        db.setItem("ONBOARDING", "false");
         router.push("/onboarding");
       }
     } catch (err) {

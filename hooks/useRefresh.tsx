@@ -8,7 +8,7 @@ export function useRefresh({ func }: { func: Function }) {
     try {
       await func();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setRefreshing(false);
     }

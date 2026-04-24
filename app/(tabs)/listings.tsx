@@ -1,6 +1,6 @@
 import ListingCard from "@/components/Listings/ListingCard";
 
-import { BASE_URL, categories } from "@/constants/constants";
+import { BASE_URL} from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
 import { useRefresh } from "@/hooks/useRefresh";
 import { useListings, useMessage } from "@/store/zustand";
@@ -8,6 +8,7 @@ import { fetchListings, getUserSupabase } from "@/utils/functions";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
+  
   Pressable,
   RefreshControl,
   ScrollView,
@@ -25,7 +26,8 @@ import textbooks from "@/assets/images/textbooks.jpg";
 import { Image } from "moti";
 import CategoryChips from "@/components/Utils/CategoryChips";
 import MarketQuad from "@/components/Utils/MarketQuad";
-import { ErrorBoundary, useErrorBoundary } from "@/components/ErrorBoundary";
+
+
 
 const SkeletonCard = () => (
   <View className="bg-pill rounded-2xl border border-secondary/20 overflow-hidden flex-1">
@@ -45,9 +47,9 @@ export function ListingsScreen() {
     search?: string;
     cat?: string;
   }>();
-  const throwToBoundary = useErrorBoundary();
+ 
   const contentRef = useRef<View>(null);
-  const { listings, setListings, selectedListing, setSelectedListing } =
+  const { listings, setListings } =
     useListings();
   const { refreshing, onRefresh } = useRefresh({
     func: async () => await fetchListings({ setter: setListings }),
@@ -137,6 +139,8 @@ export function ListingsScreen() {
       }
     >
       <View className="flex-row flex-wrap w-full p-2">
+       
+
         {[
           { name: "Housing", image: housing },
           { name: "Textbooks", image: textbooks },
@@ -279,8 +283,8 @@ export function ListingsScreen() {
 
 export default function Listings() {
   return (
-    <ErrorBoundary>
+   
       <ListingsScreen />
-    </ErrorBoundary>
+  
   );
 }

@@ -1,3 +1,4 @@
+
 import { INTENTS } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -200,9 +201,11 @@ export const StepDots = ({ total, current }: { total: number; current: number })
 // ── Avatar placeholder ───────────────────────────────────────────
 export const AvatarPlaceholder = ({
   name,
+  uri,
   onPress,
 }: {
   name: string;
+  uri: string;
   onPress: () => void;
 }) => {
   const initials = name

@@ -16,6 +16,7 @@ import NotificationsSection from "@/components/Settings/Notification";
 import AccountSection from "@/components/Settings/Account";
 import AboutSection from "@/components/Settings/Legal";
 import DeleteModal from "@/components/Modals/DeleteModal";
+import { uploadPFP } from "@/cloudinary/cloudinary";
 
 type Section =
   | "profile"
@@ -42,7 +43,9 @@ const SettingsPage = () => {
   const [name, setName] = useState(u?.name ?? "");
   const [username, setUsername] = useState(u?.username ?? "");
   const [bio, setBio] = useState(u?.bio ?? "");
+  const [profileURL, setProfileURL] = useState(u?.profileURL ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
+
 
   // ── Student state ──
   const [faculty, setFaculty] = useState<string | null>(u?.faculty ?? null);
@@ -74,14 +77,31 @@ const SettingsPage = () => {
   // Handlers
   // ─────────────────────────────────────────────
   const saveProfile = async () => {
+    if (!user) {
+      router.replace('/sign-in')
+      return
+    }
     setSavingProfile(true);
     try {
+      if (user?.app_user?.profileURL) {
+
+        const res = await fetch(`${BASE_URL}/api/cloudinary`, {
+          method: "DELETE",
+          headers: authHeaders,
+          body: JSON.stringify([user.app_user.profileURL]),
+        }).then((r) => r.json());
+        if (!res.success){
+          setError(false)
+          setMessage("Failed to Delete OLD PFP, contact us!")
+        }
+      }
+      const url  = await uploadPFP(profileURL, user?.id)
       const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
         method: "PATCH",
         headers: authHeaders,
-        body: JSON.stringify({ name, username, bio }),
+        body: JSON.stringify({ name, username, bio, profileURL: url }),
       }).then((r) => r.json());
-      console.log(res)
+ 
       if (!res.success) {
         setError(true);
         setMessage(res.message ?? "Failed to save.");
@@ -184,7 +204,7 @@ const SettingsPage = () => {
   const saveNotifications = async () => {
     setSavingNotif(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/users/notifications`, {
+      const res = await fetch(`${BASE_URL}/api/users/onboarding/notifications`, {
         method: "PATCH",
         headers: authHeaders,
         body: JSON.stringify({
@@ -193,6 +213,7 @@ const SettingsPage = () => {
           notif_sales: notifSales,
         }),
       }).then((r) => r.json());
+   
       if (!res.success) {
         setError(true);
         setMessage(res.message ?? "Failed to save.");
@@ -201,9 +222,10 @@ const SettingsPage = () => {
       setUser({ ...user, app_user: { ...u, ...res.user } });
       setSuccess(true);
       setMessage("Notification preferences saved.");
-    } catch {
+    } catch (err) {
       setError(true);
-      setMessage("Network error.");
+      console.log(err)
+      setMessage( "Network Error");
     } finally {
       setSavingNotif(false);
     }
@@ -256,6 +278,9 @@ const SettingsPage = () => {
             open={open === "profile"}
             name={name}
             username={username}
+            pfpUrl={profileURL || ""}
+            uid={user?.id || ""}
+            onPFPChange={setProfileURL}
             bio={bio}
             setName={setName}
             setUsername={setUsername}

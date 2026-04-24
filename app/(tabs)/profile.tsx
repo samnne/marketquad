@@ -1,4 +1,4 @@
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+
 import DeleteModal from "@/components/Modals/DeleteModal";
 import ProfileSections from "@/components/ProfileSections";
 import { BASE_URL } from "@/constants/constants";
@@ -12,8 +12,9 @@ import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { supabase } from "@/supabase/authHelper";
 import { cleanUP, getUserSupabase } from "@/utils/functions";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -45,6 +46,7 @@ function ProfileScreen() {
   } = useUser();
   const { reset: convoReset, convos, setConvos } = useConvos();
   const { reset: lisReset } = useListings();
+
   const { setError, setSuccess, setMessage } = useMessage();
   const [deleteUser, setDeleteUser] = useState(false);
 
@@ -68,10 +70,8 @@ function ProfileScreen() {
       return;
     },
   });
-
-  // ── Mount ──
-  useEffect(() => {
-    const mountSession = async () => {
+  const mountSession = useCallback(async () => {
+    try {
       const { user: u, error, app_user } = await getUserSupabase();
 
       if (!u || error) {
@@ -81,42 +81,22 @@ function ProfileScreen() {
         return;
       }
       setUser({ ...u, app_user });
-    };
-    mountSession();
-  }, [router, setError, setUser, setMessage]);
-
-  useEffect(() => {
-    const mountUserListings = async () => {
-      if (userListings.length > 0) return;
-      try {
-        const { user: u } = await getUserSupabase();
-        if (!u) return;
-
-        const tempListings = await getUserListings(u.id);
-        if (!tempListings.listings) {
-          setError(true);
-          setMessage("Couldn't fetch listings");
-          return;
-        }
-        const convos = await getConvos(u.id);
-        if (convos) setConvos(convos);
-
-        setUserListings(tempListings.listings);
-      } catch (err) {
-        console.error(err);
+      const tempListings = await getUserListings(u.id);
+      if (!tempListings.listings) {
         setError(true);
-        setMessage("Something went wrong...");
+        setMessage("Couldn't fetch listings");
+        return;
       }
-    };
-    mountUserListings();
-  }, [
-    user,
-    setConvos,
-    setError,
-    setUserListings,
-    userListings.length,
-    setMessage,
-  ]);
+      const convos = await getConvos(u.id);
+      if (convos) setConvos(convos);
+
+      setUserListings(tempListings.listings);
+    } catch (err) {}
+  }, [setError, setMessage, setUser, setConvos, setUserListings, router]);
+  // ── Mount ──
+  useEffect(() => {
+    mountSession();
+  }, [mountSession]);
 
   const handleLogout = async () => {
     Alert.alert("Log out", "Are you sure you want to log out?", [
@@ -150,9 +130,12 @@ function ProfileScreen() {
   const stats = [
     { num: userListings?.length ?? 0, label: "Listings" },
     { num: soldCount, label: "Sold" },
-    { num: rating && rating > 0 ? Number(rating).toFixed(1) : "—", label: "Rating" },
+    {
+      num: rating && rating > 0 ? Number(rating).toFixed(1) : "—",
+      label: "Rating",
+    },
   ];
-
+  console.log(rating)
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -164,6 +147,7 @@ function ProfileScreen() {
     >
       <View className="p-4 gap-4">
         {/* ── Profile card ── */}
+
         <Animated.View
           entering={FadeInDown.duration(300).delay(0)}
           className="bg-pill rounded-[20px] border border-secondary/25 p-5"
@@ -343,7 +327,7 @@ function ProfileScreen() {
       {/* ── Delete modal ── */}
       {deleteUser && (
         <DeleteModal
-          session={user && null}
+          session={user || null}
           setDeleteUser={setDeleteUser}
           deleteUser={deleteUser}
         />
@@ -353,9 +337,5 @@ function ProfileScreen() {
 }
 
 export default function Profile() {
-  return (
-    <ErrorBoundary>
-      <ProfileScreen />
-    </ErrorBoundary>
-  );
+  return <ProfileScreen />;
 }

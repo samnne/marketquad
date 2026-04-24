@@ -17,11 +17,12 @@ import {
   Text,
   TextInput,
   View,
+  Share,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import LocationPreview from "@/components/Listings/ListingMap";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Share } from "react-native";
+
 import { useLike } from "@/hooks/useLike";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -65,10 +66,8 @@ export default function ListingPage() {
   const { setError, setSuccess, setMessage } = useMessage();
 
   const [listing, setListing] = useState<any>(null);
-  const expression =
-    selectedListing ?
-    selectedListing.likes ?
-    selectedListing.likes.length > 0 : false : false
+  const expression = user?.app_user?.likes?.find(l => l.listingId === selectedListing?.lid)
+ 
   const {
     liked,
     count,
@@ -300,7 +299,7 @@ export default function ListingPage() {
           </View>
 
           {/* ── Card body ── */}
-          <View className="bg-pill  rounded-t-[24px]  px-5 pt-6 gap-5">
+          <View className="bg-pill  rounded-t-3xl  px-5 pt-6 gap-5">
             <Animated.View entering={FadeInDown.duration(300)}>
               <View className="flex-row justify-between items-start">
                 <View className="flex-1 pr-3">

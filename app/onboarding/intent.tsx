@@ -12,6 +12,7 @@ import {
 } from "react-native-safe-area-context";
 import { IntentCard, SpringButton, StepDots } from "@/components/Onboarding";
 import { styled } from "nativewind";
+import { ScrollView } from "moti";
 
 type Intent = "buying" | "selling" | "both";
 
@@ -86,7 +87,7 @@ const OnboardingIntent = () => {
         </View>
 
         {/* ── Cards ── */}
-        <View className="gap-3 flex-1">
+        <ScrollView className="gap-3 flex-1">
           {INTENTS.map((item) => (
             <IntentCard
               key={item.value}
@@ -95,7 +96,7 @@ const OnboardingIntent = () => {
               onPress={() => setIntent(item.value)}
             />
           ))}
-        </View>
+        </ScrollView>
 
         {/* ── Error ── */}
         {error ? (

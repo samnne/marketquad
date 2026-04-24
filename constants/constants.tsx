@@ -120,7 +120,7 @@ export const categories: { value: string; label: string; icon: string }[] = [
   { value: "music",        label: "Instruments",    icon: "guitar"         },
   { value: "gaming",       label: "Gaming",         icon: "gamepad"        },
   { value: "stationery",   label: "Stationery",     icon: "pencil"         },
-  { value: "room",         label: "Room Decor",     icon: "lamp"           },
+  { value: "room",         label: "Room Decor",     icon: "lightbulb"           },
   { value: "tickets",      label: "Tickets & Events", icon: "ticket"       },
   { value: "transport",    label: "Transport",      icon: "car"            },
   { value: "other",        label: "Other",          icon: "box-open"       },

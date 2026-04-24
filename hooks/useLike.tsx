@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export function useLike(
   listingId: string,
-  initialLiked: boolean,
+  initialLiked: boolean | undefined | object,
   initialCount: number,
 ) {
   const [liked, setLiked] = useState(initialLiked);

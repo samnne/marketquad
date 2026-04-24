@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import ListingFormPage from "@/components/Listings/ListingFormPage";
+import { reportError } from "@/utils/functions";
 import { useLocalSearchParams } from "expo-router";
 
 import { KeyboardAvoidingView, Platform } from "react-native";
@@ -19,8 +20,8 @@ const NewPage = () => {
 
 export default function NewEdit() {
   return (
-    <ErrorBoundary>
+   
       <NewPage />
-    </ErrorBoundary>
+
   );
 }

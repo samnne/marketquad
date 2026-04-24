@@ -1,7 +1,26 @@
 import { BASE_URL } from "@/constants/constants";
 import { safeJson } from "@/lib/listing.lib";
+import { ListingStore, UserState } from "@/store/zustand";
 import { supabase } from "@/supabase/authHelper";
+import * as Sentry from "@sentry/react-native";
+import {Filter} from "bad-words"
 
+export function reportError(
+  error: Error | string,
+  context?: Record<string, any>,
+) {
+  const errorToReport = typeof error === "string" ? new Error(error) : error;
+
+  Sentry.captureException(errorToReport, {
+    extra: context || {},
+  });
+}
+
+type ImageLoaderProps = {
+  src: string,
+  width: string,
+  quality: string
+}
 
 export const cloudinaryLoader = ({ src, width, quality }: ImageLoaderProps) => {
   const transforms = `c_fill,w_${width},q_${quality ?? 75},f_auto`;
@@ -9,9 +28,9 @@ export const cloudinaryLoader = ({ src, width, quality }: ImageLoaderProps) => {
 };
 
 export function cleanUP(
-  listingStore: ListingStore,
-  userStore: UserState,
-  convoStore: ConvosState,
+  listingStore: {reset: ()=>void},
+  userStore: {reset: ()=>void},
+  convoStore: {reset: ()=>void},
 ) {
   userStore.reset();
   listingStore.reset();
@@ -67,15 +86,13 @@ export async function getUserSupabase() {
   if (error) {
     return { user: null, error, app_user: null };
   }
-  const user = await supabase
-    .from("User")
-    .select("*")
-    .eq("uid", data.user.id)
-    .single();
+  const res = await fetch(`${BASE_URL}/api/account`, {
+    method: "GET",
+    headers: { Authorization: data.user.id },
+  }).then(res => res.json());
   const supa_user = data.user;
-  return { user: supa_user, app_user: user.data };
+  return { user: supa_user, app_user: res?.user };
 }
-
 
 export const deleteConvo = async (cid: string, userId: string) => {
   const response = await fetch(`${BASE_URL}/api/conversations/${cid}`, {
@@ -87,3 +104,10 @@ export const deleteConvo = async (cid: string, userId: string) => {
 
   return safeJson(response);
 };
+const filter = new Filter();
+
+export function sanitizeText(text: string): { clean: string; flagged: boolean } {
+  
+  const clean = filter.clean(text)
+  return { clean, flagged: clean === text };
+}

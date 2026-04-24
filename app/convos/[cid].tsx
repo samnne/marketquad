@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -21,7 +21,7 @@ import {
   useUser,
 } from "@/store/zustand";
 import { socket } from "@/socketio/socket";
-import { getUserSupabase } from "@/utils/functions";
+import { getUserSupabase, sanitizeText } from "@/utils/functions";
 import { getMessagesForConvo, sendMessage } from "@/lib/messages.lib";
 import { createConvo, getConvo } from "@/lib/conversations.lib";
 import ConvoInfoModal from "@/components/Modals/ConvoInfoModal";
@@ -84,12 +84,38 @@ const CID = () => {
   }>({});
 
   // --- Logic ---
+  const getListingMetaData = useCallback(async () => {
+    if (!params.cid) return;
+    const convo = await getConvo(params.cid as string);
+    if (!convo) {
+      setError(true);
+      setMessage("Couldn't fetch convo");
+      router.back();
+      return;
+    }
+
+    setSelectedConvo(convo);
+  }, [params.cid, setError, setMessage, router, setSelectedConvo]);
+
+  const mountMessages = useCallback(async () => {
+    if (!params.cid) return;
+    const tempMessages = await getMessagesForConvo(params.cid as string);
+    if (tempMessages) setMessages(tempMessages);
+  }, [params.cid]);
+
+  const mountUser = useCallback(async () => {
+    const { user, app_user } = await getUserSupabase();
+    if (user) {
+      setUser({ ...user, app_user });
+      socket.emit("open-convo", { cid: params.cid, uid: user.id });
+    }
+  }, [params.cid, setUser]);
 
   useEffect(() => {
     mountUser();
     mountMessages();
     getListingMetaData();
-  }, [params.cid]);
+  }, [mountUser, mountMessages, getListingMetaData]);
 
   useEffect(() => {
     function onConnect() {
@@ -116,40 +142,16 @@ const CID = () => {
       socket.off("message");
       socket.off("typing");
     };
-  }, [user]);
+  }, [user, params?.cid]);
 
-  const getListingMetaData = async () => {
-    if (!params.cid) return;
-    const convo = await getConvo(params.cid as string);
-    if (!convo) {
-      setError(true);
-      setMessage("Couldn't fetch convo");
-      router.back();
-      return;
-    }
-
-    setSelectedConvo(convo);
-  };
-
-  const mountMessages = async () => {
-    if (!params.cid) return;
-    const tempMessages = await getMessagesForConvo(params.cid as string);
-    if (tempMessages) setMessages(tempMessages);
-  };
-
-  const mountUser = async () => {
-    const { user, app_user } = await getUserSupabase();
-    if (user) {
-      setUser({ ...user, app_user });
-      socket.emit("open-convo", { cid: params.cid, uid: user.id });
-    }
-  };
-
-  function handleOpenConvo() {
-    if (user?.id && params.cid) {
-      socket.emit("open-convo", { cid: params.cid, uid: user.id });
-    }
-  }
+  const handleOpenConvo = useCallback(
+    function HOP() {
+      if (user?.id && params.cid) {
+        socket.emit("open-convo", { cid: params.cid, uid: user.id });
+      }
+    },
+    [params?.cid, user?.id],
+  );
 
   const handleChangeText = (text: string) => {
     setMessageText(text);
@@ -165,14 +167,14 @@ const CID = () => {
   const handleSendMessage = async () => {
     if (!messageText.trim() || !user?.id) return;
 
-    const tempText = messageText;
+    const tempText = sanitizeText(messageText);
     setMessageText("");
     socket.emit("typing", { cid: params.cid, typing: false });
 
     // Optimistic Socket Emit
     socket.emit("message", {
       cid: params.cid,
-      message: { senderId: user.id, text: tempText },
+      message: { senderId: user.id, text: tempText.clean },
     });
 
     const isNullBuyerOrSeller =
@@ -184,7 +186,7 @@ const CID = () => {
         {
           listingId: selectedConvo?.listingId!,
           buyerId: isBuyer ? user.id : otherId.senderId,
-          initialMessage: tempText,
+          initialMessage: tempText.clean,
           sellerId: isSeller ? user.id : otherId.senderId,
         },
         selectedConvo,
@@ -196,7 +198,7 @@ const CID = () => {
       {
         conversationId: params.cid as string,
         senderId: user.id,
-        text: tempText,
+        text: tempText.clean,
       },
       user?.app_user,
     );
@@ -204,7 +206,7 @@ const CID = () => {
     if (response.new_message) {
       setMessages((prev) => [...prev, response.new_message]);
     } else {
-      setMessageError({ success: false, message_text: tempText });
+      setMessageError({ success: false, message_text: tempText.clean });
     }
   };
 
