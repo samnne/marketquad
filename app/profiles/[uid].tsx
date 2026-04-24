@@ -235,7 +235,7 @@ export default function PublicProfileScreen() {
     if (!uid || typeof uid !== "string") return;
     try {
       const res = await fetch(`${BASE_URL}/api/users/${uid}`, {
-        headers: { Authorization: authId ?? currentUser?.id ?? "" },
+        headers: { Authorization: authId ?? currentUser?.id ?? currentUser?.app_user?.uid ?? "" },
       });
       if (!res.ok) throw new Error("Failed to fetch profile");
       const json = await res.json();

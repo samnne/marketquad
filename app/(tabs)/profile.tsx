@@ -135,7 +135,7 @@ function ProfileScreen() {
       label: "Rating",
     },
   ];
-  console.log(rating)
+
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -156,7 +156,7 @@ function ProfileScreen() {
             {/* Avatar */}
             <Pressable
               onPress={() => {
-                router.push(`/profiles/${user?.id}`);
+                router.push(`/profiles/${user?.id || user?.app_user?.uid}`);
               }}
               className="w-16 h-16 rounded-full bg-primary items-center justify-center shrink-0"
             >
