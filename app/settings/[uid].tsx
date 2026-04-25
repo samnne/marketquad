@@ -4,7 +4,7 @@ import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {  Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "@/supabase/authHelper";
 
@@ -17,6 +17,7 @@ import AccountSection from "@/components/Settings/Account";
 import AboutSection from "@/components/Settings/Legal";
 import DeleteModal from "@/components/Modals/DeleteModal";
 import { uploadPFP } from "@/cloudinary/cloudinary";
+import { sanitizeText } from "@/utils/functions";
 
 type Section =
   | "profile"
@@ -32,7 +33,7 @@ const SettingsPage = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, setUser } = useUser();
-  const [deleteUser, setDeleteUser] = useState(false)
+  const [deleteUser, setDeleteUser] = useState(false);
   const { setError, setSuccess, setMessage } = useMessage();
   const u = user?.app_user;
 
@@ -45,7 +46,6 @@ const SettingsPage = () => {
   const [bio, setBio] = useState(u?.bio ?? "");
   const [profileURL, setProfileURL] = useState(u?.profileURL ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
-
 
   // ── Student state ──
   const [faculty, setFaculty] = useState<string | null>(u?.faculty ?? null);
@@ -78,39 +78,61 @@ const SettingsPage = () => {
   // ─────────────────────────────────────────────
   const saveProfile = async () => {
     if (!user) {
-      router.replace('/sign-in')
-      return
+      router.replace("/sign-in");
+      return;
     }
     setSavingProfile(true);
     try {
-      if (user?.app_user?.profileURL) {
+      const preBio = sanitizeText(bio);
+      if (preBio.flagged) {
+        setError(true);
+        setMessage("Your bio has been flagged.");
+        return;
+      }
 
-        const res = await fetch(`${BASE_URL}/api/cloudinary`, {
+      // Only upload if it's a new local file (file:// or content://)
+      // Skip if it's already a remote Cloudinary URL
+      const isNewImage = profileURL && !profileURL.startsWith("http");
+      const url = isNewImage
+        ? await uploadPFP(profileURL, user.id)
+        : (profileURL ?? "");
+
+      const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({
+          name,
+          username,
+          bio: preBio.clean,
+          profileURL: url,
+        }),
+      }).then((r) => r.json());
+
+      // Only delete old PFP if we actually uploaded a new one
+      if (isNewImage && user.app_user?.profileURL) {
+        const deleteRes = await fetch(`${BASE_URL}/api/cloudinary`, {
           method: "DELETE",
           headers: authHeaders,
           body: JSON.stringify([user.app_user.profileURL]),
         }).then((r) => r.json());
-        if (!res.success){
-          setError(false)
-          setMessage("Failed to Delete OLD PFP, contact us!")
+
+        if (!deleteRes.success) {
+          setError(false);
+          setMessage("Failed to delete old photo, contact us!");
         }
       }
-      const url  = await uploadPFP(profileURL, user?.id)
-      const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
-        method: "PATCH",
-        headers: authHeaders,
-        body: JSON.stringify({ name, username, bio, profileURL: url }),
-      }).then((r) => r.json());
- 
+
       if (!res.success) {
         setError(true);
         setMessage(res.message ?? "Failed to save.");
         return;
       }
-      setUser({ ...user, app_user: { ...u, ...res.user } });
+
+      setUser({ ...user, app_user: { ...user.app_user, ...res.user } });
       setSuccess(true);
       setMessage("Profile updated.");
-    } catch {
+    } catch (err) {
+      console.log(err);
       setError(true);
       setMessage("Network error.");
     } finally {
@@ -204,16 +226,19 @@ const SettingsPage = () => {
   const saveNotifications = async () => {
     setSavingNotif(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/users/onboarding/notifications`, {
-        method: "PATCH",
-        headers: authHeaders,
-        body: JSON.stringify({
-          notif_messages: notifMessages,
-          notif_listings: notifListings,
-          notif_sales: notifSales,
-        }),
-      }).then((r) => r.json());
-   
+      const res = await fetch(
+        `${BASE_URL}/api/users/onboarding/notifications`,
+        {
+          method: "PATCH",
+          headers: authHeaders,
+          body: JSON.stringify({
+            notif_messages: notifMessages,
+            notif_listings: notifListings,
+            notif_sales: notifSales,
+          }),
+        },
+      ).then((r) => r.json());
+
       if (!res.success) {
         setError(true);
         setMessage(res.message ?? "Failed to save.");
@@ -224,14 +249,13 @@ const SettingsPage = () => {
       setMessage("Notification preferences saved.");
     } catch (err) {
       setError(true);
-      console.log(err)
-      setMessage( "Network Error");
+      console.error(err);
+      setMessage("Network Error");
     } finally {
       setSavingNotif(false);
     }
   };
 
-  
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.replace("/");
@@ -378,7 +402,7 @@ const SettingsPage = () => {
             email={user?.email ?? ""}
             save={savePassword}
             loading={savingPw}
-            onDeleteAccount={()=>setDeleteUser(true)}
+            onDeleteAccount={() => setDeleteUser(true)}
           />
         </View>
 

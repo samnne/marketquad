@@ -1,4 +1,3 @@
-
 import DeleteModal from "@/components/Modals/DeleteModal";
 import ProfileSections from "@/components/ProfileSections";
 import { BASE_URL } from "@/constants/constants";
@@ -14,6 +13,7 @@ import { cleanUP, getUserSupabase } from "@/utils/functions";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { useRouter } from "expo-router";
+import { Image } from "moti";
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -160,9 +160,13 @@ function ProfileScreen() {
               }}
               className="w-16 h-16 rounded-full bg-primary items-center justify-center shrink-0"
             >
-              <Text className="text-[20px] font-bold text-text">
-                {initials}
-              </Text>
+              {user?.app_user?.profileURL ? (
+                <Image src={user?.app_user?.profileURL} className="w-full h-full rounded-full" />
+              ) : (
+                <Text className="text-[20px] font-bold text-text">
+                  {initials}
+                </Text>
+              )}
             </Pressable>
 
             {/* Name / email / badge */}

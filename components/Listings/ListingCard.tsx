@@ -15,10 +15,10 @@ import { useUser } from "@/store/zustand";
 const { width: W } = Dimensions.get("window");
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const ListingCard = ({ listing }: { listing: any }) => {
+const ListingCard = ({ listing }: { listing: Listing }) => {
   const scale = useSharedValue(1);
   const router = useRouter();
-  const {user} = useUser()
+  const { user } = useUser();
   const expression = user?.app_user?.likes?.find(
     (l) => l.listingId === listing?.lid,
   );
@@ -55,16 +55,23 @@ const ListingCard = ({ listing }: { listing: any }) => {
       <View className="flex-row items-center justify-between p-3">
         <View className="flex-row items-center gap-3">
           <View className="w-10 h-10 rounded-full bg-accent items-center justify-center border border-background">
-            <Text className="text-pill font-bold">
-              {listing?.seller?.name?.[0].toUpperCase()}
-            </Text>
+            {listing?.seller?.profileURL ? (
+              <Image
+                src={listing?.seller?.profileURL}
+                className="w-full h-full rounded-full"
+              />
+            ) : (
+              <Text className="text-[20px] font-bold text-text">
+                {listing?.seller?.name.at(0)}
+              </Text>
+            )}
           </View>
           <View>
             <Text className="text-[14px] font-bold text-text">
               {listing?.seller?.name}
             </Text>
             <Text className="text-[11px] text-text/50">
-              {listing?.seller?.email.split("@")[0]}
+              {listing?.seller?.username}
             </Text>
           </View>
         </View>

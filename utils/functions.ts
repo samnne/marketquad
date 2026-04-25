@@ -109,5 +109,5 @@ const filter = new Filter();
 export function sanitizeText(text: string): { clean: string; flagged: boolean } {
   
   const clean = filter.clean(text)
-  return { clean, flagged: clean === text };
+  return { clean, flagged: clean !== text };
 }

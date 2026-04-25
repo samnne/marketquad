@@ -72,6 +72,7 @@ type Listing = {
   views: number;
   description: string;
   sellerId: string;
+  seller: { name: string; profileURL: string; username: string, email: string };
   likes: [];
   conversations: Conversation[];
   _count: { likes: number };

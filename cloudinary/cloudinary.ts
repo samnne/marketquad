@@ -12,6 +12,7 @@ export async function getCloudinarySignature(
     },
   });
 
+
   return await res.json();
 }
 
@@ -33,6 +34,7 @@ export async function uploadImages(
   return Promise.all(imagesToUpload);
 }
 export async function uploadPFP(uri: string, uid: string) {
+
   const { timestamp, signature, cloudName, apiKey } =
     await getCloudinarySignature(uid, "pfp");
 
@@ -46,7 +48,7 @@ export async function uploadPFP(uri: string, uid: string) {
   formData.append("signature", signature);
   formData.append("api_key", apiKey!);
   formData.append("folder", "pfp");
-  formData.append("moderation", "aws_rek");  // ← add this
+  
 
   const res = await fetch(
     `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
@@ -54,7 +56,7 @@ export async function uploadPFP(uri: string, uid: string) {
   );
 
   const data = await res.json();
-
+  console.log(   data)
   
   if (data.moderation?.[0]?.status === "rejected") {
     throw new Error("IMAGE_REJECTED");
