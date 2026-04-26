@@ -72,6 +72,7 @@ const OnboardingProfile = () => {
   };
 
   const handleContinue = async () => {
+    
     if (!canContinue) return;
     setLoading(true);
     setError("");
@@ -132,10 +133,10 @@ const OnboardingProfile = () => {
             <View className="flex-row items-center justify-between">
               <StepDots total={5} current={0} />
               <Pressable
-                onPress={() => router.push("/onboarding/intent")}
+                onPress={() => router.push("/onboarding/verification")}
                 hitSlop={12}
               >
-                <Text className="text-sm text-secondary/70 font-medium">
+                <Text className="text-sm text-text/70 font-medium">
                   Skip
                 </Text>
               </Pressable>
@@ -143,10 +144,10 @@ const OnboardingProfile = () => {
 
             {/* ── Header ── */}
             <View className="gap-2">
-              <Text className="text-3xl font-bold text-text tracking-tight">
+              <Text className="text-5xl font-bold text-text tracking-tight">
                 Set up your profile
               </Text>
-              <Text className="text-sm font-light text-secondary leading-5">
+              <Text className="text-lg font-light text-text leading-5">
                 This is how other students will see you on MarketQuad.
               </Text>
             </View>
@@ -164,9 +165,9 @@ const OnboardingProfile = () => {
             <View className="gap-5">
               <Field label="Display name">
                 <TextInput
-                  className="w-full h-13 px-4 border border-secondary/20 rounded-2xl bg-pill text-text text-base"
+                  className="w-full h-15 px-4 shadow leading-none   rounded-2xl bg-pill text-text text-lg"
                   placeholder="Jane Smith"
-                  placeholderTextColor={colors.secondary + "60"}
+                  placeholderTextColor={colors.text + "60"}
                   value={name}
                   onChangeText={setName}
                   autoCapitalize="words"
@@ -180,7 +181,7 @@ const OnboardingProfile = () => {
                 right={
                   username.length > 0 ? (
                     <Text
-                      className={`text-xs font-semibold ${
+                      className={`text-xs absolute right-0 font-semibold ${
                         usernameOk ? "text-green-500" : "text-red-400"
                       }`}
                     >
@@ -190,19 +191,19 @@ const OnboardingProfile = () => {
                 }
               >
                 <View className="relative">
-                  <Text className="absolute left-4 top-3.5 text-base text-secondary z-10">
+                  <Text className="absolute left-4 top-4 text-lg text-text z-10">
                     @
                   </Text>
                   <TextInput
-                    className={`w-full h-13 pl-9 pr-4 border rounded-2xl bg-pill text-text text-base ${
+                    className={`w-full h-15  pl-9 leading-none   border shadow rounded-2xl bg-pill text-text text-lg ${
                       username.length > 0 && !usernameOk
                         ? "border-red-400/60"
                         : username.length > 0 && usernameOk
                           ? "border-green-500/40"
-                          : "border-secondary/20"
+                          : "border-0"
                     }`}
                     placeholder="jane.smith"
-                    placeholderTextColor={colors.secondary + "60"}
+                    placeholderTextColor={colors.text + "60"}
                     value={username}
                     onChangeText={(v) =>
                       setUsername(v.toLowerCase().replace(/[^a-z0-9._]/g, ""))
@@ -217,17 +218,17 @@ const OnboardingProfile = () => {
 
               <Field
                 label="Bio"
-                hint="Optional — tell buyers a bit about yourself"
+                hint="Tell buyers a bit about yourself (Optional)"
                 right={
-                  <Text className="text-xs text-secondary/50">
+                  <Text className="text-sm text-text/50">
                     {bio.length}/120
                   </Text>
                 }
               >
                 <TextInput
-                  className="w-full px-4 py-3 border border-secondary/20 rounded-2xl bg-pill text-text text-base"
+                  className="w-full px-4 py-3 shadow   rounded-2xl bg-pill text-text text-lg"
                   placeholder="3rd year CS student selling textbooks and a desk..."
-                  placeholderTextColor={colors.secondary + "60"}
+                  placeholderTextColor={colors.text + "60"}
                   value={bio}
                   onChangeText={(v) => setBio(v.slice(0, 120))}
                   multiline
@@ -269,7 +270,7 @@ const OnboardingProfile = () => {
             )}
           </SpringButton>
 
-          <Text className="text-xs text-center text-secondary/50">
+          <Text className="text-xs text-center text-text/50">
             You can always update this in your profile settings
           </Text>
         </View>

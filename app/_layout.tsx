@@ -7,45 +7,42 @@ import { AnimatePresence } from "moti";
 import SuccessMessage from "@/components/Modals/SuccessMessage";
 import ErrorMessage from "@/components/Modals/ErrorMessage";
 import { useMessage } from "@/store/zustand";
-import * as Sentry from "@sentry/react-native";
+
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { PostHogProvider } from "posthog-react-native";
-import { Button } from "react-native";
+import PostHog, { PostHogProvider } from "posthog-react-native";
 
-Sentry.init({
-  dsn: process.env.EXP_PUBLIC_SENTRY_DSN,
-  sendDefaultPii: true,
-  enableLogs: true,
-
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1,
-  integrations: [
-    Sentry.mobileReplayIntegration(),
-    Sentry.feedbackIntegration(),
-  ],
-  spotlight: __DEV__,
+const posthog = new PostHog(process.env.EXPO_PUBLIC_POSTHOG_KEY!, {
+  host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
+  errorTracking: {
+    autocapture: {
+      uncaughtExceptions: true,
+      unhandledRejections: true,
+      console: ["log", "warn", "error"],
+    },
+  },
 });
-export default Sentry.wrap(function RootLayout() {
+export default function RootLayout() {
   const { success, error, msg } = useMessage();
 
   return (
     <ErrorBoundary
       onError={(err, info) => {
-        Sentry.captureException(err, {
-          extra: { componentStack: info.componentStack },
-        });
+        posthog.captureException(err);
       }}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <PostHogProvider
           apiKey={process.env.EXPO_PUBLIC_POSTHOG_KEY!}
-          options={{ host: process.env.EXPO_PUBLIC_POSTHOG_HOST, errorTracking:{
-            autocapture: {
-              uncaughtExceptions: true,
-              unhandledRejections: true,
-              console: ['error', __DEV__ ? "log" : "info", "warn"]
-            }
-          } }}
+          options={{
+            host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
+            errorTracking: {
+              autocapture: {
+                uncaughtExceptions: true,
+                unhandledRejections: true,
+                console: ["error", __DEV__ ? "log" : "info", "warn"],
+              },
+            },
+          }}
         >
           <NotificationProvider>
             <AnimatePresence>
@@ -58,4 +55,4 @@ export default Sentry.wrap(function RootLayout() {
       </GestureHandlerRootView>
     </ErrorBoundary>
   );
-});
+}

@@ -99,10 +99,10 @@ const OnboardingVerification = () => {
 
           {/* ── Header ── */}
           <View className="gap-2">
-            <Text className="text-3xl font-bold text-text tracking-tight">
+            <Text className="text-5xl font-bold text-text tracking-tight">
               Your student info
             </Text>
-            <Text className="text-sm font-light text-secondary leading-5">
+            <Text className="text-lg font-light text-text/70 leading-5">
               This shows up on your listings and helps buyers trust who they&apos;re
               buying from.
             </Text>
@@ -188,7 +188,7 @@ const OnboardingVerification = () => {
               ? "Select your faculty to continue"
               : !year
                 ? "Select your year to continue"
-                : "Looking good — ready to continue"}
+                : "Looking good, you can continue"}
         </Text>
 
         <SpringButton

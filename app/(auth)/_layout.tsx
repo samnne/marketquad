@@ -75,7 +75,7 @@ const AuthContent = () => (
           Welcome to{" "}
           <Text className="font-bold text-primary"><MarketQuad className="font-bold text-primary"/></Text>
         </Text>
-        <Text className="text-sm font-light text-secondary leading-5">
+        <Text className="text-sm font-light text-text/70 leading-5">
           UVic&apos;s student-only marketplace. Built by a student, for students.
         </Text>
       </View>

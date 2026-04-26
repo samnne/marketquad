@@ -2,13 +2,14 @@ import { Text, Pressable } from "react-native";
 
 import { categories } from "@/constants/constants";
 import { ScrollView, View } from "moti";
+import { Dispatch, SetStateAction } from "react";
 
 const CategoryChips = ({
   activeCategory,
   setActiveCategory,
 }: {
   activeCategory: string;
-  setActiveCategory: (val: string) => void;
+  setActiveCategory: Dispatch<SetStateAction<string>>;
 }) => {
   return (
     <View  className="flex-row items-center pr-2.5 mb-2">
@@ -24,7 +25,7 @@ const CategoryChips = ({
             <Pressable
               key={cat.value}
               id={cat.value}
-              onPress={() => setActiveCategory(cat.label)}
+              onPress={() => setActiveCategory((prev: string) => cat.label === prev ? "All" : cat.label)}
               className={`px-4 py-1.5 rounded-xl border ${on ? "bg-primary border-primary" : "bg-pill border-background"}`}
             >
               <Text

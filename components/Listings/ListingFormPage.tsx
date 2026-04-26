@@ -336,7 +336,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
           },
           user.id,
         );
-     
+       
         if (res.success) {
           setSuccess(true);
           setMessage("Listing posted successfully!");
@@ -497,7 +497,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
             style={[styles.textArea]}
             value={formData.description}
             onChangeText={(v) => setFormData((p) => ({ ...p, description: v }))}
-            placeholder="Describe the item — edition, defects, extras included…"
+            placeholder="Describe the item edition, defects, extras included…"
             placeholderTextColor={colors.primary + "40"}
             multiline
             numberOfLines={4}

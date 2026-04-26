@@ -28,6 +28,7 @@ import ConvoInfoModal from "@/components/Modals/ConvoInfoModal";
 import ReviewModal from "@/components/Modals/ReviewModal";
 
 import TypingIndicator from "@/components/TypingIndicator";
+import { MotiView } from "moti";
 
 const SafeAreaView = styled(RNSAV);
 const StyledText = styled(Text);
@@ -66,7 +67,8 @@ const CID = () => {
 
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [typing, setTyping] = useState(false);
-
+  const initialMessageIds = useRef<Set<string>>(new Set());
+  const hasMounted = useRef(false);
   const { selectedConvo, setSelectedConvo } = useConvos();
   const { setReviewModal, reviewModal } = useReviewModal();
   const { setError, setMessage } = useMessage();
@@ -87,7 +89,7 @@ const CID = () => {
   const getListingMetaData = useCallback(async () => {
     if (!params.cid) return;
     const convo = await getConvo(params.cid as string);
-    if (!convo) {
+    if (!convo && router.canGoBack()) {
       setError(true);
       setMessage("Couldn't fetch convo");
       router.back();
@@ -100,9 +102,15 @@ const CID = () => {
   const mountMessages = useCallback(async () => {
     if (!params.cid) return;
     const tempMessages = await getMessagesForConvo(params.cid as string);
-    if (tempMessages) setMessages(tempMessages);
+    if (tempMessages) {
+      // Snapshot the IDs so initial messages don't animate
+      initialMessageIds.current = new Set(
+        tempMessages?.map((m: Message) => m.mid?.toString()),
+      );
+      hasMounted.current = true;
+      setMessages(tempMessages);
+    }
   }, [params.cid]);
-
   const mountUser = useCallback(async () => {
     const { user, app_user } = await getUserSupabase();
     if (user) {
@@ -179,7 +187,7 @@ const CID = () => {
 
     const isNullBuyerOrSeller =
       !selectedConvo?.buyerId || !selectedConvo?.sellerId;
-    const otherId = messages.find((msg) => msg.senderId !== user?.id);
+    const otherId = messages?.find((msg) => msg.senderId !== user?.id);
 
     if (isNullBuyerOrSeller && otherId) {
       const newCon = await createConvo(
@@ -213,10 +221,12 @@ const CID = () => {
   const listing = selectedConvo?.listing;
 
   // --- Render Helpers ---
-
   const renderMessage = ({ item, index }: { item: Message; index: number }) => {
     if (!user) return null;
     const isMine = item?.senderId === user?.id;
+    const isNew =
+      hasMounted.current &&
+      !initialMessageIds.current.has(item.mid?.toString());
 
     const prevMsg = messages[index - 1];
     const showDivider =
@@ -235,8 +245,21 @@ const CID = () => {
         : seller?.uid === user.id
           ? seller
           : "Temp";
+
     return (
-      <View className="mb-2">
+      <MotiView
+        key={`ewft fbegw${item.mid}ferngurbdfva ${index}`}
+        from={
+          isNew ? { opacity: 0, translateY: 16 } : { opacity: 1, translateY: 0 }
+        }
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={
+          isNew
+            ? { type: "spring", damping: 18, stiffness: 200, mass: 0.8 }
+            : { type: "timing", duration: 0 } // instant for loaded messages
+        }
+        className="mb-2"
+      >
         {showDivider && item.createdAt && (
           <Text className="text-center text-[11px] text-secondary my-3">
             {formatDateDivider(item.createdAt)}
@@ -248,7 +271,7 @@ const CID = () => {
           {!isMine && (
             <View className="w-6 h-6 rounded-full bg-gray-300 items-center justify-center mr-1 mb-1">
               <Text className="text-[10px] font-bold">
-                {(curUser !== "Temp" && curUser?.name?.[0].toUpperCase()) ||
+                {(curUser !== "Temp" && curUser?.name?.[0]?.toUpperCase()) ||
                   "?"}
               </Text>
             </View>
@@ -284,7 +307,7 @@ const CID = () => {
             </View>
           </View>
         </View>
-      </View>
+      </MotiView>
     );
   };
 

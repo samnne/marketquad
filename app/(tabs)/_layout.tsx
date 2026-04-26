@@ -148,7 +148,7 @@ const TabsLayout = () => {
   }): ReactNode {
     return (
       <View className={`size-30  items-center pb-2  justify-center`}>
-        <View className={`  size-10 items-center justify-center rounded-full`}>
+        <View className={`size-10 items-center justify-center rounded-full`}>
           {icon({ color: focused ? colors.primary : colors.text })}
         </View>
         <Text
@@ -172,6 +172,7 @@ const TabsLayout = () => {
         </AnimatePresence>
 
         <Tabs
+        
           tabBar={(props) => <CustomTabBar {...props} />}
           screenOptions={{
             headerShown: true,
@@ -192,6 +193,7 @@ const TabsLayout = () => {
               marginVertical: 5, // 3. Nudge items to center or push up
             },
             animation: "shift",
+            
             tabBarIconStyle: {
               width: tabBar.iconFrame,
 
@@ -213,6 +215,7 @@ const TabsLayout = () => {
             <Tabs.Screen
               key={`wewrq${tab.name}fewqrw`}
               name={tab.name}
+              
               options={{
                 title: tab.title,
                 tabBarIcon: ({ focused }) => (

@@ -67,8 +67,8 @@ const FavsScreen = () => {
       >
         {savedItems.length > 0 ? (
           <View className="pt-2">
-            {savedItems.map((item) => (
-              <ListingCard key={item.lid} listing={item} />
+            {savedItems.map((item,i) => (
+              <ListingCard key={`vnrvewiniovwe${item.lid}fewbfeyvbqui${i}`} listing={item} />
             ))}
           </View>
         ) : (

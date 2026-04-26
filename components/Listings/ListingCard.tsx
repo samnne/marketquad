@@ -61,7 +61,7 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
                 className="w-full h-full rounded-full"
               />
             ) : (
-              <Text className="text-[20px] font-bold text-text">
+              <Text className="text-[20px] font-bold text-white">
                 {listing?.seller?.name.at(0)}
               </Text>
             )}

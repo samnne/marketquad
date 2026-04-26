@@ -1,4 +1,4 @@
-import DeleteModal from "@/components/Modals/DeleteModal";
+
 import ProfileSections from "@/components/ProfileSections";
 import { BASE_URL } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
@@ -14,7 +14,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { useRouter } from "expo-router";
 import { Image } from "moti";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import {
   Alert,
   Pressable,
@@ -44,11 +44,11 @@ function ProfileScreen() {
     setUser,
     reset: userReset,
   } = useUser();
-  const { reset: convoReset, convos, setConvos } = useConvos();
+  const { reset: convoReset, setConvos } = useConvos();
   const { reset: lisReset } = useListings();
 
   const { setError, setSuccess, setMessage } = useMessage();
-  const [deleteUser, setDeleteUser] = useState(false);
+
 
   const { refreshing, onRefresh } = useRefresh({
     func: async () => {
@@ -227,7 +227,7 @@ function ProfileScreen() {
 
         {/* ── Your market ── */}
         <Animated.View entering={FadeInDown.duration(300).delay(80)}>
-          <Text className="text-[11px] font-medium text-primary uppercase tracking-widest mb-2.5 pl-1">
+          <Text className="text-[11px] font-medium text-text uppercase tracking-widest mb-2.5 pl-1">
             Your market
           </Text>
           <View className="bg-pill rounded-[20px] border border-primary/25 overflow-hidden">
@@ -257,7 +257,7 @@ function ProfileScreen() {
 
         {/* ── Settings ── */}
         <Animated.View entering={FadeInDown.duration(300).delay(140)}>
-          <Text className="text-[11px] font-medium text-primary uppercase tracking-widest mb-2.5 pl-1">
+          <Text className="text-[11px] font-medium text-text uppercase tracking-widest mb-2.5 pl-1">
             Settings
           </Text>
           <View className="bg-pill rounded-[20px] border border-primary/25 overflow-hidden">
@@ -295,47 +295,11 @@ function ProfileScreen() {
           </View>
         </Animated.View>
 
-        {/* ── Danger zone ── */}
-        <Animated.View entering={FadeInDown.duration(300).delay(200)}>
-          <Text className="text-[11px] font-medium text-primary uppercase tracking-widest mb-2.5 pl-1">
-            Danger zone
-          </Text>
-          <View className="bg-pill rounded-[20px] border border-primary/25 overflow-hidden">
-            <View className="flex-row items-center justify-between px-4 py-3.5">
-              <View className="flex-row items-center gap-3">
-                <View className="w-9 h-9 rounded-[10px] bg-red-50 border border-red-200 items-center justify-center">
-                  <FontAwesome name="warning" size={14} color="#dc2626" />
-                </View>
-                <View>
-                  <Text className="text-[14px] font-medium text-red-600">
-                    Delete account
-                  </Text>
-                  <Text className="text-[11px] text-primary">
-                    This cannot be undone
-                  </Text>
-                </View>
-              </View>
-              <Pressable
-                onPress={() => setDeleteUser(true)}
-                className="bg-red-50 border border-red-200 px-4 py-2 rounded-xl"
-              >
-                <Text className="text-red-600 text-[13px] font-bold">
-                  Delete
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </Animated.View>
+        
       </View>
 
-      {/* ── Delete modal ── */}
-      {deleteUser && (
-        <DeleteModal
-          session={user || null}
-          setDeleteUser={setDeleteUser}
-          deleteUser={deleteUser}
-        />
-      )}
+     
+    
     </ScrollView>
   );
 }

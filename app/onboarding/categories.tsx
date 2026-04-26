@@ -50,10 +50,10 @@ const CategoryTile = ({
       onPressIn={() => (scale.value = withSpring(0.9, { stiffness: 500 }))}
       onPressOut={() => (scale.value = withSpring(1, { stiffness: 500 }))}
       onPress={onPress}
-      className={`items-center justify-center gap-2 py-4 rounded-2xl border-2 ${
+      className={`items-center justify-center gap-2 py-4 rounded-2xl shadow ${
         selected
-          ? "bg-primary/10 border-primary"
-          : "bg-pill border-secondary/15"
+          ? "bg-primary/10 shadow-primary"
+          : "bg-pill "
       }`}
     >
       {/* Check badge */}
@@ -65,13 +65,13 @@ const CategoryTile = ({
 
       <View
         className={`w-10 h-10 rounded-xl items-center justify-center ${
-          selected ? "bg-primary" : "bg-secondary/10"
+          selected ? "bg-primary" : "bg-primary/10"
         }`}
       >
         <FontAwesome6
           name={icon as any}
           size={16}
-          color={selected ? colors.pill : colors.secondary}
+          color={selected ? colors.pill : colors.text}
         />
       </View>
       <Text
@@ -93,16 +93,15 @@ const SelectedStrip = ({
   selected: string[];
   onRemove: (val: string) => void;
 }) => {
-  if (selected.length === 0) return null;
-
+ 
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-2 px-6"
+      contentContainerClassName="gap-2   px-6"
       className="-mx-6"
     >
-      {selected.map((val) => {
+      {selected?.map((val) => {
         const cat = categories.find((c) => c.value === val)!;
         return (
           <Pressable
@@ -110,7 +109,7 @@ const SelectedStrip = ({
             onPress={() => onRemove(val)}
             className="flex-row items-center gap-1.5 bg-primary/10 border border-primary/30 px-3 py-1.5 rounded-full"
           >
-            <Text className="text-xs font-semibold text-primary">
+            <Text className="text-base font-semibold text-primary">
               {cat.label}
             </Text>
             <FontAwesome6 name="xmark" size={10} color={colors.primary} />
@@ -187,16 +186,16 @@ const OnboardingCategories = () => {
             onPress={() => router.push("/onboarding/notifications")}
             hitSlop={12}
           >
-            <Text className="text-sm text-secondary/70 font-medium">Skip</Text>
+            <Text className="text-sm text-text/70 font-medium">Skip</Text>
           </Pressable>
         </View>
 
         {/* ── Header ── */}
         <View className="gap-2">
-          <Text className="text-3xl font-bold text-text tracking-tight">
+          <Text className="text-5xl font-bold text-text tracking-tight">
             What are you into?
           </Text>
-          <Text className="text-sm font-light text-secondary leading-5">
+          <Text className="text-xl font-light text-text leading-5">
             Pick at least {MIN_SELECTED} categories to personalise your feed and
             alerts.
           </Text>
@@ -232,13 +231,13 @@ const OnboardingCategories = () => {
       <View className="px-6 pb-4 gap-3 border-t border-secondary/10 pt-4 bg-background">
         {/* Counter bar */}
         <View className="flex-row items-center justify-between px-0.5">
-          <Text className="text-xs text-secondary/60">
+          <Text className="text-xs text-text/60">
             {selected.length > 0
               ? `${selected.length} selected`
               : "None selected yet"}
           </Text>
           {!canContinue && (
-            <Text className="text-xs text-secondary/60">
+            <Text className="text-xs text-text/60">
               {remaining} more to go
             </Text>
           )}

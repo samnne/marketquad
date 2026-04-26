@@ -1,11 +1,11 @@
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+
 import ListingCard from "@/components/Listings/ListingCard";
 import CategoryChips from "@/components/Utils/CategoryChips";
-import { categories } from "@/constants/constants";
+
 import { components } from "@/constants/theme";
 import { useRefresh } from "@/hooks/useRefresh";
 import { useConvos, useListings, useUser } from "@/store/zustand";
-import { fetchConvos, fetchListings, getUserSupabase, reportError } from "@/utils/functions";
+import { fetchConvos, fetchListings, getUserSupabase } from "@/utils/functions";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -149,7 +149,7 @@ function HomeScreen() {
                 </Text>
               </View>
             ) : (
-              filtered?.map((l) => <ListingCard key={l.lid} listing={l} />)
+              filtered?.map((l) => <ListingCard key={`fewfwfwe${l.lid}uvu`} listing={l} />)
             )}
           </View>
         ) : (
@@ -159,7 +159,7 @@ function HomeScreen() {
               onSeeAll={() => router.push("/listings?sort=views")}
             />
             {hot.length > 0 ? (
-              hot.map((l) => <ListingCard key={l.lid} listing={l} />)
+              hot.map((l) => <ListingCard key={`fbolsnba${l.lid}uvu`} listing={l} />)
             ) : (
               <View className="mx-4 my-2 py-10 items-center gap-2 bg-pill rounded-2xl border border-secondary/10">
                 <Text className="text-2xl"></Text>
@@ -177,7 +177,7 @@ function HomeScreen() {
               onSeeAll={() => router.push("/listings")}
             />
             {forYou.length > 0 ? (
-              forYou.map((l) => <ListingCard key={l.lid} listing={l} />)
+              forYou.map((l) => <ListingCard key={`fwefwetbfabd${l.lid}uvu`} listing={l} />)
             ) : (
               <View className="mx-4 my-2 py-10 items-center gap-2 bg-pill rounded-2xl border border-secondary/10">
                 <Text className="text-text font-semibold text-sm">
@@ -204,8 +204,8 @@ function HomeScreen() {
 }
 export default function Home() {
   return (
-  <ErrorBoundary onError={reportError}>
+ 
       <HomeScreen />
-    </ErrorBoundary>
+
   );
 }

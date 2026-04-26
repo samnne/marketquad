@@ -68,6 +68,7 @@ export default function ProfileSection(props: Props) {
 
   // Resolve which image source to show: local pick > remote pfp > initials fallback
   const avatarUri = localPfpUri ?? props.pfpUrl ?? null;
+
   const initials =
     props.name
       .split(" ")
@@ -92,7 +93,7 @@ export default function ProfileSection(props: Props) {
             className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center border-2 border-primary/20 overflow-hidden"
           >
             {avatarUri ? (
-              <Image source={{ uri: avatarUri }} className="w-full rounded-full h-full" />
+              <Image source={{ uri: avatarUri, }} className="w-full rounded-full h-full" />
             ) : (
               <Text className="text-2xl font-bold text-primary">{initials}</Text>
             )}

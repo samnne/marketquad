@@ -2,43 +2,64 @@ import { useUser } from "@/store/zustand";
 import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
-
-import {
- 
-  Text,
-  View,
-} from "react-native";
+import bgImage from "@/assets/images/images.jpg";
+import { StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
 import Animated, {
- 
   FadeIn,
   FadeInDown,
   FadeInUp,
 } from "react-native-reanimated";
-import { SafeAreaView as RNSAV, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView as RNSAV,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { styled } from "nativewind";
-import { FeatureRow, SpringButton, StatPill, SuccessRing } from "@/components/Onboarding";
+import {
+  FeatureRow,
+  SpringButton,
+  StatPill,
+  SuccessRing,
+} from "@/components/Onboarding";
 import { useEffect } from "react";
 import { db } from "@/db/db";
-const SafeAreaView = styled(RNSAV)
+
+const SafeAreaView = styled(RNSAV);
 
 const OnboardingWelcome = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useUser();
-  useEffect(()=> {
-    db.setItem("ONBOARDING", "true")
-  }, [])
+  useEffect(() => {
+    db.setItem("ONBOARDING", "true");
+  }, []);
   const firstName = user?.app_user?.name?.split(" ")[0] ?? "there";
 
   return (
     <SafeAreaView
       className="flex-1 bg-background "
-      style={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom,  }}
+      style={{
+        paddingTop: insets.top + 16,
+        paddingBottom: insets.bottom,
+      }}
     >
-      <View className="flex-1 gap-5 px-8">
+  
 
+      <Image
+        source={bgImage}
+       style={StyleSheet.create({
+        wrapper: {...StyleSheet.absoluteFillObject, opacity: 0.2}
+       }).wrapper}
+        contentFit={"cover"}
+        className="w-full h-full  "
+      />
+
+      <View className="flex-1 gap-5 px-8">
         {/* ── Success ring ── */}
-        <Animated.View entering={FadeIn.delay(100)} className="items-center pt-4">
+        <Animated.View
+          entering={FadeIn.delay(100)}
+          className="items-center pt-4"
+        >
           <SuccessRing />
         </Animated.View>
 
@@ -51,8 +72,8 @@ const OnboardingWelcome = () => {
             You&apos;re all set,{"\n"}
             <Text className="text-primary">{firstName}!</Text>
           </Text>
-          <Text className="text-sm font-light text-secondary text-center leading-5">
-            Welcome to MarketQuad — UVic&apos;s own student marketplace.
+          <Text className="text-sm font-light text-text/70 text-center leading-5">
+            Welcome to MarketQuad, a student marketplace for UVic.
           </Text>
         </Animated.View>
 
@@ -61,7 +82,12 @@ const OnboardingWelcome = () => {
           entering={FadeInUp.delay(550).springify().damping(100)}
           className="flex-row gap-3"
         >
-          <StatPill icon="users" value="20+" label="UVic students" delay={600} />
+          <StatPill
+            icon="users"
+            value="20+"
+            label="UVic students"
+            delay={600}
+          />
           <StatPill icon="tag" value="Free" label="To list & buy" delay={680} />
           <StatPill icon="bolt" value="Fast" label="Local pickup" delay={760} />
         </Animated.View>
@@ -71,7 +97,7 @@ const OnboardingWelcome = () => {
           entering={FadeInDown.delay(700).springify().damping(100)}
           className="gap-2"
         >
-          <Text className="text-xs font-semibold tracking-widest uppercase text-secondary px-0.5">
+          <Text className="text-lg font-semibold tracking-widest uppercase text-text px-0.5">
             What you can do now
           </Text>
           <View className="gap-4">
@@ -84,7 +110,7 @@ const OnboardingWelcome = () => {
             <FeatureRow
               icon="plus"
               title="Post your first listing"
-              body="List something in under 2 minutes — no fees, ever."
+              body="List something in under 2 minutes."
               delay={860}
             />
             <FeatureRow
@@ -116,11 +142,11 @@ const OnboardingWelcome = () => {
 
         <SpringButton
           onPress={() => router.replace("/new")}
-          className="h-12 bg-primary/10 border border-primary/20 rounded-2xl items-center justify-center"
+          className="h-12 bg-primary/25 border border-primary/20 rounded-2xl items-center justify-center"
         >
           <View className="flex-row items-center gap-2">
             <FontAwesome6 name="plus" size={12} color={colors.primary} />
-            <Text className="text-sm font-semibold text-primary">
+            <Text className="text-lg font-semibold text-primary">
               Post a listing
             </Text>
           </View>

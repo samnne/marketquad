@@ -359,9 +359,9 @@ export default function ListingPage() {
             {/* Tab switcher */}
             <Animated.View entering={FadeInDown.duration(300).delay(60)}>
               <View className="flex-row bg-background rounded-xl p-1">
-                {(["about", "details"] as const).map((t) => (
+                {(["about", "details"] as const).map((t,index) => (
                   <Pressable
-                    key={t}
+                    key={`${t}${index}`}
                     onPress={() => setTab(t)}
                     className={`flex-1 py-2 rounded-lg items-center ${tab === t ? "bg-pill" : "transparent"}`}
                   >
@@ -578,9 +578,9 @@ export default function ListingPage() {
             ) : (
               (listing?.conversations ?? [])
                 .filter((c: any) => c.buyerId === user?.id)
-                .map((convo: any) => (
+                .map((convo: any, i: number) => (
                   <Pressable
-                    key={convo.cid}
+                    key={`${convo.cid}fwinbndfbwevi${i}`}
                     onPress={() => {
                       setSelectedConvo(convo);
                       router.push(`/convos/${convo.cid}`);

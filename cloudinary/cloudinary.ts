@@ -56,7 +56,7 @@ export async function uploadPFP(uri: string, uid: string) {
   );
 
   const data = await res.json();
-  console.log(   data)
+ 
   
   if (data.moderation?.[0]?.status === "rejected") {
     throw new Error("IMAGE_REJECTED");

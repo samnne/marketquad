@@ -55,7 +55,7 @@ const fieldStyles = StyleSheet.create({
     fontWeight: "600",
     letterSpacing: 0.8,
     textTransform: "uppercase",
-    color: colors.secondary,
+    color: colors.text,
     paddingHorizontal: 2,
   },
 });
@@ -424,7 +424,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           <TextInput
             style={s.input}
             placeholder="Jane Smith"
-            placeholderTextColor={colors.secondary + "80"}
+            placeholderTextColor={colors.text + "80"}
             value={formData.name}
             onChangeText={(v) => setFormData((p) => ({ ...p, name: v }))}
             autoCapitalize="words"
@@ -437,7 +437,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           <TextInput
             style={[s.input, s.inputWithIcon]}
             placeholder="netlink@uvic.ca"
-            placeholderTextColor={colors.secondary + "80"}
+            placeholderTextColor={colors.text + "80"}
             value={formData.email}
             onChangeText={(v) => setFormData((p) => ({ ...p, email: v }))}
             keyboardType="email-address"
@@ -458,7 +458,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           <TextInput
             style={[s.input, s.inputWithIcon]}
             placeholder="••••••••"
-            placeholderTextColor={colors.secondary + "80"}
+            placeholderTextColor={colors.text + "80"}
             value={formData.password}
             onChangeText={(v) => setFormData((p) => ({ ...p, password: v }))}
             secureTextEntry={!showPassword}
@@ -534,7 +534,7 @@ const s = StyleSheet.create({
   input: {
     height: INPUT_HEIGHT,
     borderWidth: 1.5,
-    borderColor: colors.secondary + "30",
+    borderColor: colors.text + "30",
     borderRadius: RADIUS,
     paddingHorizontal: 16,
     fontSize: 15,

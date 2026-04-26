@@ -129,7 +129,7 @@ const UserListings = ({
           {displayedListings.length > 0 ? (
             displayedListings.map((listing, i) => (
               <Animated.View
-                key={listing.lid}
+                key={`${listing.lid}${i}fisnuvdsnvinwe`}
                 entering={FadeInDown.duration(300).delay(Math.min(i * 40, 300))}
               >
                 <ListingCard

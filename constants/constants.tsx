@@ -3,7 +3,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-export const UVIC_LNG_LAT: number[]  = [-123.312603, 48.463816];
+export const UVIC_LNG_LAT: number[] = [-123.312603, 48.463816];
 export const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
 export const tabs = [
@@ -36,6 +36,8 @@ export const tabs = [
     ),
   },
 ];
+export const ONBOARDING_KEY = "ONBOARDING";
+export const ONBOARDING_VALUE = "true";
 
 export const FACULTIES = [
   { label: "Engineering & Computer Science", icon: "microchip" },
@@ -56,8 +58,6 @@ export const YEARS = [
   { label: "5th year+", value: 5 },
   { label: "Graduate", value: 6 },
 ] as const;
-
-
 
 export const newSingle = {
   name: "new",
@@ -91,7 +91,7 @@ export const INTENTS: {
     icon: "tag",
     perks: [
       "List in under 2 minutes",
-      "Reach 10k+ UVic students",
+      "Reach vikes fast!",
       "Get paid fast",
     ],
   },
@@ -108,24 +108,22 @@ export const INTENTS: {
   },
 ];
 
-
 export const categories: { value: string; label: string; icon: string }[] = [
-  { value: "textbooks",    label: "Textbooks",      icon: "book"           },
-  { value: "electronics",  label: "Electronics",    icon: "laptop"         },
-  { value: "furniture",    label: "Furniture",      icon: "couch"          },
-  { value: "clothing",     label: "Clothing",       icon: "shirt"          },
-  { value: "bikes",        label: "Bikes",          icon: "bicycle"        },
-  { value: "kitchen",      label: "Kitchen",        icon: "utensils"       },
-  { value: "sports",       label: "Sports & Fitness", icon: "dumbbell"     },
-  { value: "music",        label: "Instruments",    icon: "guitar"         },
-  { value: "gaming",       label: "Gaming",         icon: "gamepad"        },
-  { value: "stationery",   label: "Stationery",     icon: "pencil"         },
-  { value: "room",         label: "Room Decor",     icon: "lightbulb"           },
-  { value: "tickets",      label: "Tickets & Events", icon: "ticket"       },
-  { value: "transport",    label: "Transport",      icon: "car"            },
-  { value: "other",        label: "Other",          icon: "box-open"       },
+  { value: "textbooks", label: "Textbooks", icon: "book" },
+  { value: "electronics", label: "Electronics", icon: "laptop" },
+  { value: "furniture", label: "Furniture", icon: "couch" },
+  { value: "clothing", label: "Clothing", icon: "shirt" },
+  { value: "bikes", label: "Bikes", icon: "bicycle" },
+  { value: "kitchen", label: "Kitchen", icon: "utensils" },
+  { value: "sports", label: "Sports & Fitness", icon: "dumbbell" },
+  { value: "music", label: "Instruments", icon: "guitar" },
+  { value: "gaming", label: "Gaming", icon: "gamepad" },
+  { value: "stationery", label: "Stationery", icon: "pencil" },
+  { value: "room", label: "Room Decor", icon: "lightbulb" },
+  { value: "tickets", label: "Tickets & Events", icon: "ticket" },
+  { value: "transport", label: "Transport", icon: "car" },
+  { value: "other", label: "Other", icon: "box-open" },
 ];
-
 
 export const condition = [
   "New",

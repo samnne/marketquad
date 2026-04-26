@@ -17,12 +17,12 @@ export const SectionRow = ({
     onPress={onPress}
     className="flex-row items-center gap-3 px-4 py-4"
   >
-    <View className={`w-9 h-9 rounded-xl items-center justify-center ${iconBg}`}>
-      <FontAwesome6 name={icon as any} size={14} color={colors.primary} />
+    <View className={`w-12 h-12 rounded-xl items-center justify-center ${iconBg}`}>
+      <FontAwesome6 name={icon as any} size={20} color={colors.primary} />
     </View>
     <View className="flex-1">
-      <Text className="text-sm font-semibold text-text">{label}</Text>
-      {sublabel && <Text className="text-xs text-secondary mt-0.5" numberOfLines={1}>{sublabel}</Text>}
+      <Text className="text-lg font-semibold text-text">{label}</Text>
+      {sublabel && <Text className="text-base text-text mt-0.5" numberOfLines={1}>{sublabel}</Text>}
     </View>
     <FontAwesome6
       name={open ? "chevron-up" : "chevron-down"}
@@ -101,7 +101,7 @@ export const YearChip = ({
       }`}
     >
       <Text
-        className={`text-sm font-semibold ${
+        className={`text-base font-semibold ${
           selected ? "text-primary" : "text-text"
         }`}
       >
@@ -132,7 +132,7 @@ export const FacultyPill = ({
       onPressIn={() => (scale.value = withSpring(0.93, { stiffness: 500 }))}
       onPressOut={() => (scale.value = withSpring(1, { stiffness: 500 }))}
       onPress={onPress}
-      className={`flex-row items-center gap-2.5 px-4 py-3 rounded-2xl border ${
+      className={`flex-row items-center gap-2.5 px-4 py-6 rounded-2xl border ${
         selected
           ? "bg-primary/10 border-primary/40"
           : "bg-pill border-secondary/20"
@@ -140,11 +140,11 @@ export const FacultyPill = ({
     >
       <FontAwesome6
         name={icon as any}
-        size={13}
+        size={20}
         color={selected ? colors.primary : colors.secondary}
       />
       <Text
-        className={`text-sm font-medium flex-1 ${
+        className={`text-xl font-medium flex-1 ${
           selected ? "text-primary" : "text-text"
         }`}
         numberOfLines={1}
@@ -187,14 +187,14 @@ export const StepDots = ({ total, current }: { total: number; current: number })
   right?: React.ReactNode;
 }) => (
   <View className="gap-2">
-    <View className="flex-row items-center justify-between px-0.5">
-      <Text className="text-xs font-semibold tracking-widest uppercase text-secondary">
+    <View className="flex-row  justify-between px-0.5">
+      <Text className="text-sm font-semibold tracking-widest uppercase text-text">
         {label}
       </Text>
       {right}
     </View>
     {children}
-    {hint && <Text className="text-xs text-secondary/60 px-0.5">{hint}</Text>}
+    {hint && <Text className="text-xs text-text/60  px-0.5">{hint}</Text>}
   </View>
 );
 
@@ -231,8 +231,9 @@ export const AvatarPlaceholder = ({
           <FontAwesome6 name="camera" size={11} color={colors.pill} />
         </View>
       </View>
-      <Text className="text-xs text-secondary font-medium">
-        Add photo later
+      <Text className="text-lg text-center text-text font-medium">
+        Add photo later {"\n"} <Text className="text-text/70">(Optional)
+          </Text>
       </Text>
     </Pressable>
   );
@@ -258,10 +259,10 @@ export const IntentCard = ({
       onPressIn={() => (scale.value = withSpring(0.97, { stiffness: 700 }))}
       onPressOut={() => (scale.value = withSpring(1, { stiffness: 700 }))}
       onPress={onPress}
-      className={`rounded-3xl border-2 p-5 gap-4 ${
+      className={`rounded-3xl  shadow-lg transition-colors ease-in-out duration-200 mx-2 mt-4  p-5 gap-4 ${
         selected
-          ? "bg-primary/8 border-primary"
-          : "bg-pill border-secondary/15"
+          ? "bg-primary/8 shadow-primary/8"
+          : "bg-pill border-0  "
       }`}
     >
       {/* Card header */}
@@ -282,13 +283,13 @@ export const IntentCard = ({
 
           <View>
             <Text
-              className={`text-lg font-bold ${
+              className={`text-2xl font-bold ${
                 selected ? "text-primary" : "text-text"
               }`}
             >
               {label}
             </Text>
-            <Text className="text-xs text-secondary font-light">{tagline}</Text>
+            <Text className="text-lg text-text font-light">{tagline}</Text>
           </View>
         </View>
 
@@ -318,7 +319,7 @@ export const IntentCard = ({
             />
             <Text
               className={`text-sm ${
-                selected ? "text-text" : "text-secondary/70"
+                selected ? "text-text" : "text-text/70"
               }`}
             >
               {perk}
@@ -384,11 +385,11 @@ export const StatPill = ({
 }) => (
   <Animated.View
     entering={FadeInUp.delay(delay).springify().damping(80)}
-    className="flex-1 items-center gap-1.5 bg-pill border border-secondary/15 rounded-2xl py-4"
+    className="flex-1 items-center gap-1.5 bg-pill/75 border border-secondary/15 rounded-2xl py-4"
   >
     <FontAwesome6 name={icon as any} size={15} color={colors.primary} />
-    <Text className="text-lg font-bold text-text">{value}</Text>
-    <Text className="text-xs text-secondary text-center leading-4">{label}</Text>
+    <Text className="text-lg font-bold text-primary">{value}</Text>
+    <Text className="text-xs text-primary text-center leading-4">{label}</Text>
   </Animated.View>
 );
 
@@ -413,7 +414,7 @@ export const FeatureRow = ({
     </View>
     <View className="flex-1 gap-0.5">
       <Text className="text-sm font-semibold text-text">{title}</Text>
-      <Text className="text-xs text-secondary leading-4">{body}</Text>
+      <Text className="text-xs text-text leading-4">{body}</Text>
     </View>
   </Animated.View>
 );

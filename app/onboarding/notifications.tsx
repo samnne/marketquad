@@ -45,6 +45,7 @@ const NotifPreview = ({
   <View className="flex-row flex-1 w-full mix-blend-screen  justify-center items-center gap-3 ">
     <VideoView
       player={player}
+      allowsVideoFrameAnalysis={false}
       style={{ width: 320, height: 320 }}
       contentFit="contain"
       nativeControls={false}
@@ -55,10 +56,10 @@ const NotifPreview = ({
 // ── Perk row ─────────────────────────────────────────────────────
 const PerkRow = ({ icon, text }: { icon: string; text: string }) => (
   <View className="flex-row items-center gap-3">
-    <View className="w-8 h-8 rounded-xl bg-primary/10 items-center justify-center">
-      <FontAwesome6 name={icon as any} size={13} color={colors.primary} />
+    <View className="w-12 h-12 rounded-xl bg-primary/10 items-center justify-center">
+      <FontAwesome6 name={icon as any} size={18} color={colors.primary} />
     </View>
-    <Text className="text-sm text-text/80 flex-1">{text}</Text>
+    <Text className="text-base text-text/80 flex-1">{text}</Text>
   </View>
 );
 
@@ -124,19 +125,19 @@ const OnboardingNotifications = () => {
       <View className="flex-1 px-6 pt-6 gap-8">
         {/* ── Top bar ── */}
         <View className="flex-row items-center justify-between">
-          <StepDots total={4} current={3} />
+          <StepDots total={5} current={4} />
           {/* No skip label — just an X to close */}
           <Pressable onPress={finish} hitSlop={12}>
-            <FontAwesome6 name="xmark" size={16} color={colors.secondary} />
+            <FontAwesome6 name="xmark" size={16} color={colors.text} />
           </Pressable>
         </View>
 
         {/* ── Header ── */}
         <View className="gap-2">
-          <Text className="text-3xl font-bold text-text tracking-tight">
+          <Text className="text-5xl font-bold text-text tracking-tight">
             Stay in the loop
           </Text>
-          <Text className="text-sm font-light text-secondary leading-5">
+          <Text className="text-lg font-light text-text leading-5">
             Turn on notifications so you never miss a sale or a message.
           </Text>
         </View>
@@ -150,22 +151,11 @@ const OnboardingNotifications = () => {
             body="Alex sent you a message about MATH 101 Calculus."
             time="now"
           />
-          {/* <NotifPreview
-            icon="tag"
-            title="New listing in Electronics"
-            body="MacBook Air M2 — $850 · Near Ring Road Residence"
-            time="2m ago"
-          />
-          <NotifPreview
-            icon="heart"
-            title="Your item sold!"
-            body="Congratulations — your IKEA desk has a buyer."
-            time="5m ago"
-          /> */}
+         
         </View>
 
         {/* ── Perks ── */}
-        <View className="gap-3">
+        <View className="gap-3 py-6">
           <PerkRow
             icon="comment"
             text="Get notified the moment a buyer messages you"
@@ -201,7 +191,7 @@ const OnboardingNotifications = () => {
         </SpringButton>
 
         <Pressable onPress={finish} className="items-center py-2" hitSlop={8}>
-          <Text className="text-sm text-secondary/60">Not now</Text>
+          <Text className="text-sm text-text/60">Not now</Text>
         </Pressable>
       </View>
     </SafeAreaView>

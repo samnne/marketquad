@@ -44,9 +44,9 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
 
         const data = await response.json();
         const reviews = data?.reviews;
-        const writtenByMe = reviews.filter((rv: Review) => rv.reviewerId === user?.id);
+        const writtenByMe = reviews?.filter((rv: Review) => rv.reviewerId === user?.id);
      
-        const review = writtenByMe.find((rv: Review) => rv?.revieweeId === otherUser?.uid);
+        const review = writtenByMe?.find((rv: Review) => rv?.revieweeId === otherUser?.uid);
         if (review) setReviewedAlready(true);
       } catch (err) {
         console.error(err)

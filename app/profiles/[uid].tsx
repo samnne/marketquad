@@ -485,7 +485,7 @@ export default function PublicProfileScreen() {
               ) : (
                 activeListings.map((listing, i) => (
                   <Animated.View
-                    key={listing.lid}
+                    key={`${listing.lid}veivwnnve${i}`}
                     entering={FadeInDown.duration(300).delay(i * 50)}
                   >
                     <ListingCard listing={{ ...listing, seller: data }} />

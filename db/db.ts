@@ -1,4 +1,4 @@
-// db/storage.ts — DELETE the other three files and use only this
+// db/storage.ts
 import "expo-sqlite/localStorage/install";
 
 export const db = {

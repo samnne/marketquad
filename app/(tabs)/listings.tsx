@@ -153,7 +153,7 @@ export function ListingsScreen() {
               }
               setActiveCategory(item.name);
             }}
-            key={i}
+            key={i+ 3243}
             className="w-1/2 aspect-square p-1"
           >
             <View className="relative flex-1 bg-accent justify-center items-center rounded-2xl">
@@ -234,7 +234,7 @@ export function ListingsScreen() {
             className={view === "grid" ? "flex-row flex-wrap gap-3" : "gap-3"}
           >
             {[1, 2, 3, 4].map((n) => (
-              <View key={n} className={view === "grid" ? "w-[48%]" : "w-full"}>
+              <View key={n+324} className={view === "grid" ? "w-[48%]" : "w-full"}>
                 <SkeletonCard />
               </View>
             ))}
@@ -245,7 +245,7 @@ export function ListingsScreen() {
           >
             {displayListings.map((listing, i) => (
               <Animated.View
-                key={listing.lid}
+                key={`${listing.lid}${i}fewfsd`}
                 entering={FadeInDown.duration(300).delay(i * 50)}
                 className={view === "grid" ? "w-[48%]" : "w-full"}
               >

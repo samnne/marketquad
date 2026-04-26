@@ -270,8 +270,8 @@ const SettingsPage = () => {
     >
       {/* ── Nav bar ── */}
       <View
-        className="flex-row items-center gap-3 px-4 pb-3 border-b border-secondary/10"
-        style={{ paddingTop: insets.top + 8 }}
+        className="flex-row items-center gap-3  px-4 pb-3 border-b border-secondary/10"
+        style={{ paddingTop: insets.top + 20 }}
       >
         <Pressable
           onPress={() => router.back()}
@@ -280,7 +280,7 @@ const SettingsPage = () => {
         >
           <FontAwesome6 name="arrow-left" size={13} color={colors.text} />
         </Pressable>
-        <Text className="text-lg font-bold text-text flex-1">Settings</Text>
+        <Text className="text-5xl font-bold text-text flex-1">Settings</Text>
       </View>
 
       <ScrollView
@@ -422,14 +422,14 @@ const SettingsPage = () => {
         {/* ── Sign out ── */}
         <SpringButton
           onPress={handleSignOut}
-          className="h-12 border border-secondary/20 rounded-2xl items-center justify-center flex-row gap-2 mt-1"
+          className="h-12 border border-secondary/20 rounded-2xl  items-center justify-center flex-row gap-2 mt-1"
         >
           <FontAwesome6
             name="arrow-right-from-bracket"
             size={13}
             color={colors.secondary}
           />
-          <Text className="text-sm font-semibold text-secondary">Sign out</Text>
+          <Text className="text-lg font-semibold text-secondary">Sign out</Text>
         </SpringButton>
 
         <View className="h-4" />

@@ -71,23 +71,23 @@ const OnboardingIntent = () => {
             onPress={() => router.push("/onboarding/categories")}
             hitSlop={12}
           >
-            <Text className="text-sm text-secondary/70 font-medium">Skip</Text>
+            <Text className="text-sm text-text/70 font-medium">Skip</Text>
           </Pressable>
         </View>
 
         {/* ── Header ── */}
         <View className="gap-2">
-          <Text className="text-3xl font-bold text-text tracking-tight">
+          <Text className="text-4xl font-bold text-text tracking-tight">
             What brings you here?
           </Text>
-          <Text className="text-sm font-light text-secondary leading-5">
+          <Text className="text-lg font-light text-text/70 leading-5">
             We&apos;ll personalise your feed based on this. You can change it
             anytime.
           </Text>
         </View>
 
         {/* ── Cards ── */}
-        <ScrollView className="gap-3 flex-1">
+        <ScrollView showsVerticalScrollIndicator={false}  className="gap-4 p-4  flex-1">
           {INTENTS.map((item) => (
             <IntentCard
               key={item.value}

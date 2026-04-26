@@ -1,20 +1,10 @@
 import { BASE_URL } from "@/constants/constants";
 import { safeJson } from "@/lib/listing.lib";
-import { ListingStore, UserState } from "@/store/zustand";
+
 import { supabase } from "@/supabase/authHelper";
-import * as Sentry from "@sentry/react-native";
+
 import {Filter} from "bad-words"
 
-export function reportError(
-  error: Error | string,
-  context?: Record<string, any>,
-) {
-  const errorToReport = typeof error === "string" ? new Error(error) : error;
-
-  Sentry.captureException(errorToReport, {
-    extra: context || {},
-  });
-}
 
 type ImageLoaderProps = {
   src: string,

@@ -12,7 +12,7 @@ import {
   Alert,
   Pressable,
   RefreshControl,
-  ScrollView,
+ 
   Text,
   TextInput,
   View,
@@ -49,6 +49,7 @@ function timeAgo(date: string | Date) {
 
 const ConversationsScreen = () => {
   const router = useRouter();
+  
   const insets = useSafeAreaInsets();
   const bottomClearance = components.tabBar.height + insets.bottom;
 
@@ -74,8 +75,11 @@ const ConversationsScreen = () => {
       return;
     }
     try {
-      const tempConvos = await getConvos(data.user.id);
+      const tempConvos: Conversation[] = await getConvos(data.user.id);
       setConvos(tempConvos);
+      router.prefetch(`/convos/${tempConvos?.[0]?.cid}`)
+   
+    
     } catch (error) {
       setError(true);
       console.error(error);
@@ -146,7 +150,7 @@ const ConversationsScreen = () => {
     : (convos ?? []);
 
   return (
-    <ScrollView
+    <Animated.ScrollView
       className="flex-1 bg-background"
       contentContainerStyle={{ paddingBottom: bottomClearance }}
       showsVerticalScrollIndicator={false}
@@ -154,6 +158,7 @@ const ConversationsScreen = () => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      
     >
       {/* ── Search ── */}
       <Animated.View
@@ -186,7 +191,7 @@ const ConversationsScreen = () => {
         <View>
           {[1, 2, 3, 4].map((n) => (
             <View
-              key={n}
+              key={n + 4500}
               className="flex-row items-center gap-3 px-4 py-3.5 border-b border-secondary/20"
             >
               <View className="w-12 h-12 rounded-full bg-pill border border-secondary/20 opacity-60" />
@@ -232,7 +237,7 @@ const ConversationsScreen = () => {
 
             return (
               <Animated.View
-                key={convo.cid}
+                key={`${convo.cid}ewfweufhguwbiv`}
                 entering={FadeInDown.duration(300).delay(i * 80)}
               >
                 <Pressable
@@ -323,7 +328,7 @@ const ConversationsScreen = () => {
           </Pressable>
         </View>
       )}
-    </ScrollView>
+    </Animated.ScrollView>
   );
 };
 
