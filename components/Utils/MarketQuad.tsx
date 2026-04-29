@@ -1,11 +1,15 @@
 import { View, Text } from "react-native";
 import React from "react";
+import { MotiText } from "moti";
 
-const MarketQuad = ({className}: {className: string}) => {
+const MarketQuad = ({ className }: { className: string }) => {
   return (
-    <Text className={className}>
+    <MotiText
+   
+      className={className}
+    >
       Market<Text className="text-secondary">Quad</Text>
-    </Text>
+    </MotiText>
   );
 };
 

@@ -7,7 +7,7 @@ import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { getUserSupabase } from "@/utils/functions";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -24,6 +24,7 @@ import LocationPreview from "@/components/Listings/ListingMap";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useLike } from "@/hooks/useLike";
+import { MotiPressable } from "moti/interactions";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const RANDOM_MESSAGES = [
@@ -66,8 +67,10 @@ export default function ListingPage() {
   const { setError, setSuccess, setMessage } = useMessage();
 
   const [listing, setListing] = useState<any>(null);
-  const expression = user?.app_user?.likes?.find(l => l.listingId === selectedListing?.lid)
- 
+  const expression = user?.app_user?.likes?.find(
+    (l) => l.listingId === selectedListing?.lid,
+  );
+
   const {
     liked,
     count,
@@ -83,7 +86,27 @@ export default function ListingPage() {
   const [localReviews, setLocalReviews] = useState<number | null>(null);
   const [creatingConvo, setCreatingConvo] = useState(false);
   const [tab, setTab] = useState<"about" | "details">("about");
+  const animateNew = useMemo(() => {
+    return ({ hovered, pressed }: { hovered: boolean; pressed: boolean }) => {
+      "worklet";
+      const expression = hovered || pressed;
 
+      return {
+        width: expression ? 75 : 80,
+        height: expression ? 60 : 65,
+      };
+    };
+  }, []);
+  const animateGoto = useMemo(() => {
+    return ({ hovered, pressed }: { hovered: boolean; pressed: boolean }) => {
+      "worklet";
+      const expression = hovered || pressed;
+
+      return {
+        scale: expression ? 0.95 : 1
+      };
+    };
+  }, []);
   useEffect(() => {
     const mount = async () => {
       if (selectedListing?.lid === lid) setListing(selectedListing);
@@ -359,7 +382,7 @@ export default function ListingPage() {
             {/* Tab switcher */}
             <Animated.View entering={FadeInDown.duration(300).delay(60)}>
               <View className="flex-row bg-background rounded-xl p-1">
-                {(["about", "details"] as const).map((t,index) => (
+                {(["about", "details"] as const).map((t, index) => (
                   <Pressable
                     key={`${t}${index}`}
                     onPress={() => setTab(t)}
@@ -561,36 +584,50 @@ export default function ListingPage() {
                     onSubmitEditing={createConversation}
                   />
                 </View>
-                <Pressable
+                <MotiPressable
+                  animate={animateNew}
                   onPress={createConversation}
                   disabled={creatingConvo}
-                  className="bg-text px-5 py-3.5 rounded-2xl min-w-[72px] items-center justify-center"
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                 >
-                  {creatingConvo ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <Text className="text-pill text-[13px] font-bold">
-                      Send
-                    </Text>
-                  )}
-                </Pressable>
+                  <View className="bg-text px-5  py-3.5 rounded-2xl min-w-18 items-center justify-center">
+                    {creatingConvo ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Text className="text-pill text-[13px] font-bold">
+                        Send
+                      </Text>
+                    )}
+                  </View>
+                </MotiPressable>
               </View>
             ) : (
               (listing?.conversations ?? [])
                 .filter((c: any) => c.buyerId === user?.id)
                 .map((convo: any, i: number) => (
-                  <Pressable
+                  <MotiPressable
                     key={`${convo.cid}fwinbndfbwevi${i}`}
                     onPress={() => {
                       setSelectedConvo(convo);
                       router.push(`/convos/${convo.cid}`);
                     }}
-                    className="bg-text py-4 rounded-2xl items-center"
+                    animate={animateGoto}
+                    style={{
+                      
+                     
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
                   >
-                    <Text className="text-pill font-bold text-sm">
-                      Go to conversation →
-                    </Text>
-                  </Pressable>
+                    <View className="bg-text w-full py-4 rounded-2xl items-center">
+                      <Text className="text-pill font-bold text-sm">
+                        Go to conversation →
+                      </Text>
+                    </View>
+                  </MotiPressable>
                 ))
             )}
           </View>

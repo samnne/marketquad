@@ -6,7 +6,8 @@ import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, Image, ActivityIndicator } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { uploadPFP } from "@/cloudinary/cloudinary";
+
+import { useRouter } from "expo-router";
 
 type Props = {
   open: boolean;
@@ -27,6 +28,7 @@ type Props = {
 export default function ProfileSection(props: Props) {
   const [pfpUploading, setPfpUploading] = useState(false);
   const [localPfpUri, setLocalPfpUri] = useState<string | null>(null);
+  const router = useRouter()
   if (!props.open) return null;
 
 
@@ -34,8 +36,9 @@ export default function ProfileSection(props: Props) {
     // 1. Request permissions
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Camera roll permission is required to change your photo.");
-      return;
+      // alert("Photo library access is required to update your profile picture. Please go to Settings > MarketQuad and enable Photos access.");
+      
+      return router.push('/permissions?type=photo')
     }
 
     // 2. Launch picker

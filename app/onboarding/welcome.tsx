@@ -1,4 +1,4 @@
-import { useUser } from "@/store/zustand";
+import { useMessage, useUser } from "@/store/zustand";
 import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
@@ -23,16 +23,39 @@ import {
 } from "@/components/Onboarding";
 import { useEffect } from "react";
 import { db } from "@/db/db";
+import { BASE_URL } from "@/constants/constants";
 
 const SafeAreaView = styled(RNSAV);
 
 const OnboardingWelcome = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user } = useUser();
-  useEffect(() => {
-    db.setItem("ONBOARDING", "true");
-  }, []);
+  const { user, setUser } = useUser();
+  const { setError, setMessage } = useMessage();
+  async function handleIt() {
+    const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
+      method: "PATCH",
+      headers: {
+        Authorization: user?.id!,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        onboarding_completed: true,
+        username: user?.app_user?.username,
+
+      }),
+    }).then((r) => r.json());
+    console.log(res)
+    if (!res.success) {
+      setError(true);
+      setMessage(res.message ?? "Something went wrong. Please try again.");
+      return;
+    }
+
+    setUser({ ...user, app_user: { ...user?.app_user, ...res.user } });
+    router.push("/home");
+  }
+  
   const firstName = user?.app_user?.name?.split(" ")[0] ?? "there";
 
   return (
@@ -43,13 +66,13 @@ const OnboardingWelcome = () => {
         paddingBottom: insets.bottom,
       }}
     >
-  
-
       <Image
         source={bgImage}
-       style={StyleSheet.create({
-        wrapper: {...StyleSheet.absoluteFillObject, opacity: 0.2}
-       }).wrapper}
+        style={
+          StyleSheet.create({
+            wrapper: { ...StyleSheet.absoluteFillObject, opacity: 0.2 },
+          }).wrapper
+        }
         contentFit={"cover"}
         className="w-full h-full  "
       />
@@ -129,7 +152,10 @@ const OnboardingWelcome = () => {
         className="gap-2 pt-4 px-6 border-t border-secondary/10"
       >
         <SpringButton
-          onPress={() => router.replace("/home")}
+          onPress={() => {
+            handleIt();
+            router.replace("/home");
+          }}
           className="h-14 bg-primary rounded-2xl items-center justify-center"
         >
           <View className="flex-row items-center gap-2">
@@ -141,7 +167,10 @@ const OnboardingWelcome = () => {
         </SpringButton>
 
         <SpringButton
-          onPress={() => router.replace("/new")}
+          onPress={() => {
+            handleIt();
+            router.replace("/new");
+          }}
           className="h-12 bg-primary/25 border border-primary/20 rounded-2xl items-center justify-center"
         >
           <View className="flex-row items-center gap-2">

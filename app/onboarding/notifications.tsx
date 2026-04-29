@@ -83,10 +83,14 @@ const OnboardingNotifications = () => {
     setLoading(true);
     try {
       if (!user) {
-        router.reload()
-        return
+        return;
       }
       const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        // alert("Photo library access is required to update your profile picture. Please go to Settings > MarketQuad and enable Photos access.");
+
+        return router.push("/permissions?type=noti");
+      }
       const enabled = status === "granted";
 
       try {
@@ -151,7 +155,6 @@ const OnboardingNotifications = () => {
             body="Alex sent you a message about MATH 101 Calculus."
             time="now"
           />
-         
         </View>
 
         {/* ── Perks ── */}

@@ -1,11 +1,17 @@
-import { useListings, useMessage, useType, useUser } from "@/store/zustand";
-import { supabase } from "@/supabase/authHelper";
+import { BASE_URL } from "@/constants/constants";
+import { colors } from "@/constants/theme";
 
+import { useMessage, useType, useUser } from "@/store/zustand";
+import { supabase } from "@/supabase/authHelper";
 import { getUserSupabase, matchUVIC } from "@/utils/functions";
+
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
+
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,10 +24,6 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-
-import { colors } from "@/constants/theme";
-import { BASE_URL } from "@/constants/constants";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { db } from "@/db/db";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -32,9 +34,6 @@ interface LoginUserForm {
   name: string;
 }
 
-// ─────────────────────────────────────────────
-// Reusable field wrapper
-// ─────────────────────────────────────────────
 const Field = ({
   label,
   children,
@@ -60,9 +59,6 @@ const fieldStyles = StyleSheet.create({
   },
 });
 
-// ─────────────────────────────────────────────
-// Spring button
-// ─────────────────────────────────────────────
 const SpringButton = ({
   children,
   onPress,
@@ -92,8 +88,47 @@ const SpringButton = ({
   );
 };
 
+// ─── Checkbox ────────────────────────────────
+const TermsCheckbox = ({
+  accepted,
+  onToggle,
+}: {
+  accepted: boolean;
+  onToggle: () => void;
+}) => (
+  <Pressable
+    onPress={onToggle}
+    className="flex-row items-center gap-3"
+    hitSlop={8}
+  >
+    <View
+      className={`w-5 h-5 rounded-md border-[1.5px] items-center justify-center shrink-0 ${
+        accepted ? "bg-primary border-primary" : "bg-pill border-text/40"
+      }`}
+    >
+      {accepted && <FontAwesome6 name="check" size={10} color="#fff" />}
+    </View>
+    <Text className="flex-1 text-[13px] text-secondary leading-4.5">
+      I agree to the{" "}
+      <Text
+        className="text-primary font-semibold underline"
+        onPress={() => Linking.openURL("https://market-quad.com/tos")}
+      >
+        Terms of Service
+      </Text>
+      {" and "}
+      <Text
+        className="text-primary font-semibold underline"
+        onPress={() => Linking.openURL("https://market-quad.com/privacy")}
+      >
+        Privacy Policy
+      </Text>
+    </Text>
+  </Pressable>
+);
+
 // ─────────────────────────────────────────────
-// Main AuthForm — AUTH LOGIC UNCHANGED
+// Main AuthForm
 // ─────────────────────────────────────────────
 const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
   const router = useRouter();
@@ -109,13 +144,13 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingSignup, setLoadingSignup] = useState(false);
   const [loadingOtp, setLoadingOtp] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [formData, setFormData] = useState<LoginUserForm>({
     email: "",
     password: "",
     name: "",
   });
 
-  // ── Mount: check existing session ──
   useEffect(() => {
     const mountSession = async () => {
       const { user, app_user } = await getUserSupabase();
@@ -127,7 +162,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
     mountSession();
   }, [router, setUser]);
 
-  // ── OTP resend countdown ──
   useEffect(() => {
     const interval = setInterval(() => {
       setCounter((prev) => (prev > 0 ? prev - 1 : 0));
@@ -176,9 +210,8 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         setMessage("User doesn't match our records.");
         return;
       }
-
       if (userData?.isVerified) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
@@ -187,8 +220,11 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
           setMessage(error.message);
           return;
         }
-        db.setItem("ONBOARDING", "true");
-        return router.replace("/(tabs)/profile");
+        if (userData?.onboarding_completed) {
+          return router.replace("/home");
+        }
+        setUser({ user: data.user, app_user: { ...userData } });
+        return router.replace("/onboarding");
       }
       await sendOTP();
       setCounter(60);
@@ -213,6 +249,13 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       if (!matchUVIC(email)) {
         setError(true);
         setMessage("Please use a valid UVic email address.");
+        return;
+      }
+      if (!termsAccepted) {
+        setError(true);
+        setMessage(
+          "Please accept the Terms of Service and Privacy Policy to continue.",
+        );
         return;
       }
       await sendOTP(true);
@@ -265,10 +308,8 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       setSuccess(true);
       setMessage("Verification successful!");
       if (loggingIn) {
-        db.setItem("ONBOARDING", "true");
-        router.replace("/home");
+        router.replace("/onboarding");
       } else {
-        db.setItem("ONBOARDING", "false");
         router.push("/onboarding");
       }
     } catch (err) {
@@ -313,7 +354,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={s.otpContainer}>
-          {/* Header */}
           <View style={s.otpHeader}>
             <Text style={s.otpTitle}>Check your inbox</Text>
             <Text style={s.otpSubtitle}>
@@ -321,7 +361,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
             </Text>
           </View>
 
-          {/* OTP digit boxes */}
           <Pressable
             onPress={() => inputRef.current?.focus()}
             style={s.otpBoxRow}
@@ -343,8 +382,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
                 </View>
               </View>
             ))}
-
-            {/* Hidden real input */}
             <TextInput
               ref={inputRef}
               value={otp}
@@ -363,7 +400,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
             />
           </Pressable>
 
-          {/* Confirm button */}
           <SpringButton
             onPress={handleOTP}
             disabled={loadingOtp || otp.length < 6}
@@ -376,7 +412,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
             )}
           </SpringButton>
 
-          {/* Resend row */}
           <View style={s.resendRow}>
             <Text style={s.resendLabel}>Didn&apos;t receive it?</Text>
             <Pressable
@@ -399,7 +434,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
             </Pressable>
           </View>
 
-          {/* Back */}
           <Pressable onPress={() => changeType("sign-in")} style={s.backBtn}>
             <FontAwesome6
               name="arrow-left"
@@ -478,17 +512,23 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         </View>
       </Field>
 
-      {/* Forgot password */}
       {isSignIn && (
         <Pressable onPress={handleForgotPassword} style={s.forgotBtn}>
           <Text style={s.forgotText}>Forgot password?</Text>
         </Pressable>
       )}
 
-      {/* Primary action */}
+      {/* Terms checkbox — sign-up only */}
+      {!isSignIn && (
+        <TermsCheckbox
+          accepted={termsAccepted}
+          onToggle={() => setTermsAccepted((p) => !p)}
+        />
+      )}
+
       <SpringButton
         onPress={handleSubmit}
-        disabled={loading}
+        disabled={loading || (!isSignIn && !termsAccepted)}
         style={[s.primaryBtn, { marginTop: 4 }]}
       >
         {loading ? (
@@ -500,7 +540,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         )}
       </SpringButton>
 
-      {/* Toggle sign-in / sign-up */}
       <View style={s.toggleRow}>
         <Text style={s.toggleLabel}>
           {isSignIn ? "New to the app?" : "Already have an account?"}
@@ -525,12 +564,8 @@ const INPUT_HEIGHT = 52;
 const RADIUS = 14;
 
 const s = StyleSheet.create({
-  // ── Form layout ──
-  formContainer: {
-    gap: 16,
-  },
+  formContainer: { gap: 16 },
 
-  // ── Inputs ──
   input: {
     height: INPUT_HEIGHT,
     borderWidth: 1.5,
@@ -541,19 +576,10 @@ const s = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.pill,
   },
-  inputWrapper: {
-    position: "relative",
-    justifyContent: "center",
-  },
-  inputWithIcon: {
-    paddingRight: 44,
-  },
-  inputIcon: {
-    position: "absolute",
-    right: 16,
-  },
+  inputWrapper: { position: "relative", justifyContent: "center" },
+  inputWithIcon: { paddingRight: 44 },
+  inputIcon: { position: "absolute", right: 16 },
 
-  // ── Buttons ──
   primaryBtn: {
     height: INPUT_HEIGHT,
     backgroundColor: colors.primary,
@@ -573,18 +599,13 @@ const s = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // ── Forgot password ──
-  forgotBtn: {
-    alignSelf: "flex-end",
-    marginTop: -4,
-  },
+  forgotBtn: { alignSelf: "flex-end", marginTop: -4 },
   forgotText: {
     fontSize: 13,
     color: colors.secondary,
     textDecorationLine: "underline",
   },
 
-  // ── Toggle row ──
   toggleRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -592,52 +613,28 @@ const s = StyleSheet.create({
     gap: 6,
     marginTop: 4,
   },
-  toggleLabel: {
-    fontSize: 13,
-    color: colors.secondary,
-  },
-  toggleLink: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: colors.primary,
-  },
+  toggleLabel: { fontSize: 13, color: colors.secondary },
+  toggleLink: { fontSize: 13, fontWeight: "700", color: colors.primary },
 
   // ── OTP ──
-  otpScroll: {
-    flexGrow: 1,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-  },
-  otpContainer: {
-    gap: 28,
-  },
-  otpHeader: {
-    gap: 8,
-  },
+  otpScroll: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 24 },
+  otpContainer: { gap: 28 },
+  otpHeader: { gap: 8 },
   otpTitle: {
     fontSize: 28,
     fontWeight: "800",
     color: colors.text,
     letterSpacing: -0.5,
   },
-  otpSubtitle: {
-    fontSize: 14,
-    color: colors.secondary,
-    lineHeight: 20,
-  },
+  otpSubtitle: { fontSize: 14, color: colors.secondary, lineHeight: 20 },
   otpBoxRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 8,
   },
-  otpBoxGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  otpSpacer: {
-    width: 16,
-  },
+  otpBoxGroup: { flexDirection: "row", alignItems: "center" },
+  otpSpacer: { width: 16 },
   otpBox: {
     width: 46,
     height: 54,
@@ -655,62 +652,33 @@ const s = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  otpBoxFilled: {
-    borderColor: colors.secondary + "60",
-  },
-  otpBoxEmpty: {
-    borderColor: colors.secondary + "30",
-  },
-  otpDigit: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  hiddenInput: {
-    position: "absolute",
-    width: 1,
-    height: 1,
-    opacity: 0,
-  },
+  otpBoxFilled: { borderColor: colors.secondary + "60" },
+  otpBoxEmpty: { borderColor: colors.secondary + "30" },
+  otpDigit: { fontSize: 20, fontWeight: "700", color: colors.text },
+  hiddenInput: { position: "absolute", width: 1, height: 1, opacity: 0 },
 
-  // ── Resend ──
   resendRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
   },
-  resendLabel: {
-    fontSize: 13,
-    color: colors.secondary,
-  },
+  resendLabel: { fontSize: 13, color: colors.secondary },
   resendBtn: {
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 10,
     backgroundColor: colors.primary,
   },
-  resendBtnDisabled: {
-    backgroundColor: colors.secondary + "20",
-  },
-  resendBtnText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: colors.pill,
-  },
-  resendBtnTextDisabled: {
-    color: colors.secondary,
-  },
+  resendBtnDisabled: { backgroundColor: colors.secondary + "20" },
+  resendBtnText: { fontSize: 13, fontWeight: "700", color: colors.pill },
+  resendBtnTextDisabled: { color: colors.secondary },
 
-  // ── Back button ──
   backBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
   },
-  backBtnText: {
-    fontSize: 13,
-    color: colors.secondary,
-  },
+  backBtnText: { fontSize: 13, color: colors.secondary },
 });

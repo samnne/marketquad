@@ -105,7 +105,7 @@ const SelectedStrip = ({
         const cat = categories.find((c) => c.value === val)!;
         return (
           <Pressable
-            key={val}
+            key={val + cat.label}
             onPress={() => onRemove(val)}
             className="flex-row items-center gap-1.5 bg-primary/10 border border-primary/30 px-3 py-1.5 rounded-full"
           >
@@ -138,17 +138,14 @@ const OnboardingCategories = () => {
   };
 
   const handleContinue = async () => {
-    if (!user) {
-      router.reload();
-      return;
-    }
+ 
     if (!canContinue) return;
     setLoading(true);
     setError("");
     try {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/categories`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: user.id },
+        headers: { "Content-Type": "application/json", Authorization: user?.id! },
         body: JSON.stringify({ categories: selected }),
       }).then((r) => r.json());
 

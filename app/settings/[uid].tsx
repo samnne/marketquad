@@ -12,7 +12,7 @@ import { SectionRow, SpringButton } from "@/components/Onboarding";
 import ProfileSection from "@/components/Settings/Profile";
 import StudentInfoSection from "@/components/Settings/StudentInfo";
 import PreferencesSection from "@/components/Settings/Prefs";
-import NotificationsSection from "@/components/Settings/Notification";
+// import NotificationsSection from "@/components/Settings/Notification";
 import AccountSection from "@/components/Settings/Account";
 import AboutSection from "@/components/Settings/Legal";
 import DeleteModal from "@/components/Modals/DeleteModal";
@@ -365,7 +365,7 @@ const SettingsPage = () => {
         </View>
 
         {/* ── Notifications ── */}
-        <View className="bg-pill rounded-2xl border border-secondary/15 overflow-hidden">
+        {/* <View className="bg-pill rounded-2xl border border-secondary/15 overflow-hidden">
           <SectionRow
             icon="bell"
             label="Notifications"
@@ -374,18 +374,8 @@ const SettingsPage = () => {
             onPress={() => toggle("notifications")}
             iconBg="bg-primary/10"
           />
-          <NotificationsSection
-            open={open === "notifications"}
-            notifMessages={notifMessages}
-            notifListings={notifListings}
-            notifSales={notifSales}
-            setNotifMessages={setNotifMessages}
-            setNotifListings={setNotifListings}
-            setNotifSales={setNotifSales}
-            save={saveNotifications}
-            loading={savingNotif}
-          />
-        </View>
+        
+        </View> */}
 
         {/* ── Account ── */}
         <View className="bg-pill rounded-2xl border border-secondary/15 overflow-hidden">

@@ -46,8 +46,8 @@ export default function RootLayout() {
         >
           <NotificationProvider>
             <AnimatePresence>
-              {success && <SuccessMessage message={msg} />}
-              {error && <ErrorMessage message={msg} />}
+              {success && <SuccessMessage key={493054} message={msg} />}
+              {error && <ErrorMessage key={3289545324} message={msg} />}
             </AnimatePresence>
             <Stack screenOptions={{ headerShown: false }} />
           </NotificationProvider>

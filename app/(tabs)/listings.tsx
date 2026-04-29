@@ -99,7 +99,7 @@ export function ListingsScreen() {
           }
         } else {
           setSearchResults(null);
-          if (listings.length === 0)
+          if (listings?.length === 0)
             await fetchListings({ setter: setListings });
         }
       } catch (err) {
@@ -220,8 +220,8 @@ export function ListingsScreen() {
       >
         <Text className="text-[13px] font-medium text-text">
           {searchQuery
-            ? `Results for "${searchQuery}"${!loading && displayListings?.length > 0 ? ` · ${displayListings.length}` : ""}`
-            : `Today's listings${!loading && displayListings?.length > 0 ? ` · ${displayListings.length}` : ""}`}
+            ? `Results for "${searchQuery}"${!loading && displayListings?.length > 0 ? ` · ${displayListings?.length}` : ""}`
+            : `Today's listings${!loading && displayListings?.length > 0 ? ` · ${displayListings?.length}` : ""}`}
         </Text>
 
         {/* Grid / list toggle */}

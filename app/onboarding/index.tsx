@@ -17,8 +17,16 @@ import {
   View,
 } from "react-native";
 
-import { useSafeAreaInsets, SafeAreaView as RNSAV } from "react-native-safe-area-context";
-import { AvatarPlaceholder, Field, SpringButton, StepDots } from "@/components/Onboarding";
+import {
+  useSafeAreaInsets,
+  SafeAreaView as RNSAV,
+} from "react-native-safe-area-context";
+import {
+  AvatarPlaceholder,
+  Field,
+  SpringButton,
+  StepDots,
+} from "@/components/Onboarding";
 import { styled } from "nativewind";
 import { uploadPFP } from "@/cloudinary/cloudinary";
 const SafeAreaView = styled(RNSAV);
@@ -55,8 +63,9 @@ const OnboardingProfile = () => {
   const handlePickPhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      setError("Camera roll permission is required to set a profile photo.");
-      return;
+      // alert("Photo library access is required to update your profile picture. Please go to Settings > MarketQuad and enable Photos access.");
+
+      return router.push("/permissions?type=photo");
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -72,7 +81,6 @@ const OnboardingProfile = () => {
   };
 
   const handleContinue = async () => {
-    
     if (!canContinue) return;
     setLoading(true);
     setError("");
@@ -80,7 +88,7 @@ const OnboardingProfile = () => {
     try {
       // Upload PFP first if user picked one
       let pfpUrl: string | undefined;
-      if (localPfpUri) {
+      if (localPfpUri && !user?.app_user?.profileURL) {
         pfpUrl = await uploadPFP(localPfpUri, user?.id!);
       }
 
@@ -136,9 +144,7 @@ const OnboardingProfile = () => {
                 onPress={() => router.push("/onboarding/verification")}
                 hitSlop={12}
               >
-                <Text className="text-sm text-text/70 font-medium">
-                  Skip
-                </Text>
+                <Text className="text-sm text-text/70 font-medium">Skip</Text>
               </Pressable>
             </View>
 
@@ -156,7 +162,7 @@ const OnboardingProfile = () => {
             <View className="items-center">
               <AvatarPlaceholder
                 name={name}
-                uri={localPfpUri ?? ""}  // show local preview
+                uri={localPfpUri ?? ""} // show local preview
                 onPress={handlePickPhoto}
               />
             </View>
@@ -220,9 +226,7 @@ const OnboardingProfile = () => {
                 label="Bio"
                 hint="Tell buyers a bit about yourself (Optional)"
                 right={
-                  <Text className="text-sm text-text/50">
-                    {bio.length}/120
-                  </Text>
+                  <Text className="text-sm text-text/50">{bio.length}/120</Text>
                 }
               >
                 <TextInput
@@ -265,7 +269,11 @@ const OnboardingProfile = () => {
             ) : (
               <View className="flex-row items-center gap-2">
                 <Text className="text-base font-bold text-pill">Continue</Text>
-                <FontAwesome6 name="arrow-right" size={13} color={colors.pill} />
+                <FontAwesome6
+                  name="arrow-right"
+                  size={13}
+                  color={colors.pill}
+                />
               </View>
             )}
           </SpringButton>

@@ -29,17 +29,14 @@ const OnboardingIntent = () => {
   const [error, setError] = useState("");
 
   const handleContinue = async () => {
-    if (!user) {
-      router.reload();
-      return;
-    }
+
     if (!intent) return;
     setLoading(true);
     setError("");
     try {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/intent`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: user.id },
+        headers: { "Content-Type": "application/json", Authorization: user?.id! },
         body: JSON.stringify({ intent }),
       }).then((r) => r.json());
 

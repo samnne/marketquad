@@ -3,8 +3,9 @@ import ListingCard from "@/components/Listings/ListingCard";
 import CategoryChips from "@/components/Utils/CategoryChips";
 
 import { components } from "@/constants/theme";
+import { db } from "@/db/db";
 import { useRefresh } from "@/hooks/useRefresh";
-import { useConvos, useListings, useUser } from "@/store/zustand";
+import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { fetchConvos, fetchListings, getUserSupabase } from "@/utils/functions";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -45,7 +46,7 @@ function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { listings, setListings } = useListings();
   const { setConvos } = useConvos();
-
+  const {setSuccess  } = useMessage()
   const { refreshing, onRefresh } = useRefresh({
     func: async () => {
       await fetchListings({ setter: setListings });
@@ -71,6 +72,7 @@ function HomeScreen() {
     const mount = async () => {
       await fetchListings({ setter: setListings });
     };
+    
     mount();
   }, [setListings]);
   const active = useMemo(

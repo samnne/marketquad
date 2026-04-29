@@ -270,8 +270,15 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
   }, [formData]);
 
   const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      // alert("Photo library access is required to update your profile picture. Please go to Settings > MarketQuad and enable Photos access.");
+
+      return router.push("/permissions?type=photo");
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
+
       allowsMultipleSelection: true,
       quality: 0.8,
       base64: false,
@@ -336,7 +343,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
           },
           user.id,
         );
-       
+
         if (res.success) {
           setSuccess(true);
           setMessage("Listing posted successfully!");
@@ -377,7 +384,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
           },
           user.id,
         );
-    
+
         if (res?.success) {
           setSuccess(true);
           setMessage("Listing updated successfully!");
@@ -546,7 +553,9 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
                   key={c.label}
                   label={c.label}
                   active={c.value === formData.category}
-                  onPress={() => setFormData((p) => ({ ...p, category: c.value }))}
+                  onPress={() =>
+                    setFormData((p) => ({ ...p, category: c.value }))
+                  }
                 />
               ))}
           </ScrollView>

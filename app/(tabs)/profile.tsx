@@ -1,5 +1,5 @@
-
 import ProfileSections from "@/components/ProfileSections";
+import UserListings from "@/components/UserListings";
 import { BASE_URL } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
 
@@ -14,7 +14,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { useRouter } from "expo-router";
 import { Image } from "moti";
-import { useCallback, useEffect } from "react";
+import { MotiPressable } from "moti/interactions";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -34,7 +35,19 @@ function getInitials(name?: string, email?: string) {
 
 function ProfileScreen() {
   const router = useRouter();
+  const [showModal, setShowModal] = useState(false); // add this
+  const animateNew = useMemo(() => {
+    return ({ hovered, pressed }: { hovered: boolean; pressed: boolean }) => {
+      "worklet";
+      const expression = hovered || pressed;
 
+      return {
+        scale: expression ? 1.1 : 1,
+        rotate: expression ? "15deg" : "0deg"
+       
+      };
+    };
+  }, []);
   const insets = useSafeAreaInsets();
   const bottomClearance = components.tabBar.height + insets.bottom;
   const {
@@ -44,11 +57,13 @@ function ProfileScreen() {
     setUser,
     reset: userReset,
   } = useUser();
-  const { reset: convoReset, setConvos } = useConvos();
+  const { reset: convoReset, setConvos, convos } = useConvos();
   const { reset: lisReset } = useListings();
 
   const { setError, setSuccess, setMessage } = useMessage();
 
+  // Derive unread count from convos store
+  const unreadCount = convos?.filter((c) => c?.unread).length ?? 0;
 
   const { refreshing, onRefresh } = useRefresh({
     func: async () => {
@@ -70,7 +85,9 @@ function ProfileScreen() {
       return;
     },
   });
+
   const mountSession = useCallback(async () => {
+
     try {
       const { user: u, error, app_user } = await getUserSupabase();
 
@@ -82,7 +99,7 @@ function ProfileScreen() {
       }
       setUser({ ...u, app_user });
       const tempListings = await getUserListings(u.id);
-      if (!tempListings.listings) {
+      if (!tempListings?.listings) {
         setError(true);
         setMessage("Couldn't fetch listings");
         return;
@@ -90,10 +107,10 @@ function ProfileScreen() {
       const convos = await getConvos(u.id);
       if (convos) setConvos(convos);
 
-      setUserListings(tempListings.listings);
+      setUserListings(tempListings?.listings);
     } catch (err) {}
   }, [setError, setMessage, setUser, setConvos, setUserListings, router]);
-  // ── Mount ──
+
   useEffect(() => {
     mountSession();
   }, [mountSession]);
@@ -119,7 +136,6 @@ function ProfileScreen() {
     ]);
   };
 
-  const unreadCount = 0;
   const soldCount = userListings?.filter((l) => l.sold).length ?? 0;
   const initials = getInitials(user?.app_user?.name, user?.app_user?.email);
   const isVerified = user?.app_user?.isVerified;
@@ -147,27 +163,38 @@ function ProfileScreen() {
     >
       <View className="p-4 gap-4">
         {/* ── Profile card ── */}
-
         <Animated.View
           entering={FadeInDown.duration(300).delay(0)}
           className="bg-pill rounded-[20px] border border-secondary/25 p-5"
         >
           <View className="flex-row items-center gap-3.5">
             {/* Avatar */}
-            <Pressable
-              onPress={() => {
-                router.push(`/profiles/${user?.id || user?.app_user?.uid}`);
+            <MotiPressable 
+            animate={animateNew}
+              onPress={() =>
+              router.push(`/profiles/${user?.id || user?.app_user?.uid}`)
+              }
+              style={{
+              width: 64,
+              height: 64,
+              borderRadius: 32,
+              backgroundColor: colors.primary,
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexShrink: 0,
               }}
-              className="w-16 h-16 rounded-full bg-primary items-center justify-center shrink-0"
             >
               {user?.app_user?.profileURL ? (
-                <Image src={user?.app_user?.profileURL} className="w-full h-full rounded-full" />
+                <Image
+                  src={user?.app_user?.profileURL}
+                  className="w-full h-full rounded-full"
+                />
               ) : (
                 <Text className="text-[20px] font-bold text-text">
                   {initials}
                 </Text>
               )}
-            </Pressable>
+            </MotiPressable>
 
             {/* Name / email / badge */}
             <View className="flex-1 min-w-0 gap-1">
@@ -200,7 +227,7 @@ function ProfileScreen() {
               </View>
             </View>
 
-            {/* Edit button */}
+            {/* Flag button */}
             <Pressable
               onPress={() => router.push("/reports")}
               className="w-8 h-8 rounded-[9px] bg-background border border-primary items-center justify-center shrink-0"
@@ -213,7 +240,7 @@ function ProfileScreen() {
           <View className="flex-row mt-4 rounded-xl overflow-hidden border border-primary/25">
             {stats.map(({ num, label }, i) => (
               <View
-                key={label}
+                key={label + `${i}`}
                 className={`flex-1 py-3 items-center ${i !== 2 ? "border-r border-primary/25" : ""}`}
               >
                 <Text className="text-[18px] font-bold text-text">{num}</Text>
@@ -226,80 +253,146 @@ function ProfileScreen() {
         </Animated.View>
 
         {/* ── Your market ── */}
-        <Animated.View entering={FadeInDown.duration(300).delay(80)}>
-          <Text className="text-[11px] font-medium text-text uppercase tracking-widest mb-2.5 pl-1">
+        <Animated.View
+          entering={FadeInDown.duration(300).delay(80)}
+          className="gap-3"
+        >
+          <Text className="text-3xl font-medium text-text uppercase pl-1">
             Your market
           </Text>
-          <View className="bg-pill rounded-[20px] border border-primary/25 overflow-hidden">
-            <ProfileSections
-              sideIcon={
+
+          <Pressable
+            onPress={() => setShowModal(true)} // was router.push
+            className="bg-pill rounded-[20px] border border-primary/25 flex-row items-center justify-between px-4 py-4 active:opacity-70"
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-[10px] bg-background border border-primary/25 items-center justify-center">
                 <FontAwesome name="list" size={16} color={colors.primary} />
-              }
-              displayText="Your listings"
-              badge={userListings?.length}
-              props={{ type: "ulist" }}
-            />
-            <ProfileSections
-              sideIcon={
+              </View>
+              <Text className="text-[15px] font-semibold text-text">
+                Your listings
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-2">
+              {(userListings?.length ?? 0) > 0 && (
+                <View className="bg-primary rounded-full px-2 py-0.5">
+                  <Text className="text-white text-[12px] font-bold">
+                    {userListings!.length}
+                  </Text>
+                </View>
+              )}
+              <FontAwesome
+                name="chevron-right"
+                size={12}
+                color={colors.text + "50"}
+              />
+            </View>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push({ pathname: "/convos" })}
+            className="bg-pill rounded-[20px] border border-primary/25 flex-row items-center justify-between px-4 py-4 active:opacity-70"
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-[10px] bg-background border border-primary/25 items-center justify-center">
                 <FontAwesome
                   name="comment-o"
                   size={16}
                   color={colors.secondary}
                 />
-              }
-              displayText="Your messages"
-              badge={unreadCount > 0 ? unreadCount : undefined}
-              badgeAccent
-              props={{ type: "messages" }}
-            />
-          </View>
+              </View>
+              <Text className="text-[15px] font-semibold text-text">
+                Your messages
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-2">
+              {unreadCount > 0 && (
+                <View className="bg-secondary rounded-full px-2 py-0.5">
+                  <Text className="text-white text-[12px] font-bold">
+                    {unreadCount}
+                  </Text>
+                </View>
+              )}
+              <FontAwesome
+                name="chevron-right"
+                size={12}
+                color={colors.text + "50"}
+              />
+            </View>
+          </Pressable>
         </Animated.View>
 
         {/* ── Settings ── */}
-        <Animated.View entering={FadeInDown.duration(300).delay(140)}>
-          <Text className="text-[11px] font-medium text-text uppercase tracking-widest mb-2.5 pl-1">
+        <Animated.View
+          entering={FadeInDown.duration(300).delay(140)}
+          className="gap-3"
+        >
+          <Text className="text-3xl font-medium text-text uppercase  pl-1">
             Settings
           </Text>
-          <View className="bg-pill rounded-[20px] border border-primary/25 overflow-hidden">
-            <ProfileSections
-              sideIcon={
+
+          <Pressable
+            onPress={() => router.push({ pathname: "/prefs/prefs" })}
+            className="bg-pill rounded-[20px] border border-primary/25 flex-row items-center justify-between px-4 py-4 active:opacity-70"
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-[10px] bg-background border border-primary/25 items-center justify-center">
                 <FontAwesome name="thumbs-o-up" size={16} color={colors.text} />
-              }
-              displayText="Preferences & Privacy"
-              props={{ type: "prefs" }}
-            />
-
-            {/* Logout row */}
-            <View className="flex-row items-center justify-between px-4 py-3.5 border-t border-primary/15">
-              <View className="flex-row items-center gap-3">
-                <View className="w-9 h-9 rounded-[10px] bg-background border border-primary/25 items-center justify-center">
-                  <FontAwesome
-                    name="sign-out"
-                    size={16}
-                    color={colors.secondary}
-                  />
-                </View>
-                <Text className="text-[14px] font-medium text-text">
-                  Logout
-                </Text>
               </View>
-              <Pressable
-                onPress={handleLogout}
-                className="bg-text px-4 py-2 rounded-xl"
-              >
-                <Text className="text-primary text-[13px] font-bold">
-                  Log out
-                </Text>
-              </Pressable>
+              <Text className="text-[15px] font-semibold text-text">
+                Preferences & Privacy
+              </Text>
             </View>
-          </View>
+            <FontAwesome
+              name="chevron-right"
+              size={12}
+              color={colors.text + "50"}
+            />
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: `/settings/[uid]`,
+                params: {
+                  uid: user?.id!,
+                },
+              })
+            }
+            className="bg-pill rounded-[20px] border border-primary/25 flex-row items-center justify-between px-4 py-4 active:opacity-70"
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-[10px] bg-background border border-primary/25 items-center justify-center">
+                <FontAwesome name="gear" size={16} color={colors.text} />
+              </View>
+              <Text className="text-[15px] font-semibold text-text">
+                Settings
+              </Text>
+            </View>
+            <FontAwesome
+              name="chevron-right"
+              size={12}
+              color={colors.text + "50"}
+            />
+          </Pressable>
+
+          <Pressable
+            onPress={handleLogout}
+            className="bg-pill rounded-[20px] border border-red-400/30 flex-row items-center justify-between px-4 py-4 active:opacity-70"
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-[10px] bg-red-50 border border-red-400/30 items-center justify-center">
+                <FontAwesome name="sign-out" size={16} color="#f87171" />
+              </View>
+              <Text className="text-[15px] font-semibold text-red-400">
+                Log out
+              </Text>
+            </View>
+            <FontAwesome name="chevron-right" size={12} color="#f87171" />
+          </Pressable>
         </Animated.View>
-
-        
       </View>
-
-     
-    
+      <UserListings setModals={() => setShowModal(false)} showModal={showModal} />
     </ScrollView>
   );
 }
