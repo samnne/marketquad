@@ -29,6 +29,7 @@ import { getUserSupabase } from "@/utils/functions";
 
 import BottomSheet from "@gorhom/bottom-sheet";
 import BlockUserModal from "@/components/BlockUserModal";
+import { SymbolView } from "expo-symbols";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -61,7 +62,7 @@ const StatBox = ({
   <View className="flex-1 items-center gap-1 bg-background rounded-2xl py-4 border border-secondary/10">
     <FontAwesome6 name={icon as any} size={14} color={colors.primary} />
     <Text className="text-base font-bold text-text">{value}</Text>
-    <Text className="text-[10px] text-secondary text-center leading-4">
+    <Text className="text-[10px] text-text text-center leading-4">
       {label}
     </Text>
   </View>
@@ -193,22 +194,22 @@ const TabPill = ({
           scale.value = withSpring(1, { stiffness: 400 });
         }}
         onPress={onPress}
-        className={`flex-row items-center gap-1.5 px-4 py-2 rounded-full border ${
-          active ? "bg-text border-text" : "bg-pill border-secondary/20"
+        className={`flex-row items-center gap-1.5 px-4 py-2 rounded-xl border ${
+          active ? "bg-text border-text" : "bg-pill border-text/20"
         }`}
       >
         <Text
-          className={`text-[13px] font-semibold ${active ? "text-pill" : "text-secondary"}`}
+          className={`text-[13px] font-semibold ${active ? "text-pill" : "text-text"}`}
         >
           {label}
         </Text>
         <View
           className={`min-w-4.5 h-4.5 rounded-full items-center justify-center px-1 ${
-            active ? "bg-pill/20" : "bg-secondary/15"
+            active ? "bg-pill/20" : "bg-text/15"
           }`}
         >
           <Text
-            className={`text-[10px] font-bold ${active ? "text-pill" : "text-secondary"}`}
+            className={`text-[10px] font-bold ${active ? "text-pill" : "text-text"}`}
           >
             {count}
           </Text>
@@ -349,10 +350,10 @@ export default function PublicProfileScreen() {
               {data.profileURL ? (
                 <Image
                   source={{ uri: data.profileURL }}
-                  className="w-17 h-17 rounded-2xl"
+                  className="w-30 h-30 rounded-2xl"
                 />
               ) : (
-                <View className="w-17 h-17 rounded-2xl bg-primary/10 items-center justify-center">
+                <View className="w-30 h-30 rounded-2xl bg-primary/10 items-center justify-center">
                   <Text className="text-2xl font-extrabold text-primary">
                     {data.name[0]?.toUpperCase()}
                   </Text>
@@ -403,7 +404,7 @@ export default function PublicProfileScreen() {
             {/* Intent + member since */}
             <View className="flex-row items-center justify-between flex-wrap gap-2">
               {data.intent && <IntentBadge intent={data.intent} />}
-              <Text className="text-[11px] text-secondary">
+              <Text className="text-[11px] text-text/50">
                 Member since{" "}
                 {new Date(data.createdAt).toLocaleDateString("en-CA", {
                   month: "long",
@@ -415,7 +416,7 @@ export default function PublicProfileScreen() {
             {/* Category interests */}
             {data.category_interests?.length > 0 && (
               <View className="gap-1.5">
-                <Text className="text-[10px] font-semibold tracking-widest uppercase text-secondary/60">
+                <Text className="text-[10px] font-semibold tracking-widest uppercase text-text/60">
                   Interested in
                 </Text>
                 <View className="flex-row flex-wrap gap-1.5">
@@ -507,11 +508,11 @@ export default function PublicProfileScreen() {
                   entering={FadeInDown.duration(300)}
                   className="items-center py-12 gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
                 >
-                  <Text className="text-3xl mb-1">🏷️</Text>
-                  <Text className="text-[15px] font-bold text-text">
+                         <SymbolView name="tag"  size={50}  tintColor={colors.text} />
+                  <Text className="text-4xl font-bold text-text">
                     No active listings
                   </Text>
-                  <Text className="text-[13px] text-secondary text-center px-8 leading-relaxed">
+                  <Text className="text-[13px] text-text/50 text-center px-8 leading-relaxed">
                     {data.name.split(" ")[0]} hasn&apos;t posted anything yet.
                   </Text>
                 </Animated.View>
@@ -520,6 +521,7 @@ export default function PublicProfileScreen() {
                   <Animated.View
                     key={`${listing.lid}veivwnnve${i}`}
                     entering={FadeInDown.duration(300).delay(i * 50)}
+                    className={"w-[48%]"}
                   >
                     <ListingCard listing={{ ...listing, seller: data }} />
                   </Animated.View>
@@ -530,11 +532,11 @@ export default function PublicProfileScreen() {
                 entering={FadeInDown.duration(300)}
                 className="items-center py-12 gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
               >
-                <Text className="text-3xl mb-1">⭐</Text>
-                <Text className="text-[15px] font-bold text-text">
+                <SymbolView name="wind" size={50}  tintColor={colors.text} />
+                <Text className="text-4xl font-bold text-text">
                   No reviews yet
                 </Text>
-                <Text className="text-[13px] text-secondary text-center px-8 leading-relaxed">
+                <Text className="text-[13px] text-text/50 text-center px-8 leading-relaxed">
                   Reviews appear after completed transactions.
                 </Text>
               </Animated.View>

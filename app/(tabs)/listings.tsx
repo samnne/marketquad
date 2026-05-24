@@ -1,6 +1,6 @@
 import ListingCard from "@/components/Listings/ListingCard";
 
-import { BASE_URL} from "@/constants/constants";
+import { BASE_URL } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
 import { useRefresh } from "@/hooks/useRefresh";
 import { useListings, useMessage } from "@/store/zustand";
@@ -8,7 +8,6 @@ import { fetchListings, getUserSupabase } from "@/utils/functions";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  
   Pressable,
   RefreshControl,
   ScrollView,
@@ -26,8 +25,6 @@ import textbooks from "@/assets/images/textbooks.jpg";
 import { Image } from "moti";
 import CategoryChips from "@/components/Utils/CategoryChips";
 import MarketQuad from "@/components/Utils/MarketQuad";
-
-
 
 const SkeletonCard = () => (
   <View className="bg-pill rounded-2xl border border-secondary/20 overflow-hidden flex-1">
@@ -47,10 +44,9 @@ export function ListingsScreen() {
     search?: string;
     cat?: string;
   }>();
- 
+
   const contentRef = useRef<View>(null);
-  const { listings, setListings } =
-    useListings();
+  const { listings, setListings } = useListings();
   const { refreshing, onRefresh } = useRefresh({
     func: async () => await fetchListings({ setter: setListings }),
   });
@@ -60,7 +56,7 @@ export function ListingsScreen() {
   const [searchInput, setSearchInput] = useState(searchQuery ?? "");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const [activeCategory, setActiveCategory] = useState(cat ?? "All");
-  const [view, setView] = useState<"grid" | "list">("list");
+  const [view, setView] = useState<"grid" | "list">("grid");
 
   const baseListings =
     searchQuery && searchResults !== null ? searchResults : listings;
@@ -80,18 +76,18 @@ export function ListingsScreen() {
       try {
         setLoading(true);
         if (searchQuery) {
-          const user = await getUserSupabase();
+          const { user, app_user } = await getUserSupabase();
 
           const response = await fetch(
             `${BASE_URL}/api/listings/search?q=${encodeURIComponent(searchQuery)}`,
-            { headers: { Authorization: user ? user.user?.id! : "0" } },
+            { headers: { Authorization:  app_user?.uid, "x-user-id": app_user.uid } },
           );
           if (!response.ok) {
             setError(true);
             setMessage("Error Fetching Listings");
           }
           const data = await response.json();
-
+      
           if (data.success) setSearchResults(data.listings);
           else {
             setMessage("Couldn't find that?");
@@ -128,7 +124,7 @@ export function ListingsScreen() {
     <ScrollView
       className="flex-1 bg-background"
       style={{
-        backgroundColor: colors.background,
+        backgroundColor: colors.pill,
       }}
       contentContainerStyle={{
         paddingBottom: components.tabBar.height + insets.bottom,
@@ -139,8 +135,6 @@ export function ListingsScreen() {
       }
     >
       <View className="flex-row flex-wrap w-full p-2">
-       
-
         {[
           { name: "Housing", image: housing },
           { name: "Textbooks", image: textbooks },
@@ -153,7 +147,7 @@ export function ListingsScreen() {
               }
               setActiveCategory(item.name);
             }}
-            key={i+ 3243}
+            key={i + 3243}
             className="w-1/2 aspect-square p-1"
           >
             <View className="relative flex-1 bg-accent justify-center items-center rounded-2xl">
@@ -186,15 +180,15 @@ export function ListingsScreen() {
         entering={FadeInDown.duration(300)}
         className="px-4 pt-4 pb-3"
       >
-        <View className="bg-pill border border-secondary/50 rounded-2xl px-4 py-3 flex-row items-center gap-2.5">
-          <Text className="text-text opacity-40 text-base">⌕</Text>
+        <View className="bg-pill shadow rounded-2xl px-4 py-3 flex-row items-center gap-2.5">
+          <Text className="text-text opacity-40 text-4xl">⌕</Text>
           <TextInput
-            className="flex-1 text-[13px]  text-text"
+            className="flex-1 text-2xl  text-text"
             value={searchInput}
             onChangeText={setSearchInput}
             onSubmitEditing={handleSearch}
             placeholder="Search listings…"
-            placeholderTextColor={colors.secondary}
+            placeholderTextColor={colors.text + "40"}
             returnKeyType="search"
           />
           {searchQuery ? (
@@ -204,7 +198,7 @@ export function ListingsScreen() {
                 router.push("/listings");
               }}
             >
-              <Text className="text-secondary text-sm">✕</Text>
+              <Text className="text-text text-sm">✕</Text>
             </Pressable>
           ) : null}
         </View>
@@ -228,13 +222,16 @@ export function ListingsScreen() {
       </Animated.View>
 
       {/* ── Content ── */}
-      <View ref={contentRef} className="px-4 pb-6">
+      <View ref={contentRef} className="px-1 pb-6">
         {loading ? (
           <View
             className={view === "grid" ? "flex-row flex-wrap gap-3" : "gap-3"}
           >
             {[1, 2, 3, 4].map((n) => (
-              <View key={n+324} className={view === "grid" ? "w-[48%]" : "w-full"}>
+              <View
+                key={n + 324}
+                className={view === "grid" ? "w-[48%]" : "w-full"}
+              >
                 <SkeletonCard />
               </View>
             ))}
@@ -259,7 +256,7 @@ export function ListingsScreen() {
             <View className="w-14 h-14 bg-secondary/20 rounded-2xl items-center justify-center">
               <Text className="text-2xl">🏷️</Text>
             </View>
-            <Text className="text-[14px] text-secondary text-center leading-relaxed">
+            <Text className="text-2xl text-text text-center leading-relaxed">
               {searchQuery
                 ? `No listings matched "${searchQuery}".`
                 : activeCategory !== "All"
@@ -268,7 +265,7 @@ export function ListingsScreen() {
             </Text>
             {(searchQuery || activeCategory !== "All") && (
               <Pressable onPress={clearFilters}>
-                <Text className="text-[13px] text-secondary/50 underline font-medium">
+                <Text className="text-2xl text-text/50 underline font-medium">
                   Clear filters
                 </Text>
               </Pressable>
@@ -282,9 +279,5 @@ export function ListingsScreen() {
 }
 
 export default function Listings() {
-  return (
-   
-      <ListingsScreen />
-  
-  );
+  return <ListingsScreen />;
 }

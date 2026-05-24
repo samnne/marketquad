@@ -26,10 +26,10 @@ const CategoryChips = ({
               key={cat.value}
               id={cat.value}
               onPress={() => setActiveCategory((prev: string) => cat.label === prev ? "All" : cat.label)}
-              className={`px-4 py-1.5 rounded-xl border ${on ? "bg-primary border-primary" : "bg-pill border-background"}`}
+              className={`px-4 py-1.5 rounded-xl border border-text/25 ${on ? "bg-primary border-primary" : "bg-pill border-background"}`}
             >
               <Text
-                className={`text-lg font-bold ${on ? "text-pill" : "text-text/50"}`}
+                className={`text-base font-bold ${on ? "text-pill" : "text-text/50"}`}
               >
                 {cat.label}
               </Text>

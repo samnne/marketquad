@@ -60,10 +60,10 @@ const Section = ({
     entering={FadeInDown.duration(400).delay(delay)}
     className="gap-2"
   >
-    <Text className="text-[11px] font-semibold text-primary/40 uppercase tracking-widest px-1">
+    <Text className="text-[11px] font-semibold text-text/80 uppercase tracking-widest px-1">
       {label}
     </Text>
-    <View className="bg-pill rounded-2xl overflow-hidden border border-secondary/10">
+    <View className="bg-pill rounded-2xl overflow-hidden border border-text/10">
       {children}
     </View>
   </Animated.View>
@@ -101,7 +101,7 @@ const FieldRow = ({
       <Text className="text-text text-[15px] w-24 font-medium">{label}</Text>
       <View className="flex-1 flex-row items-center">
         {prefix && (
-          <Text className="text-primary/40 text-[15px] mr-1">{prefix}</Text>
+          <Text className="text-text/40 text-[15px] mr-1">{prefix}</Text>
         )}
         <TextInput
           style={[
@@ -113,7 +113,7 @@ const FieldRow = ({
             },
             style,
           ]}
-          placeholderTextColor={colors.primary + "40"}
+          placeholderTextColor={colors.text + "40"}
           {...props}
         />
       </View>
@@ -146,12 +146,12 @@ const Chip = ({
       }}
       onPress={onPress}
       className={`px-4 py-2 rounded-full border ${
-        active ? "bg-text border-text" : "bg-transparent border-secondary/25"
+        active ? "bg-text border-text" : "bg-transparent border-text/25"
       }`}
     >
       <Text
         className={`text-[13px] font-semibold ${
-          active ? "text-pill" : "text-primary/50"
+          active ? "text-pill" : "text-text/50"
         }`}
       >
         {label}
@@ -416,6 +416,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
       setLatLong([prefs.defaultLat ?? 0, prefs.defaultLng ?? 0]);
       setIsLoading(false);
       setUploading(false);
+      setImages([]);
     }
   };
 
@@ -460,16 +461,16 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
             {images?.length < 10 && (
               <Pressable
                 onPress={pickImages}
-                className="w-24 h-24 rounded-xl border border-dashed border-secondary/30 bg-background items-center justify-center gap-1"
+                className="w-24 h-24 rounded-xl border border-dashed border-text/30 bg-background items-center justify-center gap-1"
               >
-                <Ionicons name="add" size={24} color={colors.primary + "60"} />
-                <Text className="text-[10px] text-primary/40 font-medium">
+                <Ionicons name="add" size={24} color={colors.text + "60"} />
+                <Text className="text-[10px] text-text/40 font-medium">
                   Add
                 </Text>
               </Pressable>
             )}
           </ScrollView>
-          <Text className="text-[11px] text-primary/30 pb-3 px-4">
+          <Text className="text-[11px] text-text/30 pb-3 px-4">
             {images?.length}/10 photos
           </Text>
         </Row>
@@ -505,7 +506,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
             value={formData.description}
             onChangeText={(v) => setFormData((p) => ({ ...p, description: v }))}
             placeholder="Describe the item edition, defects, extras included…"
-            placeholderTextColor={colors.primary + "40"}
+            placeholderTextColor={colors.text + "40"}
             multiline
             numberOfLines={4}
             maxLength={2000}

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeInLeft } from "react-native-reanimated";
 import ListingModal from "./Listings/ListingModal";
+import { SymbolView } from "expo-symbols";
 
 type Filter = "all" | "sold" | "archived";
 
@@ -36,7 +37,7 @@ const UserListings = ({
   });
 
   useEffect(() => {
-    if (pathname.includes("new") || pathname.split('/').length > 2) {
+    if (pathname.includes("new") || pathname.split("/").length > 2) {
       setModals();
       return;
     }
@@ -49,13 +50,13 @@ const UserListings = ({
       presentationStyle="pageSheet"
       onRequestClose={setModals}
     >
-      <View className="flex-1 bg-background">
+      <View className="flex-1   bg-background">
         {/* ── Sticky header ── */}
         <Animated.View
           entering={FadeInLeft.duration(250)}
-          className="bg-pill border-b border-secondary/20 px-4 py-3.5 flex-row items-center justify-between"
+          className="bg-pill border-b  border-secondary/20 px-4 py-5 flex-row items-center justify-between"
         >
-          <Text className="text-[17px] font-extrabold text-text">
+          <Text className="text-4xl font-extrabold text-text">
             Your listings{"  "}
             {userListings.length > 0 && (
               <Text className="text-[13px] font-normal text-secondary">
@@ -65,61 +66,59 @@ const UserListings = ({
           </Text>
           <Pressable
             onPress={setModals}
-            className="bg-background border border-secondary/30 rounded-xl px-3.5 py-1.5 flex-row items-center gap-1.5"
+            className=" bg-primary  rounded-full w-12 h-12 justify-center items-center flex-row gap-1.5"
           >
-            <Text className="text-[13px] font-semibold text-secondary">
-              Close
-            </Text>
-            <FontAwesome name="times" size={12} color={colors.secondary} />
+            <SymbolView name="multiply" tintColor={colors.background} />
           </Pressable>
         </Animated.View>
 
         {/* ── Filter chips ── */}
-        <View className="bg-pill border-b border-secondary/20 px-4 py-3 flex-row gap-2">
-          {FILTERS.map(({ label, value }) => {
-            const count =
-              value === "all"
-                ? userListings.length
-                : userListings.filter((l) => l[value] === true).length;
-            const isActive = filter === value;
+        {userListings.length !== 0 && (
+          <View className="bg-pill border-b border-secondary/20 px-4 py-3 flex-row gap-2">
+            {FILTERS.map(({ label, value }) => {
+              const count =
+                value === "all"
+                  ? userListings.length
+                  : userListings.filter((l) => l[value] === true).length;
+              const isActive = filter === value;
 
-            return (
-              <Pressable
-                key={value}
-                onPress={() => setFilter(value)}
-                className={`flex-row items-center gap-1.5 px-3.5 py-1.5 rounded-full border ${
-                  isActive
-                    ? "bg-text border-text"
-                    : "bg-background border-secondary/30"
-                }`}
-              >
-                <Text
-                  className={`text-[13px] font-medium ${
-                    isActive ? "text-primary" : "text-secondary"
+              return (
+                <Pressable
+                  key={value}
+                  onPress={() => setFilter(value)}
+                  className={`flex-row items-center gap-1.5 px-3.5 py-1.5 rounded-full border ${
+                    isActive
+                      ? "bg-text border-text"
+                      : "bg-background border-secondary/30"
                   }`}
                 >
-                  {label}
-                </Text>
-                {count > 0 && (
-                  <View
-                    className={`px-1.5 py-0.5 rounded-full ${
-                      isActive ? "bg-primary/20" : "bg-secondary/20"
+                  <Text
+                    className={`text-[13px] font-medium ${
+                      isActive ? "text-primary" : "text-secondary"
                     }`}
                   >
-                    <Text
-                      className={`text-[10px] font-bold ${
-                        isActive ? "text-primary" : "text-secondary"
+                    {label}
+                  </Text>
+                  {count > 0 && (
+                    <View
+                      className={`px-1.5 py-0.5 rounded-full ${
+                        isActive ? "bg-primary/20" : "bg-secondary/20"
                       }`}
                     >
-                      {count}
-                    </Text>
-                  </View>
-                )}
-              </Pressable>
-            );
-          })}
-        </View>
-
+                      <Text
+                        className={`text-[10px] font-bold ${
+                          isActive ? "text-primary" : "text-secondary"
+                        }`}
+                      >
+                        {count}
+                      </Text>
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
         {/* ── Content ── */}
         <ScrollView
           className="flex-1"
@@ -132,10 +131,7 @@ const UserListings = ({
                 key={`${listing.lid}${i}fisnuvdsnvinwe`}
                 entering={FadeInDown.duration(300).delay(Math.min(i * 40, 300))}
               >
-                <ListingCard
-                  listing={listing}
-        
-                />
+                <ListingCard listing={listing} />
               </Animated.View>
             ))
           ) : userListings.length === 0 ? (
@@ -148,7 +144,7 @@ const UserListings = ({
                 <Text className="text-[26px] font-extrabold text-text leading-tight mb-1">
                   Make a listing!
                 </Text>
-                <Text className="text-[14px] text-secondary">
+                <Text className="text-[14px] text-text">
                   Created listings will appear here.
                 </Text>
               </View>
@@ -158,11 +154,11 @@ const UserListings = ({
                   setModals();
                   router.push("/new");
                 }}
-                className="bg-pill border border-secondary/20 rounded-[20px] overflow-hidden"
+                className="bg-pill border border-primary/20 rounded-[20px] overflow-hidden"
               >
                 {/* Banner */}
-                <View className="w-full h-40 bg-secondary/10 items-center justify-center">
-                  <View className="w-12 h-12 rounded-xl bg-secondary/20 items-center justify-center">
+                <View className="w-full h-40 bg-primary/10 items-center justify-center">
+                  <View className="w-12 h-12 rounded-xl bg-primary/20 items-center justify-center">
                     <FontAwesome name="plus" size={24} color={colors.primary} />
                   </View>
                 </View>
@@ -178,7 +174,7 @@ const UserListings = ({
                   <Text className="text-[15px] font-bold text-text mb-0.5">
                     Tap here to create a listing
                   </Text>
-                  <Text className="text-[12px] text-secondary">
+                  <Text className="text-[12px] text-text/50">
                     Takes less than 30 seconds
                   </Text>
                 </View>

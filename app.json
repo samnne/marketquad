@@ -2,7 +2,7 @@
   "expo": {
     "name": "MarketQuad",
     "slug": "marketquad",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icons/ios-light.png",
     "scheme": "mqphone",
@@ -11,7 +11,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.samuelechefu.marketquad",
-      "icon": "./assets/icons/ios-light.png",
+      "icon":{
+        "dark": "./assets/icons/ios-dark.png",
+        "light": "./assets/icons/ios-light.png",
+        "tinted": "./assets/icons/ios-tinted.png"
+      },
+
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "MarketQuad accesses your photo library so you can select and upload images to your profile or listings. For example, you can choose a photo to use as your profile picture or add product images to a listing.",

@@ -333,7 +333,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
     } catch (err) {
       console.error(err);
       setError(true);
-      console.log("HMMM")
+      
       setMessage("Invalid OTP. Please try again.");
     } finally {
       setLoadingOtp(false);
@@ -532,7 +532,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       </Field>
 
       {isSignIn && (
-        <Pressable onPress={handleForgotPassword} style={s.forgotBtn}>
+        <Pressable onPress={handleForgotPassword} className="mt-30 " style={s.forgotBtn}>
           <Text style={s.forgotText}>Forgot password?</Text>
         </Pressable>
       )}
@@ -618,7 +618,7 @@ const s = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  forgotBtn: { alignSelf: "flex-end", marginTop: -4 },
+  forgotBtn: { alignSelf: "flex-end", marginTop: 20, marginBottom: 20 },
   forgotText: {
     fontSize: 13,
     color: colors.secondary,

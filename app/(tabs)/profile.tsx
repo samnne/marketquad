@@ -1,4 +1,3 @@
-
 import UserListings from "@/components/UserListings";
 import { BASE_URL } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
@@ -43,8 +42,7 @@ function ProfileScreen() {
 
       return {
         scale: expression ? 1.1 : 1,
-        rotate: expression ? "15deg" : "0deg"
-       
+        rotate: expression ? "15deg" : "0deg",
       };
     };
   }, []);
@@ -87,7 +85,6 @@ function ProfileScreen() {
   });
 
   const mountSession = useCallback(async () => {
-
     try {
       const { user: u, error, app_user } = await getUserSupabase();
 
@@ -113,7 +110,6 @@ function ProfileScreen() {
 
   useEffect(() => {
     mountSession();
-    
   }, [mountSession]);
 
   const handleLogout = async () => {
@@ -166,23 +162,23 @@ function ProfileScreen() {
         {/* ── Profile card ── */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(0)}
-          className="bg-pill rounded-[20px] border border-secondary/25 p-5"
+          className="bg-pill rounded-[20px]  p-5"
         >
           <View className="flex-row items-center gap-3.5">
             {/* Avatar */}
-            <MotiPressable 
-            animate={animateNew}
+            <MotiPressable
+              animate={animateNew}
               onPress={() =>
-              router.push(`/profiles/${user?.id || user?.app_user?.uid}`)
+                router.push(`/profiles/${user?.id || user?.app_user?.uid}`)
               }
               style={{
-              width: 64,
-              height: 64,
-              borderRadius: 32,
-              backgroundColor: colors.primary,
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexShrink: 0,
+                width: 64,
+                height: 64,
+                borderRadius: 32,
+                backgroundColor: colors.primary,
+                justifyContent: "center",
+                alignItems: "center",
+                flexShrink: 0,
               }}
             >
               {user?.app_user?.profileURL ? (
@@ -208,9 +204,15 @@ function ProfileScreen() {
                   @{user?.app_user?.username}
                 </Text>
               </Text>
-              <Text className="text-[12px] text-secondary" numberOfLines={1}>
-                {user?.app_user?.email}
-              </Text>
+              <Pressable
+                onPress={() =>
+                  router.push(`/profiles/${user?.id || user?.app_user?.uid}`)
+                }
+              >
+                <Text className="text-[12px] text-secondary" numberOfLines={1}>
+                  Tap to View Market Profile
+                </Text>
+              </Pressable>
               <View className="flex-row flex-wrap gap-1.5 mt-1">
                 <View
                   className={`px-2 py-0.5 rounded-md ${
@@ -238,14 +240,14 @@ function ProfileScreen() {
           </View>
 
           {/* Stats strip */}
-          <View className="flex-row mt-4 rounded-xl overflow-hidden border border-primary/25">
+          <View className="flex-row mt-4 rounded-xl overflow-hidden border border-text/25">
             {stats.map(({ num, label }, i) => (
               <View
                 key={label + `${i}`}
-                className={`flex-1 py-3 items-center ${i !== 2 ? "border-r border-primary/25" : ""}`}
+                className={`flex-1 py-3 items-center ${i !== 2 ? "border-text/25 border-r" : ""}`}
               >
-                <Text className="text-[18px] font-bold text-text">{num}</Text>
-                <Text className="text-[10px] text-secondary mt-0.5">
+                <Text className="text-2xl font-semibold text-text">{num}</Text>
+                <Text className="text-sm text-text mt-0.5">
                   {label}
                 </Text>
               </View>
@@ -393,7 +395,10 @@ function ProfileScreen() {
           </Pressable>
         </Animated.View>
       </View>
-      <UserListings setModals={() => setShowModal(false)} showModal={showModal} />
+      <UserListings
+        setModals={() => setShowModal(false)}
+        showModal={showModal}
+      />
     </ScrollView>
   );
 }

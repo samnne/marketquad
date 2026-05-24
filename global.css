@@ -8,7 +8,8 @@
 
 
   --color-text: #1a2e28;
-  --color-background: #f2f8f6;
+  /* --color-background: #f2f8f6; */
+  --color-background: #fff;
   --color-primary: #3db88a;
   --color-secondary: #a97bc7;
   --color-accent: #c9527a;

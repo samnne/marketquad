@@ -365,7 +365,7 @@ export default function ListingPage() {
                   onPress={() =>
                     router.push(`/profiles/${listing?.seller?.uid}`)
                   }
-                  className="w-9 h-9 rounded-full bg-background items-center justify-center"
+                  className="w-9 h-9 rounded-full bg-text/25 items-center justify-center"
                 >
                   <Text className="text-sm font-bold text-text/70">
                     {(listing?.seller?.name?.[0] ?? "?").toUpperCase()}
@@ -395,12 +395,12 @@ export default function ListingPage() {
 
             {/* Tab switcher */}
             <Animated.View entering={FadeInDown.duration(300).delay(60)}>
-              <View className="flex-row bg-background rounded-xl p-1">
+              <View className="flex-row bg-text/10 rounded-xl p-1">
                 {(["about", "details"] as const).map((t, index) => (
                   <Pressable
                     key={`${t}${index}`}
                     onPress={() => setTab(t)}
-                    className={`flex-1 py-2 rounded-lg items-center ${tab === t ? "bg-pill" : "transparent"}`}
+                    className={`flex-1 py-2 rounded-lg items-center ${tab === t ? "bg-background" : "transparent"}`}
                   >
                     <Text
                       className={`text-[13px] font-semibold capitalize ${tab === t ? "text-text" : "text-text/30"}`}

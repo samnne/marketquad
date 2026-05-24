@@ -153,7 +153,7 @@ const ConversationsScreen = () => {
       className="flex-1 bg-background"
       contentContainerStyle={{ paddingBottom: bottomClearance }}
       showsVerticalScrollIndicator={false}
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: colors.pill }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -163,7 +163,7 @@ const ConversationsScreen = () => {
         entering={FadeInDown.duration(300)}
         className="px-4 pt-4 pb-3"
       >
-        <View className="bg-pill p-4 rounded-xl flex-row items-center gap-2.5">
+        <View className="bg-pill p-4 rounded-xl shadow flex-row items-center gap-2.5">
           <FontAwesome6
             name="magnifying-glass"
             size={24}
@@ -205,7 +205,7 @@ const ConversationsScreen = () => {
         <>
           {/* ── Section header ── */}
           <View className="flex-row justify-between items-center px-4 pt-2 pb-2">
-            <Text className="text-[11px] font-medium text-text uppercase tracking-widest">
+            <Text className="text-2xl font-medium text-text uppercase tracking-widest">
               {query.trim()
                 ? `${filtered?.length} result${filtered?.length !== 1 ? "s" : ""}`
                 : "Recent"}
@@ -214,7 +214,7 @@ const ConversationsScreen = () => {
               onPress={getConvosClient}
               className="w-10 h-10 items-center justify-center"
             >
-              <Text className="text-secondary text-lg">↻</Text>
+              <Text className="text-secondary text-3xl">↻</Text>
             </Pressable>
           </View>
 
