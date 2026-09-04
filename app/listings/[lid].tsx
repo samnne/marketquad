@@ -356,7 +356,7 @@ export default function ListingPage() {
                 </View>
                 <View className="items-end">
                   <Text className="text-2xl font-extrabold text-primary">
-                    {listing.price != "0" ? `$${listing.price}` : "FREE"}
+                    {listing.price !== 0 ? `$${listing.price}` : "FREE"}
                   </Text>
                   <Text className="text-[11px] text-text/30 mt-0.5">
                     {timeAgo(listing.createdAt)}

@@ -91,11 +91,11 @@ const ConversationsScreen = () => {
   }, [setUser, setError, setLoading, setMessage, router, setConvos]);
 
   useEffect(() => {
-    if (convos?.length > 0) {
-      setLoading(false);
-      return;
-    }
-    getConvosClient();
+    const timeout = setTimeout(() => {
+      void getConvosClient();
+    }, 0);
+
+    return () => clearTimeout(timeout);
   }, [getConvosClient, convos?.length]);
 
   const handleDelete = (cid: string) => {

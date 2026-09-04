@@ -75,7 +75,7 @@ function HomeScreen() {
   useEffect(() => {
     const mount = async () => {
       const { user, app_user } = await getUserSupabase();
-      if (!user) router.navigate("/(auth)/sign-in");
+      if (!user) router.navigate("/(auth)/sign-up");
       setUser({ ...user, app_user });
     };
     mount();
@@ -110,10 +110,7 @@ function HomeScreen() {
     [active],
   );
 
-  const forYou = useMemo(
-    () => [...(active ?? [])].sort(() => 0.5 - Math.random()).slice(0, 10),
-    [active],
-  );
+  
   const isFiltered = activeCategory !== "All";
 
   return (
