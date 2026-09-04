@@ -14,9 +14,9 @@ import React, { ReactElement, ReactNode, useEffect, useMemo } from "react";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
-function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+
+function CustomTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
   const { setTabIndex } = useTabStore();
   const animateNew = useMemo(() => {

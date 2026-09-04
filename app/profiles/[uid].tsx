@@ -62,9 +62,7 @@ const StatBox = ({
   <View className="flex-1 items-center gap-1 bg-background rounded-2xl py-4 border border-secondary/10">
     <FontAwesome6 name={icon as any} size={14} color={colors.primary} />
     <Text className="text-base font-bold text-text">{value}</Text>
-    <Text className="text-[10px] text-text text-center leading-4">
-      {label}
-    </Text>
+    <Text className="text-[10px] text-text text-center leading-4">{label}</Text>
   </View>
 );
 
@@ -501,14 +499,14 @@ export default function PublicProfileScreen() {
           </Animated.View>
 
           {/* ── Tab content ── */}
-          <View className="px-4 pt-3 gap-2.5">
+          <View className="px-4  flex-row flex-wrap pt-3 gap-2.5">
             {activeTab === "listings" ? (
               activeListings.length === 0 ? (
                 <Animated.View
                   entering={FadeInDown.duration(300)}
                   className="items-center py-12 gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
                 >
-                         <SymbolView name="tag"  size={50}  tintColor={colors.text} />
+                  <SymbolView name="tag" size={50} tintColor={colors.text} />
                   <Text className="text-4xl font-bold text-text">
                     No active listings
                   </Text>
@@ -521,7 +519,7 @@ export default function PublicProfileScreen() {
                   <Animated.View
                     key={`${listing.lid}veivwnnve${i}`}
                     entering={FadeInDown.duration(300).delay(i * 50)}
-                    className={"w-[48%]"}
+                    className={"w-[48%]  "}
                   >
                     <ListingCard listing={{ ...listing, seller: data }} />
                   </Animated.View>
@@ -532,7 +530,7 @@ export default function PublicProfileScreen() {
                 entering={FadeInDown.duration(300)}
                 className="items-center py-12 gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
               >
-                <SymbolView name="wind" size={50}  tintColor={colors.text} />
+                <SymbolView name="wind" size={50} tintColor={colors.text} />
                 <Text className="text-4xl font-bold text-text">
                   No reviews yet
                 </Text>
@@ -549,11 +547,15 @@ export default function PublicProfileScreen() {
         </>
       ) : null}
       {blockModal && (
-        <BlockUserModal userToBlock={{
-          name: data?.name, 
-          id: data?.uid,
-          
-        }} type="block" setShowModal={setBlockModal} showModal={blockModal} />
+        <BlockUserModal
+          userToBlock={{
+            name: data?.name,
+            id: data?.uid,
+          }}
+          type="block"
+          setShowModal={setBlockModal}
+          showModal={blockModal}
+        />
       )}
     </ScrollView>
   );

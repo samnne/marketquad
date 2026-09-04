@@ -2,7 +2,6 @@ import ListingCard from "@/components/Listings/ListingCard";
 import CategoryChips from "@/components/Utils/CategoryChips";
 
 import { colors, components } from "@/constants/theme";
-import { db } from "@/db/db";
 import { useRefresh } from "@/hooks/useRefresh";
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { fetchConvos, fetchListings, getUserSupabase } from "@/utils/functions";
@@ -12,11 +11,11 @@ import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Image,
   Pressable,
   RefreshControl,
   ScrollView,
   Text,
-  Image,
   TextInput,
   View,
 } from "react-native";
@@ -204,7 +203,11 @@ function HomeScreen() {
             <View className=" flex-row flex-wrap gap-3 px-1">
               {convos?.length === 0 ? (
                 <View className="mx-4 my-2 py-10 items-center gap-2 bg-pill rounded-2xl border border-secondary/10 w-full">
-                  <SymbolView name="bubble" size={40} tintColor={colors.primary} />
+                  <SymbolView
+                    name="bubble"
+                    size={40}
+                    tintColor={colors.primary}
+                  />
                   <Text className="text-text font-semibold text-sm text-center">
                     Send a message to get started
                   </Text>
@@ -225,21 +228,22 @@ function HomeScreen() {
                       className="w-50 h-50 p-2 gap-2  items-center"
                     >
                       <View className="bg-white h-25 w-25 justify-center items-center rounded-full ">
-                       {convo.listing?.imageUrls?.[0] ? 
-                       
-                       <Image
-                         source={{ uri: convo.listing?.imageUrls?.[0] }}
-                         className="rounded-full w-full h-full"
-                       /> : <View className="w-full h-full rounded-full bg-primary "></View>
-                      }
+                        {convo.listing?.imageUrls?.[0] ? (
+                          <Image
+                            source={{ uri: convo.listing?.imageUrls?.[0] }}
+                            className="rounded-full w-full h-full"
+                          />
+                        ) : (
+                          <View className="w-full h-full rounded-full bg-primary "></View>
+                        )}
                       </View>
                       <View>
                         <Text className="capitalize text-center font-bold">
                           {convo?.listing?.title ?? "Deleted Listing"}
                           {" - "}
                           {convo?.buyerId === (user?.id || user?.app_user?.uid)
-                            ? convo.seller.name
-                            : convo.buyer.name}
+                            ? convo.seller?.name
+                            : convo.buyer?.name}
                         </Text>
                         <Text className="text-text/40 text-sm line-clamp-1 truncate ">
                           {convo.messages[convo.messages.length - 1].text}

@@ -12,7 +12,6 @@ export async function getCloudinarySignature(
     },
   });
 
-
   return await res.json();
 }
 
@@ -34,21 +33,18 @@ export async function uploadImages(
   return Promise.all(imagesToUpload);
 }
 export async function uploadPFP(uri: string, uid: string) {
-
   const { timestamp, signature, cloudName, apiKey } =
     await getCloudinarySignature(uid, "pfp");
 
+  const file = await fetch(uri);
+  const blob = await file.blob();
+
   const formData = new FormData();
-  formData.append("file", {
-    uri,
-    type: "image/jpeg",
-    name: `upload_${Date.now()}.jpg`,
-  } as any);
+  formData.append("file", blob, `upload_${Date.now()}.jpg`);
   formData.append("timestamp", String(timestamp));
   formData.append("signature", signature);
-  formData.append("api_key", apiKey!);
+  formData.append("api_key", apiKey);
   formData.append("folder", "pfp");
-  
 
   const res = await fetch(
     `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
@@ -56,8 +52,7 @@ export async function uploadPFP(uri: string, uid: string) {
   );
 
   const data = await res.json();
- 
-  
+
   if (data.moderation?.[0]?.status === "rejected") {
     throw new Error("IMAGE_REJECTED");
   }
@@ -81,12 +76,11 @@ export async function uploadImage(
   const { timestamp, signature, cloudName, apiKey } =
     credentials ?? (await getCloudinarySignature(uid, "listings"));
 
+  const file = await fetch(uri);
+  const blob = await file.blob();
+
   const formData = new FormData();
-  formData.append("file", {
-    uri,
-    type: "image/jpeg",
-    name: `upload_${Date.now()}.jpg`,
-  } as any);
+  formData.append("file", blob, `upload_${Date.now()}.jpg`);
   formData.append("timestamp", String(timestamp));
   formData.append("signature", signature);
   formData.append("api_key", apiKey);

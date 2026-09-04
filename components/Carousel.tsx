@@ -1,10 +1,17 @@
-import { View, ScrollView, Image, Pressable, Dimensions } from "react-native";
-import { useState, useRef } from "react";
-import Animated, {
-  useSharedValue, useAnimatedStyle, withSpring, interpolate,
-} from "react-native-reanimated";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import { colors } from "@/constants/theme";
+import { MotiView } from "moti";
+import { useEffect, useState } from "react";
+import { Dimensions, Image, Modal, Pressable, View } from "react-native";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DRAG_BUFFER = 50;
@@ -12,15 +19,15 @@ const DRAG_BUFFER = 50;
 const Carousel = ({ images }: { images: string[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const translateX = useSharedValue(0);
-  const startX     = useSharedValue(0);
+  const startX = useSharedValue(0);
 
   const goTo = (index: number) => {
     const clamped = Math.max(0, Math.min(index, images.length - 1));
     setCurrentIndex(clamped);
     translateX.value = withSpring(-clamped * SCREEN_WIDTH, {
-      stiffness: 300,
-      mass: 3,
-      damping: 30,
+      stiffness: 200,
+      damping: 20,
+      mass: 1,
     });
   };
 
@@ -57,13 +64,16 @@ const Carousel = ({ images }: { images: string[] }) => {
   return (
     <GestureHandlerRootView className="flex-1">
       <View className="flex-1 overflow-hidden">
-
         {/* ── Image strip ── */}
         <GestureDetector gesture={pan}>
           <Animated.View
             style={[
               stripStyle,
-              { flexDirection: "row", width: SCREEN_WIDTH * images.length, height: "100%" },
+              {
+                flexDirection: "row",
+                width: SCREEN_WIDTH * images.length,
+                height: "100%",
+              },
             ]}
           >
             {images.map((uri, i) => (
@@ -79,9 +89,7 @@ const Carousel = ({ images }: { images: string[] }) => {
 
         {/* ── Dot indicators ── */}
         {images.length > 1 && (
-          <View
-            className="absolute bottom-3 self-center flex-row gap-2 bg-black/25 rounded-full px-4 py-2"
-          >
+          <View className="absolute bottom-3 self-center flex-row gap-2 bg-black/25 rounded-full px-4 py-2">
             {images.map((_, i) => (
               <Pressable
                 key={i}
@@ -90,7 +98,8 @@ const Carousel = ({ images }: { images: string[] }) => {
                   width: 10,
                   height: 10,
                   borderRadius: 5,
-                  backgroundColor: i === currentIndex ? colors.primary : "#6b7280",
+                  backgroundColor:
+                    i === currentIndex ? colors.primary : "#6b7280",
                 }}
               />
             ))}
@@ -101,37 +110,94 @@ const Carousel = ({ images }: { images: string[] }) => {
   );
 };
 
+const ImageModal = ({
+  showModal,
+  setShowModal,
+  uri,
+}: {
+  showModal: boolean;
+  setShowModal: (bool: boolean) => void;
+  uri: string;
+}) => {
+  return (
+    <>
+      <Modal
+        visible={showModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <Pressable
+          onPress={() => {
+            setShowModal(false);
+          }}
+          className="flex-1 justify-center items-center bg-[#00000090]"
+        >
+          <MotiView
+            from={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "timing", duration: 200 }}
+            className="w-full h-150"
+          >
+            <Image
+              source={{ uri }}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="cover"
+            />
+          </MotiView>
+        </Pressable>
+      </Modal>
+    </>
+  );
+};
+
 // ── Individual slide with scale animation ────────────────────────────────────
 const SlideItem = ({
-  uri, index, currentIndex,
+  uri,
+  index,
+  currentIndex,
 }: {
   uri: string;
   index: number;
   currentIndex: number;
 }) => {
   const scale = useSharedValue(index === currentIndex ? 0.95 : 0.85);
-
+  const [showModal, setShowModal] = useState(false);
   // update scale when currentIndex changes
-  scale.value = withSpring(index === currentIndex ? 0.95 : 0.85, {
-    stiffness: 300,
-    mass: 3,
-    damping: 30,
-  });
+  useEffect(() => {
+    scale.value = withSpring(index === currentIndex ? 0.95 : 0.85, {
+      stiffness: 200,
+      damping: 20,
+      mass: 1,
+    });
+  }, [currentIndex]);
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
+  const openImageModal = (uri: string) => {
+    setShowModal(true);
+  };
 
   return (
-    <Animated.View
-      style={[animStyle, { width: SCREEN_WIDTH, height: "100%" }]}
-    >
-      <Image
-        source={{ uri }}
-        style={{ width: "100%", height: "100%" }}
-        resizeMode="contain"
-      />
-    </Animated.View>
+    <>
+      <Pressable
+        onPress={() => {
+          openImageModal(uri);
+        }}
+      >
+        <Animated.View
+          style={[animStyle, { width: SCREEN_WIDTH, height: "100%" }]}
+        >
+          <Image
+            source={{ uri }}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="cover"
+          />
+        </Animated.View>
+      </Pressable>
+      <ImageModal uri={uri} showModal={showModal} setShowModal={setShowModal} />
+    </>
   );
 };
 

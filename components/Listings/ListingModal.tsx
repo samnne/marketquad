@@ -81,7 +81,6 @@ const ListingModal = ({ listing }: { listing: any }) => {
 
   // ── Actions ──
   const createConversation = async () => {
-
     setCreatingConvo(true);
     try {
       const data = await getUserSupabase();
@@ -93,7 +92,7 @@ const ListingModal = ({ listing }: { listing: any }) => {
       const existing = listing.conversations.find((con: any) => {
         return con?.listingId === listing?.lid;
       });
-  
+
       const newCon = await createConvo(
         {
           listingId: listing.lid,
@@ -103,10 +102,10 @@ const ListingModal = ({ listing }: { listing: any }) => {
         },
         existing,
       );
-  
+
       setSelectedListing({
         ...listing,
-        conversations: [...listing.conversations,newCon?.convo],
+        conversations: [...listing.conversations, newCon?.convo],
         buyerId: data.app_user.uid,
       });
 
@@ -471,7 +470,7 @@ const SpringChip = ({
       }}
       onPress={onPress}
       className={`shrink-0 px-3.5 py-1.5 rounded-full border ${
-        active ? "bg-text border-text" : "bg-pill border-secondary/30"
+        active ? "bg-text border-text" : "bg-pill border-primary"
       }`}
     >
       <Text

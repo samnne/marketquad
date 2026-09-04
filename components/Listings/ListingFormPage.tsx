@@ -5,6 +5,7 @@ import {
   condition,
   UVIC_LNG_LAT,
 } from "@/constants/constants";
+import { colors, components } from "@/constants/theme";
 import { editListingAction, newListingAction } from "@/lib/listing.lib";
 import { useListings, useMessage, usePrefs, useUser } from "@/store/zustand";
 import { getUserSupabase } from "@/utils/functions";
@@ -28,11 +29,10 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import * as z from "zod";
-import { colors, components } from "@/constants/theme";
 
+import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LocationInput from "../Inputs/LocationInput";
-import { Ionicons } from "@expo/vector-icons";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -278,7 +278,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
     }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-
+      
       allowsMultipleSelection: true,
       quality: 0.8,
       base64: false,
@@ -443,7 +443,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
             {images.map(({ uri }, i) => (
               <View
                 key={uri + i}
-                className="w-full h-60 aspect-square relative rounded-xl overflow-hidden"
+                className="w-60 h-60 aspect-square relative rounded-xl overflow-hidden"
               >
                 <Image
                   source={{ uri }}

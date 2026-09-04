@@ -98,7 +98,7 @@ const DeleteModal = ({
         );
         setDeleteUser(false);
         changeType("sign-up");
-        router.replace("/(auth)/sign-in");
+        router.replace("/(auth)/sign-up");
       } catch (err) {
         setError(true);
         setMessage(

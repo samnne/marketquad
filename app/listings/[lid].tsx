@@ -1,4 +1,5 @@
 import Carousel from "@/components/Carousel";
+import LocationPreview from "@/components/Listings/ListingMap";
 import StarRating from "@/components/StarRating";
 import { BASE_URL } from "@/constants/constants";
 import { createConvo } from "@/lib/conversations.lib";
@@ -14,20 +15,19 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Share,
   Text,
   TextInput,
   View,
-  Share,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import LocationPreview from "@/components/Listings/ListingMap";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useLike } from "@/hooks/useLike";
-import { MotiPressable } from "moti/interactions";
 import { ReportUserSheet } from "@/components/ReportUserSheet";
-import BottomSheet from "@gorhom/bottom-sheet";
 import { colors } from "@/constants/theme";
+import { useLike } from "@/hooks/useLike";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { MotiPressable } from "moti/interactions";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const RANDOM_MESSAGES = [
@@ -70,7 +70,7 @@ export default function ListingPage() {
   const { setSelectedConvo, setConvos, convos } = useConvos();
   const { setError, setSuccess, setMessage } = useMessage();
 
-  const [listing, setListing] = useState<any>(null);
+  const [listing, setListing] = useState<Listing | null>(null);
   const expression = user?.app_user?.likes?.find(
     (l) => l.listingId === selectedListing?.lid,
   );
@@ -138,6 +138,7 @@ export default function ListingPage() {
   }, [lid]);
 
   const createConversation = async () => {
+    if (!listing) return 
     setCreatingConvo(true);
     try {
       const data = await getUserSupabase();
@@ -147,8 +148,8 @@ export default function ListingPage() {
         router.replace("/sign-in");
         return;
       }
-      const existing = listing.conversations.find(
-        (c: any) => c?.listingId === listing?.lid,
+      const existing: Conversation | null = listing.conversations.find(
+        (c: Conversation) => c?.sellerId === listing.sellerId && c.buyerId === user?.uid,
       );
       const newCon = await createConvo(
         {
@@ -257,7 +258,6 @@ export default function ListingPage() {
     (url: any) => typeof url === "string" && url.startsWith("http"),
   );
 
-
   return (
     <View className="flex-1 bg-white" style={{}}>
       <KeyboardAvoidingView
@@ -265,7 +265,7 @@ export default function ListingPage() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         {/* ── Floating nav ── */}
-        <View className="absolute top-0 left-0 right-0 z-10 flex-row justify-between items-center px-4 pt-12 pb-3">
+        <View className="absolute top-15 left-0 right-0 z-10 flex-row justify-between items-center px-4 pt-12 pb-3">
           <Pressable
             onPress={() => router.back()}
             className="w-10 h-10 rounded-full bg-pill/90 items-center justify-center shadow-sm"
@@ -313,7 +313,12 @@ export default function ListingPage() {
           keyboardShouldPersistTaps="handled"
         >
           {/* ── Hero ── */}
-          <View className="h-120 bg-background">
+          <View
+            style={{
+              paddingTop: insets.top + 16,
+            }}
+            className="h-120  bg-background"
+          >
             {safeImages.length > 0 ? (
               <Carousel images={safeImages} />
             ) : (

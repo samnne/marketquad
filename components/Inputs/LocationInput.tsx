@@ -33,7 +33,6 @@ const LocationInput = ({ llSetter, latLong, onLocationName }: Props) => {
     return [parts[0], parts[1]];
   }, []);
 
-
   useEffect(() => {
     if (hasInitialized.current) return;
     if (!latLong || (latLong[0] === 0 && latLong[1] === 0)) return;
@@ -61,6 +60,15 @@ const LocationInput = ({ llSetter, latLong, onLocationName }: Props) => {
 
     reverse();
   }, [latLong?.[0], latLong?.[1]]);
+  const handleSearch = async () => {
+    const res = await pk.search(value, {
+      maxResults: 6,
+      language: "en",
+    });
+    if (res.results.length > 0) {
+    setResults(res.results)
+    }
+  };
 
   // ── New: no coords → use prefs default
   useEffect(() => {
@@ -119,6 +127,9 @@ const LocationInput = ({ llSetter, latLong, onLocationName }: Props) => {
           onChangeText={(v) => {
             setValue(v);
             setSelected(false);
+            if (v.length >= 3){
+              handleSearch()
+            }
           }}
           placeholder="Search location… e.g. V8W"
           placeholderTextColor={`${colors.primary}80`}
