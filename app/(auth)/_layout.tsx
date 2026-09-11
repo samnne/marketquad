@@ -2,10 +2,11 @@ import ErrorMessage from "@/components/Modals/ErrorMessage";
 import SuccessMessage from "@/components/Modals/SuccessMessage";
 import MarketQuad from "@/components/Utils/MarketQuad";
 import { useMessage } from "@/store/zustand";
+import { Image } from "expo-image";
 import { Slot } from "expo-router";
 import {
   Dimensions,
-  Image,
+ 
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -68,7 +69,7 @@ const AuthContent = () => (
       <Image
         source={require("@/assets/icons/logo.png")}
         className="w-40 h-28"
-        resizeMode="contain"
+        contentFit="contain"
       />
       <View className="gap-1.5">
         <Text className="text-4xl font-light text-text tracking-tight">

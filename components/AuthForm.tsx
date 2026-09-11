@@ -2,7 +2,7 @@ import { BASE_URL } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 
 import { useMessage, useType, useUser } from "@/store/zustand";
-import { supabase } from "@/supabase/authHelper";
+import { supabase } from "@/supabase/supabase";
 import { getUserSupabase, matchUVIC } from "@/utils/functions";
 
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -161,7 +161,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
     };
     mountSession();
   }, [router, setUser]);
-
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCounter((prev) => (prev > 0 ? prev - 1 : 0));
@@ -201,11 +201,18 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         setMessage("Please enter a valid UVic email address.");
         return;
       }
+      const cleanEmail = formData.email.trim().toLowerCase();
+      console.log(await supabase
+        .from("User")
+        .select("*")
+        
+        .single())
       const { data: userData } = await supabase
         .from("User")
         .select("*")
-        .eq("email", formData.email)
+        .eq("email", cleanEmail)
         .single();
+     
       if (!userData) {
         setError(true);
         setMessage("User doesn't match our records.");

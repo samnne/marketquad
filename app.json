@@ -2,7 +2,7 @@
   "expo": {
     "name": "MarketQuad",
     "slug": "marketquad",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/icons/ios-light.png",
     "scheme": "mqphone",
@@ -46,12 +46,13 @@
       ]
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "bundler": "metro"
     },
     "platforms": [
       "ios",
-      "android"
+      "android",
+      "web"
     ],
     "plugins": [
       "expo-router",

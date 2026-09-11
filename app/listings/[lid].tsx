@@ -65,6 +65,9 @@ export default function ListingPage() {
   >(null);
   const [reportModal, setReportModal] = useState(false);
 
+  // New state to handle the seller conversations dropdown
+  const [showConvos, setShowConvos] = useState(false);
+
   const { setSelectedListing, selectedListing } = useListings();
   const { user, setUser, setUserListings, userListings } = useUser();
   const { setSelectedConvo, setConvos, convos } = useConvos();
@@ -111,6 +114,7 @@ export default function ListingPage() {
       };
     };
   }, []);
+
   useEffect(() => {
     const mount = async () => {
       if (selectedListing?.lid === lid) setListing(selectedListing);
@@ -138,7 +142,7 @@ export default function ListingPage() {
   }, [lid]);
 
   const createConversation = async () => {
-    if (!listing) return 
+    if (!listing) return;
     setCreatingConvo(true);
     try {
       const data = await getUserSupabase();
@@ -149,7 +153,8 @@ export default function ListingPage() {
         return;
       }
       const existing: Conversation | null = listing.conversations.find(
-        (c: Conversation) => c?.sellerId === listing.sellerId && c.buyerId === user?.uid,
+        (c: Conversation) =>
+          c?.sellerId === listing.sellerId && c.buyerId === data.app_user?.uid,
       );
       const newCon = await createConvo(
         {
@@ -212,6 +217,7 @@ export default function ListingPage() {
       console.error(err);
     }
   };
+
   const handleToggle = async (field: "archived" | "sold") => {
     if (!user || !listing) return;
     setActionLoading(field);
@@ -238,6 +244,7 @@ export default function ListingPage() {
       setActionLoading(null);
     }
   };
+
   function handleReport(val: boolean) {
     setReportModal(val);
   }
@@ -254,9 +261,10 @@ export default function ListingPage() {
   const existingConvo = (listing?.conversations ?? []).find(
     (c: any) => c.buyerId === user?.id,
   );
-  const safeImages = (listing.imageUrls ?? []).filter(
-    (url: any) => typeof url === "string" && url.startsWith("http"),
-  );
+  const safeImages = (listing.imageUrls ?? [])
+    .filter((url: any) => typeof url === "string" && url.startsWith("http"))
+    
+  const sellerConvos = listing.conversations ?? [];
 
   return (
     <View className="flex-1 bg-white" style={{}}>
@@ -267,7 +275,12 @@ export default function ListingPage() {
         {/* ── Floating nav ── */}
         <View className="absolute top-15 left-0 right-0 z-10 flex-row justify-between items-center px-4 pt-12 pb-3">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => {
+              if (router.canGoBack()){
+                router.back();
+
+              } router.push("/home")
+            }}
             className="w-10 h-10 rounded-full bg-pill/90 items-center justify-center shadow-sm"
           >
             <FontAwesome name="arrow-left" size={14} color="#1a2e28" />
@@ -291,7 +304,7 @@ export default function ListingPage() {
               )}
             </Pressable>
 
-            {/* Share button — wired up next */}
+            {/* Share button */}
             <Pressable
               onPress={handleShare}
               className="w-10 h-10 rounded-full bg-pill/90 items-center justify-center shadow-sm"
@@ -341,7 +354,7 @@ export default function ListingPage() {
           </View>
 
           {/* ── Card body ── */}
-          <View className="bg-pill  rounded-t-3xl  px-5 pt-6 gap-5">
+          <View className="bg-pill rounded-t-3xl px-5 pt-6 gap-5">
             <Animated.View entering={FadeInDown.duration(300)}>
               <View className="flex-row justify-between items-start">
                 <View className="flex-1 pr-3">
@@ -446,12 +459,11 @@ export default function ListingPage() {
                   <Text className="text-[13px] font-bold text-text mb-2">
                     Pickup location
                   </Text>
-                  <View className="h-48  p-3 rounded-2xl bg-background overflow-hidden items-center justify-center">
+                  <View className="h-48 p-3 rounded-2xl bg-background overflow-hidden items-center justify-center">
                     {listing.latitude && listing.longitude ? (
                       <LocationPreview
                         lat={listing.latitude}
                         lon={listing.longitude}
-                        title="UVIC"
                       />
                     ) : (
                       <Text className="text-text/30 text-xs">
@@ -483,100 +495,183 @@ export default function ListingPage() {
 
             {/* Seller manage */}
             {isSeller && (
-              <Animated.View
-                entering={FadeInDown.duration(300).delay(80)}
-                className="bg-background mb-8 rounded-2xl p-3.5 gap-2.5"
-              >
-                <Text className="text-[13px] font-bold text-text">
-                  Manage listing
-                </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ gap: 8 }}
+              <>
+                <Animated.View
+                  entering={FadeInDown.duration(300).delay(80)}
+                  className={`bg-background ${sellerConvos.length > 0 ? "mb-2" : "mb-8"} rounded-2xl p-3.5 gap-2.5`}
                 >
-                  {[
-                    {
-                      label: "Edit",
-                      activeLabel: null,
-                      fn: () => {
-                        setActionLoading("edit");
-                        setTimeout(() => {
-                          router.push("/(tabs)/new?type=edit");
-                          setActionLoading(null);
-                        }, 500);
-                      },
-                      key: null,
-                      loadingKey: "edit",
-                    },
-                    {
-                      label: "Mark sold",
-                      activeLabel: "Sold",
-                      fn: () => handleToggle("sold"),
-                      key: "sold",
-                      loadingKey: "sold",
-                    },
-                    {
-                      label: "Archive",
-                      activeLabel: "Archived",
-                      fn: () => handleToggle("archived"),
-                      key: "archived",
-                      loadingKey: "archived",
-                    },
-                  ].map(({ label, activeLabel, fn, key, loadingKey }) => {
-                    const isActive = key ? listing[key] : false;
-                    const isLoading = actionLoading === loadingKey;
-                    return (
-                      <Pressable
-                        key={label}
-                        onPress={fn}
-                        disabled={!!actionLoading}
-                        className={`px-3.5 py-2 rounded-full border flex-row items-center gap-1.5 ${
-                          isActive
-                            ? "bg-text border-text"
-                            : "bg-pill border-background"
-                        } ${!!actionLoading && !isLoading ? "opacity-40" : ""}`}
-                      >
-                        {isLoading ? (
-                          <ActivityIndicator
-                            size="small"
-                            color={isActive ? "#fff" : "#1a2e28"}
-                            className="w-8 h-2"
-                          />
-                        ) : (
-                          <Text
-                            className={`text-[12px] font-semibold ${isActive ? "text-pill" : "text-text/70"}`}
-                          >
-                            {isActive && activeLabel ? activeLabel : label}
-                          </Text>
-                        )}
-                      </Pressable>
-                    );
-                  })}
-
-                  <Pressable
-                    onPress={handleDelete}
-                    disabled={!!actionLoading}
-                    className={`px-3.5 py-2 rounded-full bg-red-50 border border-red-100 flex-row items-center gap-1.5 ${
-                      !!actionLoading && actionLoading !== "delete"
-                        ? "opacity-40"
-                        : ""
-                    }`}
+                  <Text className="text-[13px] font-bold text-text">
+                    Manage listing
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ gap: 8 }}
                   >
-                    {actionLoading === "delete" ? (
-                      <ActivityIndicator
-                        size="small"
-                        className="w-8 h-2"
-                        color="#dc2626"
-                      />
-                    ) : (
-                      <Text className="text-red-600 text-[12px] font-semibold">
-                        Delete
-                      </Text>
+                    {[
+                      {
+                        label: "Edit",
+                        activeLabel: null,
+                        fn: () => {
+                          setActionLoading("edit");
+                          setTimeout(() => {
+                            router.push("/(tabs)/new?type=edit");
+                            setActionLoading(null);
+                          }, 500);
+                        },
+                        key: null,
+                        loadingKey: "edit",
+                      },
+                      {
+                        label: "Mark sold",
+                        activeLabel: "Sold",
+                        fn: () => handleToggle("sold"),
+                        key: "sold",
+                        loadingKey: "sold",
+                      },
+                      {
+                        label: "Archive",
+                        activeLabel: "Archived",
+                        fn: () => handleToggle("archived"),
+                        key: "archived",
+                        loadingKey: "archived",
+                      },
+                    ].map(
+                      ({
+                        label,
+                        activeLabel,
+                        fn,
+                        key,
+                        loadingKey,
+                      }: {
+                        label: string;
+                        fn: () => void;
+                        activeLabel: string | null;
+                        key: "archived" | "sold" | string | null;
+                        loadingKey: string;
+                      }) => {
+                        const isActive = key
+                          ? listing[key as keyof Listing]
+                          : false;
+                        const isLoading = actionLoading === loadingKey;
+                        return (
+                          <Pressable
+                            key={label}
+                            onPress={fn}
+                            disabled={!!actionLoading}
+                            className={`px-3.5 py-2 rounded-full border flex-row items-center gap-1.5 ${
+                              isActive
+                                ? "bg-text border-text"
+                                : "bg-pill border-background"
+                            } ${!!actionLoading && !isLoading ? "opacity-40" : ""}`}
+                          >
+                            {isLoading ? (
+                              <ActivityIndicator
+                                size="small"
+                                color={isActive ? "#fff" : "#1a2e28"}
+                                className="w-8 h-2"
+                              />
+                            ) : (
+                              <Text
+                                className={`text-[12px] font-semibold ${isActive ? "text-pill" : "text-text/70"}`}
+                              >
+                                {isActive && activeLabel ? activeLabel : label}
+                              </Text>
+                            )}
+                          </Pressable>
+                        );
+                      },
                     )}
-                  </Pressable>
-                </ScrollView>
-              </Animated.View>
+
+                    <Pressable
+                      onPress={handleDelete}
+                      disabled={!!actionLoading}
+                      className={`px-3.5 py-2 rounded-full bg-red-50 border border-red-100 flex-row items-center gap-1.5 ${
+                        !!actionLoading && actionLoading !== "delete"
+                          ? "opacity-40"
+                          : ""
+                      }`}
+                    >
+                      {actionLoading === "delete" ? (
+                        <ActivityIndicator
+                          size="small"
+                          className="w-8 h-2"
+                          color="#dc2626"
+                        />
+                      ) : (
+                        <Text className="text-red-600 text-[12px] font-semibold">
+                          Delete
+                        </Text>
+                      )}
+                    </Pressable>
+                  </ScrollView>
+                </Animated.View>
+
+                {/* Seller Conversations Dropdown */}
+                {sellerConvos.length > 0 && (
+                  <Animated.View
+                    entering={FadeInDown.duration(300).delay(100)}
+                    className="bg-background mb-8 rounded-2xl p-3.5 gap-2.5"
+                  >
+                    <Pressable
+                      onPress={() => setShowConvos((prev) => !prev)}
+                      className="flex-row justify-between items-center py-1"
+                    >
+                      <Text className="text-[13px] font-bold text-text">
+                        Conversations ({sellerConvos.length})
+                      </Text>
+                      <FontAwesome
+                        name={showConvos ? "chevron-up" : "chevron-down"}
+                        size={12}
+                        color="#1a2e28"
+                      />
+                    </Pressable>
+
+                    {showConvos && (
+                      <View className="mt-2 gap-2">
+                        {sellerConvos.map((convo: any, i: number) => (
+                          <Pressable
+                            key={convo.cid || i}
+                            onPress={() => {
+                              setSelectedConvo({
+                                ...convo,
+                                listing: { ...listing },
+                                seller: { ...listing?.seller },
+                              });
+                              router.push(`/convos/${convo.cid}`);
+                            }}
+                            className="flex-row items-center justify-between p-3 rounded-xl bg-pill"
+                          >
+                            <View className="flex-row items-center gap-3">
+                              <View className="w-9 h-9 rounded-full bg-text/10 items-center justify-center">
+                                <Text className="text-sm font-bold text-text/70">
+                                  {(
+                                    convo?.buyer?.name?.[0] ?? "?"
+                                  ).toUpperCase()}
+                                </Text>
+                              </View>
+                              <View>
+                                <Text className="text-[13px] font-semibold text-text">
+                                  {convo?.buyer?.name ?? "Buyer"}
+                                </Text>
+                                <Text className="text-[11px] text-text/50 mt-0.5">
+                                  Tap to view messages
+                                </Text>
+                              </View>
+                            </View>
+                            <FontAwesome
+                              name="chevron-right"
+                              size={10}
+                              color="#1a2e28"
+                              opacity={0.4}
+                            />
+                          </Pressable>
+                        ))}
+                      </View>
+                    )}
+                  </Animated.View>
+                )}
+              </>
             )}
           </View>
         </ScrollView>

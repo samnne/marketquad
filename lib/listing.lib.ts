@@ -21,6 +21,7 @@ export const getClientListings = async () => {
   return safeJson(response);
 };
 export const getUserListings = async (uid: string) => {
+ 
   const response = await fetch(`${BASE_URL}/api/account`, {
     method: "POST",
     headers: {

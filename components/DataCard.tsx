@@ -1,7 +1,8 @@
-import { useRef } from "react";
-import { ScrollView, View, Text, Image, Pressable } from "react-native";
+
+import { ScrollView, View, Text,  Pressable } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
+import { Image } from "expo-image";
 
 interface Listing {
   lid?: string;

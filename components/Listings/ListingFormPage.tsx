@@ -14,7 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Image,
+
   Pressable,
   ScrollView,
   StyleSheet,
@@ -33,6 +33,7 @@ import * as z from "zod";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LocationInput from "../Inputs/LocationInput";
+import { Image } from "expo-image";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -282,6 +283,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
       allowsMultipleSelection: true,
       quality: 0.8,
       base64: false,
+      exif: false
     });
     if (!result.canceled) {
       const newEntries = result.assets.map((a) => ({
@@ -448,7 +450,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
                 <Image
                   source={{ uri }}
                   className="w-full h-full"
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
                 <Pressable
                   onPress={() => removeImage(i)}

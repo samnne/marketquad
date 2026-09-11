@@ -1,11 +1,12 @@
 import { View, Text, Pressable, TouchableOpacity, Modal } from "react-native";
 import React, { useState } from "react";
-import { Image, ScrollView } from "moti";
+import {  ScrollView } from "moti";
 import { MotiPressable } from "moti/interactions";
 import { SymbolView } from "expo-symbols";
 import { colors } from "@/constants/theme";
 import BlockUserModal from "../BlockUserModal";
 import { useUser } from "@/store/zustand";
+import { Image } from "expo-image";
 type Props = {
   open: boolean;
   blockedUsers: BlockedUser[];

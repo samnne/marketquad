@@ -8,6 +8,7 @@ import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeInLeft } from "react-native-reanimated";
 import ListingModal from "./Listings/ListingModal";
 import { SymbolView } from "expo-symbols";
+import { styles } from "@/constants/constants";
 
 type Filter = "all" | "sold" | "archived";
 
@@ -47,10 +48,14 @@ const UserListings = ({
     <Modal
       visible={showModal}
       animationType="slide"
+      
       presentationStyle="pageSheet"
       onRequestClose={setModals}
     >
-      <View className="flex-1   bg-background">
+      <View style={styles.outer}>
+
+ 
+      <View style={styles.phone} className="flex-1   bg-background">
         {/* ── Sticky header ── */}
         <Animated.View
           entering={FadeInLeft.duration(250)}
@@ -203,6 +208,7 @@ const UserListings = ({
         </ScrollView>
       </View>
       {/* {selectedListing && <ListingModal listing={selectedListing} />} */}
+           </View>
     </Modal>
   );
 };

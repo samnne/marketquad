@@ -22,9 +22,10 @@ import housing from "@/assets/images/housing.jpg";
 import vintage from "@/assets/images/vintage.jpg";
 import tech from "@/assets/images/tech.jpg";
 import textbooks from "@/assets/images/textbooks.jpg";
-import { Image } from "moti";
+
 import CategoryChips from "@/components/Utils/CategoryChips";
 import MarketQuad from "@/components/Utils/MarketQuad";
+import { Image } from "expo-image";
 
 const SkeletonCard = () => (
   <View className="bg-pill rounded-2xl border border-secondary/20 overflow-hidden flex-1">
@@ -80,14 +81,19 @@ export function ListingsScreen() {
 
           const response = await fetch(
             `${BASE_URL}/api/listings/search?q=${encodeURIComponent(searchQuery)}`,
-            { headers: { Authorization:  app_user?.uid, "x-user-id": app_user.uid } },
+            {
+              headers: {
+                Authorization: app_user?.uid,
+                "x-user-id": app_user.uid,
+              },
+            },
           );
           if (!response.ok) {
             setError(true);
             setMessage("Error Fetching Listings");
           }
           const data = await response.json();
-      
+
           if (data.success) setSearchResults(data.listings);
           else {
             setMessage("Couldn't find that?");
@@ -99,9 +105,9 @@ export function ListingsScreen() {
             await fetchListings({ setter: setListings });
         }
       } catch (err) {
-        console.error(err);
+        console.log(err);
         setError(true);
-        setMessage("Something went wrong...");
+        setMessage("Failed to Fetch");
       } finally {
         setLoading(false);
       }
@@ -134,7 +140,7 @@ export function ListingsScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View className="flex-row flex-wrap w-full p-2">
+      <View className="flex-row flex-wrap items-start w-full p-2">
         {[
           { name: "Housing", image: housing },
           { name: "Textbooks", image: textbooks },
@@ -142,21 +148,17 @@ export function ListingsScreen() {
           { name: "Clothes", image: vintage },
         ].map((item, i) => (
           <Pressable
-            onPress={() => {
-              if (contentRef.current) {
-              }
-              setActiveCategory(item.name);
-            }}
+            onPress={() => setActiveCategory(item.name)}
             key={i + 3243}
-            className="w-1/2 aspect-square p-1"
+            className="w-1/2 h-1/2 aspect-square  p-1"
           >
-            <View className="relative flex-1 bg-accent justify-center items-center rounded-2xl">
+            <View className="relative flex-1 bg-accent justify-center items-center rounded-2xl overflow-hidden">
               <Image
                 source={item.image}
-                className="h-full w-full rounded-2xl"
-                resizeMode="cover"
+                contentFit="cover"
+                className="rounded-2xl object-cover flex justify-center items-center aspect-square w-full h-full "
               />
-              <Text className="absolute bottom-0  text-white pb-2 uppercase  font-bold text-3xl">
+              <Text className="absolute bottom-0 text-white pb-2 uppercase font-bold text-3xl">
                 {item.name}
               </Text>
             </View>

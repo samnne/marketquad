@@ -7,6 +7,7 @@ import { deleteConvo, fetchConvos, getUserSupabase } from "@/utils/functions";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Image } from "moti";
+
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,

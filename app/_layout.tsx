@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
-import "expo-sqlite/localStorage/install";
 import "../global.css";
+import { Platform, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { AnimatePresence } from "moti";
@@ -10,6 +10,8 @@ import { useMessage } from "@/store/zustand";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import PostHog, { PostHogProvider } from "posthog-react-native";
+
+import { styles } from "@/constants/constants";
 
 const posthog = new PostHog(process.env.EXPO_PUBLIC_POSTHOG_KEY!, {
   host: process.env.EXPO_PUBLIC_POSTHOG_HOST,
@@ -21,6 +23,7 @@ const posthog = new PostHog(process.env.EXPO_PUBLIC_POSTHOG_KEY!, {
     },
   },
 });
+
 export default function RootLayout() {
   const { success, error, msg } = useMessage();
 
@@ -45,14 +48,19 @@ export default function RootLayout() {
           }}
         >
           <NotificationProvider>
-            <AnimatePresence>
-              {success && <SuccessMessage key={493054} message={msg} />}
-              {error && <ErrorMessage key={3289545324} message={msg} />}
-            </AnimatePresence>
-            <Stack screenOptions={{ headerShown: false }} />
+            <View style={styles.outer}>
+              <View style={styles.phone}>
+                <AnimatePresence>
+                  {success && <SuccessMessage key={493054} message={msg} />}
+                  {error && <ErrorMessage key={3289545324} message={msg} />}
+                </AnimatePresence>
+                <Stack screenOptions={{ headerShown: false }} />
+              </View>
+            </View>
           </NotificationProvider>
         </PostHogProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
   );
 }
+

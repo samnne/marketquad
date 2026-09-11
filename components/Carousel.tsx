@@ -1,7 +1,8 @@
 import { colors } from "@/constants/theme";
+import { Image } from "expo-image";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
-import { Dimensions, Image, Modal, Pressable, View } from "react-native";
+import { Dimensions, Modal, Pressable, View } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -142,7 +143,7 @@ const ImageModal = ({
             <Image
               source={{ uri }}
               style={{ width: "100%", height: "100%" }}
-              resizeMode="cover"
+              contentFit="cover"
             />
           </MotiView>
         </Pressable>
@@ -186,15 +187,29 @@ const SlideItem = ({
           openImageModal(uri);
         }}
       >
-        <Animated.View
-          style={[animStyle, { width: SCREEN_WIDTH, height: "100%" }]}
-        >
-          <Image
-            source={{ uri }}
-            style={{ width: "100%", height: "100%" }}
-            resizeMode="cover"
-          />
-        </Animated.View>
+        <Pressable className="flex-1 " onPress={() => setShowModal(true)}>
+          <Animated.View
+            style={[
+              animStyle,
+              {
+                width: "100%",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+              },
+            ]}
+          >
+            <Image
+              source={{ uri }}
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+              contentFit="contain"
+            />
+          </Animated.View>
+        </Pressable>
       </Pressable>
       <ImageModal uri={uri} showModal={showModal} setShowModal={setShowModal} />
     </>

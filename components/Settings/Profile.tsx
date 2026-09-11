@@ -4,10 +4,11 @@ import { Field, SaveButton } from "@/components/Onboarding";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { View, Text, TextInput, Pressable, Image, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, Pressable, ActivityIndicator } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { useRouter } from "expo-router";
+import { Image } from "expo-image";
 
 type Props = {
   open: boolean;
@@ -47,6 +48,7 @@ export default function ProfileSection(props: Props) {
       allowsEditing: true,
       aspect: [1, 1],      // square crop for avatars
       quality: 0.8,
+      exif: false
     });
 
     if (result.canceled) return;

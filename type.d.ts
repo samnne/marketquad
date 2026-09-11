@@ -74,6 +74,9 @@ type Listing = {
   sellerId: string;
   seller: { name: string; profileURL: string; username: string; email: string };
   likes: [];
+  latitude: number,
+
+  longitude: number,
   conversations: Conversation[];
   _count: { likes: number };
 };

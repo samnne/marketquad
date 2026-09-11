@@ -3,10 +3,33 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Platform } from "react-native";
+import { theme } from "./theme";
 export const UVIC_LNG_LAT: number[] = [-123.312603, 48.463816];
 export const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
 export const onboardingTotal = 6
+
+export const styles = {
+  outer: Platform.select({
+    web: {
+      flex: 1,
+      alignItems: "center" as const,
+      backgroundColor: theme.colors.background,
+    },
+    default: { flex: 1 },
+  }),
+  phone: Platform.select({
+    web: {
+      width: 450,
+      maxWidth: "100%" as const,
+      height: "100vh" as const,
+      backgroundColor: "#fff",
+      overflow: "hidden" as const,
+    },
+    default: { flex: 1 },
+  }),
+};
 
 export const tabs = [
   {

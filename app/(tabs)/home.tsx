@@ -6,12 +6,13 @@ import { useRefresh } from "@/hooks/useRefresh";
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { fetchConvos, fetchListings, getUserSupabase } from "@/utils/functions";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Image,
+
   Pressable,
   RefreshControl,
   ScrollView,

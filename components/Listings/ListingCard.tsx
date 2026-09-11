@@ -3,7 +3,7 @@ import { useLike } from "@/hooks/useLike";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Dimensions, Image, Pressable, Text, View } from "react-native";
+import { Dimensions,  Pressable, Text, View } from "react-native";
 
 import { colors } from "@/constants/theme";
 import { useUser } from "@/store/zustand";
@@ -12,6 +12,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { Image } from "expo-image";
 
 const { width: W } = Dimensions.get("window");
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -61,8 +62,8 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
           {listing.imageUrls?.[0] ? (
             <Image
               source={{ uri: listing.imageUrls[0] }}
-              className="w-full flex-1 rounded-4xl "
-              resizeMode="cover"
+              className="w-full border bg-primary flex-1 rounded-4xl "
+              contentFit="cover"
             />
           ) : (
             <View className="flex-1 items-center  rounded-t-lg justify-center">
@@ -101,13 +102,13 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
         <View className=" items-center gap-4 justify-between  pt-2 flex-row">
           <View className="flex-row gap-2 ">
             <Text className="text-lg font-base">${listing?.price} •</Text>
-            <Text className="text-lg font-light w-6/10 line-clamp-1 truncate">
+            <Text className="text-lg font-light line-clamp-1 truncate">
               {listing?.title}
             </Text>
           </View>
         </View>
         <View className="flex-row  pl-1 gap-2 ">
-          <Text className="text-base text-text/50 font-light w-40 line-clamp-1 truncate">
+          <Text className="text-base text-text/50 font-light  line-clamp-1 truncate">
             {listing?.description}
           </Text>
         </View>

@@ -7,12 +7,13 @@ import { getConvos } from "@/lib/conversations.lib";
 import { getUserListings } from "@/lib/listing.lib";
 
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
-import { supabase } from "@/supabase/authHelper";
+import { supabase } from "@/supabase/supabase";
 import { cleanUP, getUserSupabase } from "@/utils/functions";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Image } from "expo-image";
 
 import { useRouter } from "expo-router";
-import { Image } from "moti";
+
 import { MotiPressable } from "moti/interactions";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {

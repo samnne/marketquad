@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { supabase } from "@/supabase/authHelper";
+import { supabase } from "@/supabase/supabase";
 
 import { SectionRow, SpringButton } from "@/components/Onboarding";
 import ProfileSection from "@/components/Settings/Profile";

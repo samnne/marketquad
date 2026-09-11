@@ -6,7 +6,7 @@ import {
   useType,
   useUser,
 } from "@/store/zustand";
-import { supabase } from "@/supabase/authHelper";
+import { supabase } from "@/supabase/supabase";
 import { cleanUP } from "@/utils/functions";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
