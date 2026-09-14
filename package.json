@@ -4,7 +4,7 @@
   "version": "1.1.1",
   "scripts": {
     "start": "expo start",
-    "serve": "bunx expo serve --port 8081",
+    "serve": "bunx serve dist",
     "web-build": "bunx expo export -p web",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
