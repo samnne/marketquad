@@ -6,8 +6,7 @@ import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { deleteConvo, fetchConvos, getUserSupabase } from "@/utils/functions";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Image } from "moti";
-
+import {Image as img} from "expo-image"
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -19,7 +18,8 @@ import {
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import { styled } from "react-native-css";
+const Image = styled(img)
 const AVATAR_COLORS = [
   { bg: colors.text, text: colors.primary },
   { bg: colors.primary, text: colors.pill },
@@ -265,7 +265,7 @@ const ConversationsScreen = () => {
                             : "#",
                       }}
                       className="flex-1 w-full rounded-2xl"
-                      resizeMode="cover"
+                      contentFit="cover"
                     />
                   </View>
 
