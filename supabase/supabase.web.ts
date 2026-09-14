@@ -1,14 +1,30 @@
-// supabase.web.ts
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js'; // Or '@supabase/supabase-js' depending on your exact package
 
-const supabaseUrl = process.env.EXPO_PUBLIC_RN_SUPABASE_URL;
-const supabasePublishableKey = process.env.EXPO_PUBLIC_WEB_SUPABASE_KEY;
+const isBrowser = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
-export const supabase = createClient(supabaseUrl!, supabasePublishableKey!, {
+// Safe storage wrapper to prevent Node.js environment from crashing during Expo export
+const safeLocalStorage = {
+  getItem: (key: string) => {
+    if (!isBrowser) return null;
+    return window.localStorage.getItem(key);
+  },
+  setItem: (key: string, value: string) => {
+    if (!isBrowser) return;
+    window.localStorage.setItem(key, value);
+  },
+  removeItem: (key: string) => {
+    if (!isBrowser) return;
+    window.localStorage.removeItem(key);
+  },
+};
+
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: localStorage, // the browser's real localStorage, no polyfill needed
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
+    storage: safeLocalStorage,
+    autoRefreshToken: isBrowser,
+    persistSession: isBrowser,
   },
 });
