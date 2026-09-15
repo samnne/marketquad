@@ -2,7 +2,7 @@
   "expo": {
     "name": "MarketQuad",
     "slug": "marketquad",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icons/ios-light.png",
     "scheme": "mqphone",
@@ -45,7 +45,8 @@
     },
     "web": {
       "output": "static",
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/icons/adaptive-icon.png"
     },
     "platforms": [
       "ios",
@@ -113,7 +114,8 @@
       "expo-font",
       "expo-image",
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,
