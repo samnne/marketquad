@@ -5,11 +5,13 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Pressable,
 } from "react-native";
-import { colors } from "@/constants/theme";
+import { colors, theme } from "@/constants/theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMessage, useType, useUser } from "@/store/zustand";
 import { useRouter } from "expo-router";
+import { SymbolView } from "expo-symbols";
 
 const STATUS_CONFIG: Record<
   string,
@@ -54,18 +56,18 @@ export default function MyReportsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
-  const {setError, setMessage} = useMessage()
+  const { setError, setMessage } = useMessage();
   const { user } = useUser();
-  const {changeType} = useType()
-  const router = useRouter()
-  console.log(reports)
+  const { changeType } = useType();
+  const router = useRouter();
+
   const fetchReports = async () => {
     if (!user) {
-        setError(true)
-        changeType("sign-in")
-        setMessage("Please Sign In.")
-        router.replace("/sign-in")
-        return
+      setError(true);
+      changeType("sign-in");
+      setMessage("Please Sign In.");
+      router.replace("/sign-in");
+      return;
     }
     try {
       const res = await fetch(
@@ -122,15 +124,35 @@ export default function MyReportsScreen() {
         }
         ListHeaderComponent={
           <View
-            className="mb-2 pb-4 border-b"
+            className="mb-2 pb-4 items-center gap-4 flex-row border-b"
             style={{ borderBottomColor: "#d4ece4" }}
           >
-            <Text className="text-3xl font-bold" style={{ color: colors.text }}>
-              My Reports
-            </Text>
-            <Text className="text-sm mt-1" style={{ color: "#6b9e8f" }}>
-              {reports.length} report{reports.length !== 1 ? "s" : ""} filed
-            </Text>
+            <Pressable
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                }
+                router.replace("/profile");
+              }}
+              className="px-2 py-2 bg-primary rounded-full"
+            >
+              <SymbolView
+                name={"chevron.backward"}
+                tintColor={theme.colors.pill}
+                size={18}
+              />
+            </Pressable>
+            <View>
+              <Text
+                className="text-3xl font-bold"
+                style={{ color: colors.text }}
+              >
+                My Reports
+              </Text>
+              <Text className="text-sm mt-1" style={{ color: "#6b9e8f" }}>
+                {reports.length} report{reports.length !== 1 ? "s" : ""} filed
+              </Text>
+            </View>
           </View>
         }
         ListEmptyComponent={
@@ -256,4 +278,3 @@ export default function MyReportsScreen() {
     </View>
   );
 }
-

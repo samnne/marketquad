@@ -1,5 +1,5 @@
 import { BASE_URL } from "@/constants/constants";
-
+import * as ImageManipulator from "expo-image-manipulator";
 import plimit from "p-limit";
 export async function getCloudinarySignature(
   uid: string,
@@ -16,6 +16,14 @@ export async function getCloudinarySignature(
 }
 
 const limit = plimit(10);
+
+export async function toJpegUri(uri: string): Promise<string> {
+  const result = await ImageManipulator.manipulateAsync(uri, [], {
+    compress: 0.85,
+    format: ImageManipulator.SaveFormat.JPEG,
+  });
+  return result.uri;
+}
 
 export async function uploadImages(
   images: string[],

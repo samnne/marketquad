@@ -202,11 +202,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         return;
       }
       const cleanEmail = formData.email.trim().toLowerCase();
-      console.log(await supabase
-        .from("User")
-        .select("*")
-        
-        .single())
+      
       const { data: userData } = await supabase
         .from("User")
         .select("*")
@@ -307,14 +303,16 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
     }
     setLoadingOtp(true);
     try {
+     
       const {
         data: { user: supabaseUser },
         error,
       } = await supabase.auth.verifyOtp({ email, token: otp, type:"email" });
       if (error || !supabaseUser) {
         setError(true);
-        setMessage("No User");
+        setMessage("No User, Please Contact us at market-quad.com/contact");
         return;
+
       }
      
       const res = await fetch(`${BASE_URL}/api/auth/login`, {
@@ -370,6 +368,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       handleSignUp();
     }
   };
+ 
 
   // ─── OTP View ───────────────────────────────
   if (type === "otp") {

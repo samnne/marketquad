@@ -1,8 +1,10 @@
+import { styles } from "@/constants/constants";
 import { colors } from "@/constants/theme";
-import { Image } from "expo-image";
+import { Image as Img } from "expo-image";
 import { MotiView } from "moti";
+import { styled } from "nativewind";
 import { useEffect, useState } from "react";
-import { Dimensions, Modal, Pressable, View } from "react-native";
+import { Dimensions, Modal, Platform, Pressable, View } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -16,7 +18,7 @@ import Animated, {
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const DRAG_BUFFER = 50;
-
+const Image = styled(Img);
 const Carousel = ({ images }: { images: string[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const translateX = useSharedValue(0);
@@ -25,7 +27,7 @@ const Carousel = ({ images }: { images: string[] }) => {
   const goTo = (index: number) => {
     const clamped = Math.max(0, Math.min(index, images.length - 1));
     setCurrentIndex(clamped);
-    translateX.value = withSpring(-clamped * SCREEN_WIDTH, {
+    translateX.value = withSpring(-clamped * (Platform.OS === "web" ? styles.phone.width ?? 450 : SCREEN_WIDTH), {
       stiffness: 200,
       damping: 20,
       mass: 1,
@@ -72,7 +74,7 @@ const Carousel = ({ images }: { images: string[] }) => {
               stripStyle,
               {
                 flexDirection: "row",
-                width: SCREEN_WIDTH * images.length,
+                width: Platform.OS === "web" ? styles.phone.width * images.length : SCREEN_WIDTH * images.length,
                 height: "100%",
               },
             ]}
@@ -121,34 +123,32 @@ const ImageModal = ({
   uri: string;
 }) => {
   return (
-    <>
-      <Modal
-        visible={showModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowModal(false)}
+    <Modal
+      visible={showModal}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => setShowModal(false)}
+    >
+      <Pressable
+        onPress={() => {
+          setShowModal(false);
+        }}
+        className="flex-1 justify-center cursor-pointer items-center bg-[#00000090]"
       >
-        <Pressable
-          onPress={() => {
-            setShowModal(false);
-          }}
-          className="flex-1 justify-center items-center bg-[#00000090]"
+        <MotiView
+          from={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "timing", duration: 200 }}
+          style={{ width: 600, height: 600 }}
         >
-          <MotiView
-            from={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "timing", duration: 200 }}
-            className="w-full h-150"
-          >
-            <Image
-              source={{ uri }}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
-            />
-          </MotiView>
-        </Pressable>
-      </Modal>
-    </>
+          <Image
+            source={{ uri }}
+            style={{ width: 600, height: 600 }}
+            contentFit="cover"
+          />
+        </MotiView>
+      </Pressable>
+    </Modal>
   );
 };
 
@@ -179,15 +179,12 @@ const SlideItem = ({
   const openImageModal = (uri: string) => {
     setShowModal(true);
   };
+ 
 
   return (
     <>
-      <Pressable
-        onPress={() => {
-          openImageModal(uri);
-        }}
-      >
-        <Pressable className="flex-1 " onPress={() => setShowModal(true)}>
+    
+        <Pressable  onPress={()=> setShowModal(true)}  className="flex-1 cursor-pointer">
           <Animated.View
             style={[
               animStyle,
@@ -198,19 +195,21 @@ const SlideItem = ({
                 alignItems: "center",
                 overflow: "hidden",
               },
+             
             ]}
           >
             <Image
-              source={{ uri }}
+              source={{ uri: uri }}
               style={{
                 width: "100%",
                 height: "100%",
               }}
+              className="w-full h-full flex-1"
               contentFit="contain"
             />
           </Animated.View>
         </Pressable>
-      </Pressable>
+
       <ImageModal uri={uri} showModal={showModal} setShowModal={setShowModal} />
     </>
   );

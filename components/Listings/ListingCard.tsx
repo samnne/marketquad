@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Dimensions,  Pressable, Text, View } from "react-native";
-
 import { colors } from "@/constants/theme";
 import { useUser } from "@/store/zustand";
 import Animated, {
@@ -12,8 +11,9 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { Image } from "expo-image";
-
+import { Image as Img } from "expo-image";
+import { styled } from "nativewind";
+const Image = styled(Img)
 const { width: W } = Dimensions.get("window");
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -44,8 +44,8 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
     );
     setIsFav(!!isFavourite);
   }, [listing.lid]);
-
-  return (
+ 
+  return ( 
     <View className=" bg-white rounded-4xl ">
       <View className=" p-3 h-75">
         <AnimatedPressable
@@ -62,7 +62,12 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
           {listing.imageUrls?.[0] ? (
             <Image
               source={{ uri: listing.imageUrls[0] }}
-              className="w-full border bg-primary flex-1 rounded-4xl "
+              style={{
+                width: "100%",
+                flex: 1,
+                borderRadius: 32,
+                backgroundColor: colors.primary,
+              }}
               contentFit="cover"
             />
           ) : (
@@ -102,13 +107,13 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
         <View className=" items-center gap-4 justify-between  pt-2 flex-row">
           <View className="flex-row gap-2 ">
             <Text className="text-lg font-base">${listing?.price} •</Text>
-            <Text className="text-lg font-light line-clamp-1 truncate">
+            <Text className="text-lg w-3/4 font-light line-clamp-1 truncate">
               {listing?.title}
             </Text>
           </View>
         </View>
         <View className="flex-row  pl-1 gap-2 ">
-          <Text className="text-base text-text/50 font-light  line-clamp-1 truncate">
+          <Text className="text-base w-3/4 text-text/50 font-light  line-clamp-1 truncate">
             {listing?.description}
           </Text>
         </View>

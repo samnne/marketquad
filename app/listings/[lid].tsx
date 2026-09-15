@@ -122,20 +122,23 @@ export default function ListingPage() {
       if (!u) return;
       setUser({ ...u, app_user });
 
-      const [listRes, revRes] = await Promise.all([
+      const [listRes] = await Promise.all([
         fetch(`${BASE_URL}/api/listings/${lid}`, {
           headers: { Authorization: u.id },
         }),
-        fetch(`${BASE_URL}/api/reviews/count`, {
-          headers: { Authorization: u.id },
-        }),
+        
       ]);
       const listData = await listRes.json();
+      
       if (listData?.listing) {
         setListing(listData.listing);
         setSelectedListing(listData.listing);
       }
+      const revRes = await fetch(`${BASE_URL}/api/reviews/count?uid=${listData?.listing?.sellerId}`, {
+          headers: { Authorization: u.id },
+        })
       const revData = await revRes.json();
+      
       setLocalReviews(revData.count ?? 0);
     };
     mount();
@@ -249,6 +252,7 @@ export default function ListingPage() {
     setReportModal(val);
   }
 
+
   if (!listing?.title) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
@@ -262,9 +266,14 @@ export default function ListingPage() {
     (c: any) => c.buyerId === user?.id,
   );
   const safeImages = (listing.imageUrls ?? [])
-    .filter((url: any) => typeof url === "string" && url.startsWith("http"))
-    
-  const sellerConvos = listing.conversations ?? [];
+  .filter((url: any) => typeof url === "string" && url.startsWith("http"))
+  .map((url: string) =>
+    url.includes("res.cloudinary.com")
+  ? url.replace("/upload/", "/upload/f_auto/")
+  : url,
+);
+const sellerConvos = listing.conversations ?? [];
+
 
   return (
     <View className="flex-1 bg-white" style={{}}>
@@ -276,10 +285,10 @@ export default function ListingPage() {
         <View className="absolute top-15 left-0 right-0 z-10 flex-row justify-between items-center px-4 pt-12 pb-3">
           <Pressable
             onPress={() => {
-              if (router.canGoBack()){
+              if (router.canGoBack()) {
                 router.back();
-
-              } router.push("/home")
+              }
+              router.push("/home");
             }}
             className="w-10 h-10 rounded-full bg-pill/90 items-center justify-center shadow-sm"
           >
@@ -464,6 +473,7 @@ export default function ListingPage() {
                       <LocationPreview
                         lat={listing.latitude}
                         lon={listing.longitude}
+                        title={listing.title}
                       />
                     ) : (
                       <Text className="text-text/30 text-xs">
@@ -471,6 +481,7 @@ export default function ListingPage() {
                       </Text>
                     )}
                   </View>
+                  <View></View>
                 </View>
               </Animated.View>
             )}

@@ -106,6 +106,9 @@ const ReviewCard = ({ review, index }: { review: Review; index: number }) => (
           <Image
             source={{ uri: review.reviewer.profileURL }}
             className="w-9 h-9 rounded-xl"
+            width={36}
+            borderRadius={12}
+            height={36}
           />
         ) : (
           <View className="w-9 h-9 rounded-xl bg-primary/10 items-center justify-center">
@@ -349,6 +352,9 @@ export default function PublicProfileScreen() {
                 <Image
                   source={{ uri: data.profileURL }}
                   className="w-30 h-30 rounded-2xl"
+                  width={120}
+                  height={120}
+                  borderRadius={16}
                 />
               ) : (
                 <View className="w-30 h-30 rounded-2xl bg-primary/10 items-center justify-center">
@@ -504,7 +510,7 @@ export default function PublicProfileScreen() {
               activeListings.length === 0 ? (
                 <Animated.View
                   entering={FadeInDown.duration(300)}
-                  className="items-center py-12 gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
+                  className="items-center py-12 w-full gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
                 >
                   <SymbolView name="tag" size={50} tintColor={colors.text} />
                   <Text className="text-4xl font-bold text-text">
@@ -516,6 +522,7 @@ export default function PublicProfileScreen() {
                 </Animated.View>
               ) : (
                 activeListings.map((listing, i) => (
+                  <>
                   <Animated.View
                     key={`${listing.lid}veivwnnve${i}`}
                     entering={FadeInDown.duration(300).delay(i * 50)}
@@ -523,12 +530,14 @@ export default function PublicProfileScreen() {
                   >
                     <ListingCard listing={{ ...listing, seller: data }} />
                   </Animated.View>
+               
+                    </>
                 ))
               )
             ) : data?.reviewsReceived.length === 0 ? (
               <Animated.View
                 entering={FadeInDown.duration(300)}
-                className="items-center py-12 gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
+                className="items-center w-full py-12 gap-2 bg-pill rounded-2xl border border-secondary/10 mt-1"
               >
                 <SymbolView name="wind" size={50} tintColor={colors.text} />
                 <Text className="text-4xl font-bold text-text">

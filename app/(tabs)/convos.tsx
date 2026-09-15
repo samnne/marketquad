@@ -66,7 +66,10 @@ const ConversationsScreen = () => {
   });
   const getConvosClient = useCallback(async () => {
     setLoading(true);
-
+    if (user) {
+      setLoading(false);
+      return;
+    }
     const data = await getUserSupabase();
     if (!data.user) {
       setError(true);

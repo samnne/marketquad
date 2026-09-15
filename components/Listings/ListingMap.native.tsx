@@ -1,5 +1,5 @@
 import MapView, { Marker, Circle } from "react-native-maps";
-import { View } from "react-native";
+import { Linking, Platform, View } from "react-native";
 import { colors } from "@/constants/theme";
 
 type Props = {
@@ -9,6 +9,27 @@ type Props = {
 };
 
 export default function LocationPreview({ lat, lon, title }: Props) {
+  function openInMaps(lat: number, lon: number, label?: string) {
+    const encodedLabel = encodeURIComponent(label ?? "Location");
+
+    const url = Platform.select({
+      ios: `maps:0,0?q=${encodedLabel}@${lat},${lon}`,
+      android: `geo:0,0?q=${lat},${lon}(${encodedLabel})`,
+    });
+
+    if (!url) return;
+
+    Linking.canOpenURL(url).then((supported) => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        // Fallback to Google Maps web, works everywhere
+        Linking.openURL(
+          `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,
+        );
+      }
+    });
+  }
   return (
     <View style={{ flex: 1 }}>
       <MapView
@@ -23,11 +44,8 @@ export default function LocationPreview({ lat, lon, title }: Props) {
         zoomEnabled={false}
         rotateEnabled={false}
         pitchEnabled={false}
+        onPress={() => openInMaps(lat, lon, title)}
       >
-        <Marker
-          coordinate={{ latitude: lat, longitude: lon }}
-          title={title || "Location"}
-        />
         <Circle
           center={{ latitude: lat, longitude: lon }}
           radius={1000}

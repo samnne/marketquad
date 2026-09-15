@@ -156,7 +156,16 @@ export function ListingsScreen() {
               <Image
                 source={item.image}
                 contentFit="cover"
-                className="rounded-2xl object-cover flex justify-center items-center aspect-square w-full h-full "
+                style={{
+                  borderRadius: 16,
+                  width: "100%",
+                  height: "100%",
+                  aspectRatio: 1,
+                  objectFit: "cover",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               />
               <Text className="absolute bottom-0 text-white pb-2 uppercase font-bold text-3xl">
                 {item.name}
@@ -231,7 +240,7 @@ export function ListingsScreen() {
           >
             {[1, 2, 3, 4].map((n) => (
               <View
-                key={n + 324}
+                key={n + 3249324437}
                 className={view === "grid" ? "w-[48%]" : "w-full"}
               >
                 <SkeletonCard />
@@ -243,13 +252,15 @@ export function ListingsScreen() {
             className={view === "grid" ? "flex-row flex-wrap gap-3" : "gap-3"}
           >
             {displayListings.map((listing, i) => (
-              <Animated.View
-                key={`${listing.lid}${i}fewfsd`}
-                entering={FadeInDown.duration(300).delay(i * 50)}
-                className={view === "grid" ? "w-[48%]" : "w-full"}
-              >
-                <ListingCard listing={listing} />
-              </Animated.View>
+              <>
+                <Animated.View
+                  key={`${listing.lid}${i}fewfsd`}
+                  entering={FadeInDown.duration(300).delay(i * 50)}
+                  className={view === "grid" ? "w-[48%]" : "w-full"}
+                >
+                  <ListingCard listing={listing} />
+                </Animated.View>
+              </>
             ))}
           </View>
         ) : (

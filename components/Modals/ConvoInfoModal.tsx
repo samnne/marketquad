@@ -30,7 +30,7 @@ const ConvoInfoModal = ({
   const router = useRouter();
   const { removeConvo } = useConvos();
   const { setError, setMessage } = useMessage();
-  const {selectedListing, setSelectedListing} = useListings()
+  const { selectedListing, setSelectedListing } = useListings();
   const { user } = useUser();
   const [reportModal, setReportModal] = useState(false);
   const ref = useRef<BottomSheet>(null);
@@ -48,9 +48,14 @@ const ConvoInfoModal = ({
             try {
               const res = await deleteConvo(cid, user?.id!);
               if (res?.success) {
-                const removedConvos = selectedListing?.conversations?.filter((convo: any) => convo?.cid !== cid)
+                const removedConvos = selectedListing?.conversations?.filter(
+                  (convo: any) => convo?.cid !== cid,
+                );
 
-                setSelectedListing({...selectedListing, conversations: removedConvos})
+                setSelectedListing({
+                  ...selectedListing,
+                  conversations: removedConvos,
+                });
                 removeConvo(cid);
                 onClose();
                 router.replace("/convos");
@@ -132,11 +137,17 @@ const ConvoInfoModal = ({
                 {isBuyer ? "Seller" : "Buyer"}
               </Text>
               <View className="flex-row items-center gap-3">
-                <View className="w-11 h-11 rounded-full bg-secondary items-center justify-center">
+                <Pressable
+                  onPress={() => {
+                    router.canDismiss() && router.dismissAll();
+                    router.push(`/profiles/${otherUser?.uid!}`);
+                  }}
+                  className="w-11 h-11 rounded-full bg-secondary items-center justify-center"
+                >
                   <Text className="text-[15px] font-bold text-text">
                     {otherUser.name?.[0]?.toUpperCase() ?? "?"}
                   </Text>
-                </View>
+                </Pressable>
                 <View>
                   <Text className="text-[14px] font-bold text-text">
                     {otherUser.name}

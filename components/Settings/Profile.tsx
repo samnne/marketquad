@@ -98,7 +98,12 @@ export default function ProfileSection(props: Props) {
             className="w-20 h-20 rounded-full bg-primary/10 items-center justify-center border-2 border-primary/20 overflow-hidden"
           >
             {avatarUri ? (
-              <Image source={{ uri: avatarUri, }} className="w-full rounded-full h-full" />
+              <Image source={{ uri: avatarUri, }} className="w-full rounded-full h-full" style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "100%",
+                
+              }} />
             ) : (
               <Text className="text-2xl font-bold text-primary">{initials}</Text>
             )}

@@ -112,10 +112,13 @@ const CID = () => {
     }
   }, [params.cid]);
   const mountUser = useCallback(async () => {
-    const { user, app_user } = await getUserSupabase();
     if (user) {
-      setUser({ ...user, app_user });
-      socket.emit("open-convo", { cid: params.cid, uid: user.id });
+      return;
+    }
+    const { user: u, app_user } = await getUserSupabase();
+    if (u) {
+      setUser({ ...u, app_user });
+      socket.emit("open-convo", { cid: params.cid, uid: u.id });
     }
   }, [params.cid, setUser]);
 

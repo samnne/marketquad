@@ -92,6 +92,7 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
         }),
       });
       const data = await res.json();
+      
       if (data.success) {
         onClose();
         setRating(0);

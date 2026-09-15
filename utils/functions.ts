@@ -80,7 +80,7 @@ export async function getUserSupabase() {
     method: "GET",
     headers: { Authorization: data.user.id },
   }).then(res => res.json());
-  console.log(res)
+
   const supa_user = data.user;
   return { user: supa_user, app_user: res?.user };
 }

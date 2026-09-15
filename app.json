@@ -7,7 +7,6 @@
     "icon": "./assets/icons/ios-light.png",
     "scheme": "mqphone",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.samuelechefu.marketquad",
@@ -27,11 +26,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icons/adaptive-icon.png",
-        "monochromeImage": "./assets/icons/adaptive-icon.png",
+        "foregroundImage": "./assets/icons/ios-light.png",
+        "monochromeImage": "./assets/icons/ios-light.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.samuelechefu.marketquad",
       "permissions": [
@@ -46,7 +44,7 @@
       ]
     },
     "web": {
-      "output": "single",
+      "output": "static",
       "bundler": "metro"
     },
     "platforms": [
@@ -114,7 +112,6 @@
       "@sentry/react-native",
       "expo-font",
       "expo-image",
-      "expo-sharing",
       "expo-status-bar",
       "expo-web-browser"
     ],

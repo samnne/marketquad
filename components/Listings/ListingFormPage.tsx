@@ -1,4 +1,4 @@
-import { uploadImages } from "@/cloudinary/cloudinary";
+import { toJpegUri, uploadImages } from "@/cloudinary/cloudinary";
 import {
   BASE_URL,
   categories,
@@ -14,7 +14,6 @@ import * as ImagePicker from "expo-image-picker";
 import { usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-
   Pressable,
   ScrollView,
   StyleSheet,
@@ -34,6 +33,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LocationInput from "../Inputs/LocationInput";
 import { Image } from "expo-image";
+
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -273,23 +273,22 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
   const pickImages = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      // alert("Photo library access is required to update your profile picture. Please go to Settings > MarketQuad and enable Photos access.");
-
       return router.push("/permissions?type=photo");
     }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      
       allowsMultipleSelection: true,
       quality: 0.8,
       base64: false,
-      exif: false
+      exif: false,
     });
     if (!result.canceled) {
-      const newEntries = result.assets.map((a) => ({
-        uri: a.uri,
-        isRemote: false,
-      }));
+      const newEntries = await Promise.all(
+        result.assets.map(async (a) => ({
+          uri: await toJpegUri(a.uri),
+          isRemote: false,
+        })),
+      );
       setImages((prev) => [...prev, ...newEntries].slice(0, 10));
     }
   };
@@ -449,8 +448,13 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
               >
                 <Image
                   source={{ uri }}
-                  className="w-full h-full"
+                  className="w-full h-full flex-1 "
                   contentFit="cover"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    flex: 1
+                  }}
                 />
                 <Pressable
                   onPress={() => removeImage(i)}

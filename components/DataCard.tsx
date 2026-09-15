@@ -51,9 +51,9 @@ const DataCard = ({ dataList, href }: DataCardProps) => {
               {/* Image */}
               {data?.imageUrls?.length > 0 ? (
                 <Image
-                  source={{ uri: data.imageUrls[0] }}
-                  className="w-full h-44 rounded-t-2xl"
-                  resizeMode="cover"
+                  source={{ uri: data.imageUrls?.[0] ?? "" }}
+                  style={{ width: "100%", height: 176, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
+                  contentFit="cover"
                 />
               ) : null}
 

@@ -230,6 +230,11 @@ function HomeScreen() {
                           <Image
                             source={{ uri: convo.listing?.imageUrls?.[0] }}
                             className="rounded-full w-full h-full"
+                            style={{
+                              borderRadius: "100%",
+                              width: "100%",
+                              height: "100%"
+                            }}
                           />
                         ) : (
                           <View className="w-full h-full rounded-full bg-primary "></View>

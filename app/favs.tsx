@@ -23,7 +23,7 @@ const FavsScreen = () => {
   // Re-load favorites whenever this screen comes into focus
   const loadFavs = useCallback(() => {
     const data = JSON.parse(db.getItem("SAVED_LISTINGS") ?? "[]");
-    
+
     const savedItems = data.filter((val: Listing) => val.sellerId !== user?.id);
     setSavedItems(savedItems);
   }, []);
@@ -52,7 +52,15 @@ const FavsScreen = () => {
           you&apos;re watching
         </Text>
       </View>
-
+      <Pressable
+        onPress={() => {
+          setSavedItems([]);
+          db.clear();
+        }}
+        className="absolute top-20 right-5"
+      >
+        <Text className="text-light text-gray-400/40">Clear</Text>
+      </Pressable>
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -67,8 +75,11 @@ const FavsScreen = () => {
       >
         {savedItems.length > 0 ? (
           <View className="pt-2">
-            {savedItems.map((item,i) => (
-              <ListingCard key={`vnrvewiniovwe${item.lid}fewbfeyvbqui${i}`} listing={item} />
+            {savedItems.map((item, i) => (
+              <ListingCard
+                key={`vnrvewiniovwe${item.lid}fewbfeyvbqui${i}`}
+                listing={item}
+              />
             ))}
           </View>
         ) : (
@@ -85,7 +96,7 @@ const FavsScreen = () => {
             </Text>
 
             <Pressable
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/home")}
               className="bg-primary px-8 py-4 rounded-2xl mt-8 shadow-sm"
             >
               <Text className="text-pill font-bold text-base">

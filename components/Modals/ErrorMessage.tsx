@@ -9,7 +9,7 @@ type ErrorMessageProps = {
   message?: string;
 };
 
-const ErrorMessage = ({ message = "An error occurred" }: ErrorMessageProps) => {
+const ErrorMessage = ({ message = "Please Contact Us to Report this error" }: ErrorMessageProps) => {
   const { setError } = useMessage();
   const insets = useSafeAreaInsets();
   useEffect(()=>{

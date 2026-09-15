@@ -148,6 +148,8 @@ function ProfileScreen() {
       num: rating && rating > 0 ? Number(rating).toFixed(1) : "—",
       label: "Rating",
     },
+
+
   ];
 
   return (
@@ -184,8 +186,8 @@ function ProfileScreen() {
             >
               {user?.app_user?.profileURL ? (
                 <Image
-                  src={user?.app_user?.profileURL}
-                  className="w-full h-full rounded-full"
+                  source={{ uri: user?.app_user?.profileURL }}
+                  style={{ width: "100%", height: "100%", borderRadius: 32 }}
                 />
               ) : (
                 <Text className="text-[20px] font-bold text-text">

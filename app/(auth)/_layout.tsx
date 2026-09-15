@@ -2,11 +2,11 @@ import ErrorMessage from "@/components/Modals/ErrorMessage";
 import SuccessMessage from "@/components/Modals/SuccessMessage";
 import MarketQuad from "@/components/Utils/MarketQuad";
 import { useMessage } from "@/store/zustand";
-import { Image } from "expo-image";
+import { Image as Img } from "expo-image";
 import { Slot } from "expo-router";
+import { styled } from "nativewind";
 import {
   Dimensions,
- 
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,28 +14,25 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+const Image = styled(Img);
 const { width } = Dimensions.get("window");
 const isTablet = width >= 768;
 
 const AuthLayout = () => {
   const insets = useSafeAreaInsets();
   const { error, success, msg } = useMessage();
-  
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1"
     >
-      <View
-        className="flex-1 bg-background"
-        style={{ paddingTop: insets.top }}
-      >
+      <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
         {/* Modals */}
-        {error && <ErrorMessage message={msg}  />}
-        {success && <SuccessMessage message={msg}  />}
+        {error && <ErrorMessage message={msg} />}
+        {success && <SuccessMessage message={msg} />}
 
-        {isTablet ? (
+        {isTablet && Platform.OS !== "web" ? (
           /* ── Tablet: two-column layout ── */
           <View className="flex-1 flex-row">
             <View className="flex-1 bg-primary" />
@@ -70,22 +67,27 @@ const AuthContent = () => (
         source={require("@/assets/icons/logo.png")}
         className="w-40 h-28"
         contentFit="contain"
+        style={{
+          width: "160px",
+          height: "112px",
+        }}
       />
       <View className="gap-1.5">
         <Text className="text-4xl font-light text-text tracking-tight">
           Welcome to{" "}
-          <Text className="font-bold text-primary"><MarketQuad className="font-bold text-primary"/></Text>
+          <Text className="font-bold text-primary">
+            <MarketQuad className="font-bold text-primary" />
+          </Text>
         </Text>
         <Text className="text-sm font-light text-text/70 leading-5">
-          UVic&apos;s student-only marketplace. Built by a student, for students.
+          UVic&apos;s student-only marketplace. Built by a student, for
+          students.
         </Text>
       </View>
     </View>
 
     {/* ── Divider ── */}
-    <View className="flex-row items-center gap-3">
-     
-    </View>
+    <View className="flex-row items-center gap-3"></View>
 
     {/* ── Form slot ── */}
     <Slot />

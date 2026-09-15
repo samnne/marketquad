@@ -42,8 +42,12 @@ const BlockedUsers = (props: Props) => {
             <View className="flex-row items-center gap-2">
               <View className="w-12 h-12 rounded-2xl bg-primary">
                 <Image
-                  className="w-full flex-1 rounded-2xl"
-                  source={{ uri: blockedUser.blocked.profileURL }}
+                  style={{ width: "100%", flex: 1, borderRadius: 16 }}
+                  source={
+                    blockedUser.blocked.profileURL
+                      ? { uri: blockedUser.blocked.profileURL }
+                      : undefined
+                  }
                 />
               </View>
               <Text className="font-bold ">{blockedUser?.blocked.name}</Text>

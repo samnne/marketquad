@@ -70,7 +70,7 @@ const OnboardingWelcome = () => {
         source={bgImage}
         style={
           StyleSheet.create({
-            wrapper: { ...StyleSheet.absoluteFillObject, opacity: 0.2 },
+            wrapper: { ...StyleSheet.absoluteFill, opacity: 0.2, width: "100%", height: "100%" },
           }).wrapper
         }
         contentFit={"cover"}
