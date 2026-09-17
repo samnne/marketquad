@@ -6,7 +6,7 @@ import { useRefresh } from "@/hooks/useRefresh";
 import { getConvos } from "@/lib/conversations.lib";
 import { getUserListings } from "@/lib/listing.lib";
 
-import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
+import { useConvos, useListings, useMessage, useUnread, useUser } from "@/store/zustand";
 import { supabase } from "@/supabase/supabase";
 import { cleanUP, getUserSupabase } from "@/utils/functions";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -58,11 +58,10 @@ function ProfileScreen() {
   } = useUser();
   const { reset: convoReset, setConvos, convos } = useConvos();
   const { reset: lisReset } = useListings();
-
+  const {unreadCount, setUnreadCount}= useUnread();
   const { setError, setSuccess, setMessage } = useMessage();
 
   // Derive unread count from convos store
-  const unreadCount = convos?.filter((c) => c?.unread).length ?? 0;
 
   const { refreshing, onRefresh } = useRefresh({
     func: async () => {
@@ -111,6 +110,7 @@ function ProfileScreen() {
 
   useEffect(() => {
     mountSession();
+   
   }, [mountSession]);
 
   const handleLogout = async () => {
@@ -148,8 +148,6 @@ function ProfileScreen() {
       num: rating && rating > 0 ? Number(rating).toFixed(1) : "—",
       label: "Rating",
     },
-
-
   ];
 
   return (
@@ -250,9 +248,7 @@ function ProfileScreen() {
                 className={`flex-1 py-3 items-center ${i !== 2 ? "border-text/25 border-r" : ""}`}
               >
                 <Text className="text-2xl font-semibold text-text">{num}</Text>
-                <Text className="text-sm text-text mt-0.5">
-                  {label}
-                </Text>
+                <Text className="text-sm text-text mt-0.5">{label}</Text>
               </View>
             ))}
           </View>
@@ -296,7 +292,10 @@ function ProfileScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => router.push({ pathname: "/convos" })}
+            onPress={() => {
+              
+              router.push({ pathname: "/convos" });
+            }}
             className="bg-pill rounded-[20px] border border-primary/25 flex-row items-center justify-between px-4 py-4 active:opacity-70"
           >
             <View className="flex-row items-center gap-3">

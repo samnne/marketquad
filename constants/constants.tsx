@@ -4,7 +4,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Platform } from "react-native";
-import { theme } from "./theme";
+import { colors, theme } from "./theme";
 export const UVIC_LNG_LAT: number[] = [-123.312603, 48.463816];
 export const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
@@ -30,6 +30,34 @@ export const styles = {
     default: { flex: 1 },
   }),
 };
+
+export const AVATAR_COLORS = [
+  { bg: colors.text, text: colors.primary },
+  { bg: colors.primary, text: colors.pill },
+  { bg: colors.secondary, text: colors.text },
+  { bg: colors.accent, text: colors.pill },
+  { bg: colors.pill, text: colors.primary, border: colors.secondary },
+] as const;
+
+export function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+export function timeAgo(date: string | Date) {
+  if (!date) return "";
+  const diff = (Date.now() - new Date(date).getTime()) / 1000;
+  if (diff < 60) return "Just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 172800) return "Yesterday";
+  return new Date(date).toLocaleDateString("en", { weekday: "short" });
+}
+
 
 export const tabs = [
   {

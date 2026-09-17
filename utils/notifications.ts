@@ -1,4 +1,3 @@
-
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
@@ -14,6 +13,29 @@ Notifications.setNotificationHandler({
   }),
 });
 
+export async function sendListingLikeNotification(
+  listing: Listing,
+  count: number,
+) {
+  try {
+    
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: listing.seller.pushToken?.token,
+        title: "A new like on your listing!",
+        body: "Check out who's interested.",
+        data: { screen: "listings", lid: listing.lid },
+      }),
+    });
+  } catch (error) {
+    
+  }
+}
+
 export async function registerPushToken(userId: string) {
   if (!Device.isDevice) return; // won't work in simulator
 
@@ -23,7 +45,7 @@ export async function registerPushToken(userId: string) {
     const { status } = await Notifications.requestPermissionsAsync();
     finalStatus = status;
   }
-  
+
   if (finalStatus !== "granted") return;
 
   // Android channel required
@@ -39,11 +61,6 @@ export async function registerPushToken(userId: string) {
   const projectId =
     Constants.expoConfig?.extra?.eas?.projectId ??
     Constants.easConfig?.projectId;
-  const t = db.getItem("NOTI_TOKEN") as string
-  
-  if (JSON.parse(t)){
-    return true
-  }
 
   const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
 
@@ -61,5 +78,5 @@ export async function registerPushToken(userId: string) {
     "NOTI_TOKEN",
     JSON.stringify({ userId, token, platform: Platform.OS }),
   );
-  return true
+  return true;
 }

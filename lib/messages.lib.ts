@@ -14,6 +14,7 @@ export async function sendMessage(
   if (!newMessage.conversationId) throw new Error("conversationId is required");
 
   if (user) {
+    // newMessage.text = btoa(newMessage.text)
     const message = await fetch(
       `${BASE_URL}/api/message/${newMessage.conversationId}`,
       {
@@ -56,8 +57,10 @@ export async function getMessagesForConvo(cid: string) {
     },
   }).then((res) => res.json());
 
+
   if (!messages) {
     return false;
   }
+
   return messages.messages;
 }

@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView as RNSAV } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { Ionicons } from "@expo/vector-icons";
@@ -69,7 +69,7 @@ const CID = () => {
   const [typing, setTyping] = useState(false);
   const initialMessageIds = useRef<Set<string>>(new Set());
   const hasMounted = useRef(false);
-  const { selectedConvo, setSelectedConvo } = useConvos();
+  const { selectedConvo, setSelectedConvo, setConvos, convos } = useConvos();
   const { setReviewModal, reviewModal } = useReviewModal();
   const { setError, setMessage } = useMessage();
   const { user, setUser } = useUser();
@@ -98,7 +98,16 @@ const CID = () => {
 
     setSelectedConvo(convo);
   }, [params.cid, setError, setMessage, router, setSelectedConvo]);
+  useFocusEffect(
+    useCallback(() => {
+      // OPTIONAL: Code here runs when the page comes INTO focus
 
+      return () => {
+        socket.emit("leave-room", { cid: params?.cid });
+        console.log("Page has lost focus");
+      };
+    }, []),
+  );
   const mountMessages = useCallback(async () => {
     if (!params.cid) return;
     const tempMessages = await getMessagesForConvo(params.cid as string);
@@ -113,6 +122,8 @@ const CID = () => {
   }, [params.cid]);
   const mountUser = useCallback(async () => {
     if (user) {
+      socket.emit("open-convo", { cid: params.cid, uid: user.id });
+
       return;
     }
     const { user: u, app_user } = await getUserSupabase();
@@ -131,7 +142,9 @@ const CID = () => {
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
-      handleOpenConvo();
+      if (isConnected) {
+        handleOpenConvo();
+      }
     }
     function onDisconnect() {
       setIsConnected(false);
@@ -142,8 +155,10 @@ const CID = () => {
       if (cid !== params.cid) return;
       setTyping(typing);
     });
+
     socket.on("message", ({ cid, message }) => {
       if (cid !== params.cid) return;
+
       setMessages((prev) => [...prev, message]);
     });
 
@@ -248,6 +263,7 @@ const CID = () => {
         : seller?.uid === user.id
           ? seller
           : "Temp";
+    
 
     return (
       <MotiView
@@ -274,7 +290,7 @@ const CID = () => {
           {!isMine && (
             <View className="w-6 h-6 rounded-full bg-gray-300 items-center justify-center mr-1 mb-1">
               <Text className="text-[10px] font-bold">
-                {(curUser !== "Temp" && curUser?.name?.[0]?.toUpperCase()) ||
+                {(curUser !== "Temp" && otherUser?.name?.[0]?.toUpperCase()) ||
                   "?"}
               </Text>
             </View>
@@ -290,7 +306,7 @@ const CID = () => {
               <Text
                 className={`${isMine ? "text-white" : "text-black"} text-[14px]`}
               >
-                {item.text}
+                {item.text} 
               </Text>
             </View>
             <View

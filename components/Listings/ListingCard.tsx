@@ -3,7 +3,7 @@ import { useLike } from "@/hooks/useLike";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Dimensions,  Pressable, Text, View } from "react-native";
+import { Dimensions, Pressable, Text, View } from "react-native";
 import { colors } from "@/constants/theme";
 import { useUser } from "@/store/zustand";
 import Animated, {
@@ -13,7 +13,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { Image as Img } from "expo-image";
 import { styled } from "nativewind";
-const Image = styled(Img)
+import { sendListingLikeNotification } from "@/utils/notifications";
+const Image = styled(Img);
 const { width: W } = Dimensions.get("window");
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -44,8 +45,8 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
     );
     setIsFav(!!isFavourite);
   }, [listing.lid]);
- 
-  return ( 
+
+  return (
     <View className=" bg-white rounded-4xl ">
       <View className=" p-3 h-75">
         <AnimatedPressable
@@ -84,7 +85,12 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
               </View>
             ))}
           <Pressable
-            onPress={toggle}
+            onPress={() => {
+              if (!liked) {
+                sendListingLikeNotification(listing, count);
+              }
+              toggle();
+            }}
             disabled={loading}
             hitSlop={30}
             className="flex-row gap-2 bg-background rounded-full px-3 py-1 items-center absolute top-3 right-3"

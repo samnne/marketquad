@@ -6,7 +6,7 @@ import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
 import { deleteConvo, fetchConvos, getUserSupabase } from "@/utils/functions";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import {Image as img} from "expo-image"
+import { Image as img } from "expo-image";
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
@@ -19,33 +19,11 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styled } from "react-native-css";
-const Image = styled(img)
-const AVATAR_COLORS = [
-  { bg: colors.text, text: colors.primary },
-  { bg: colors.primary, text: colors.pill },
-  { bg: colors.secondary, text: colors.text },
-  { bg: colors.accent, text: colors.pill },
-  { bg: colors.pill, text: colors.primary, border: colors.secondary },
-] as const;
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
-
-function timeAgo(date: string | Date) {
-  if (!date) return "";
-  const diff = (Date.now() - new Date(date).getTime()) / 1000;
-  if (diff < 60) return "Just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  if (diff < 172800) return "Yesterday";
-  return new Date(date).toLocaleDateString("en", { weekday: "short" });
-}
+import { AVATAR_COLORS, getInitials, timeAgo } from "@/constants/constants";
+import { ConversationItem } from "@/components/ConversationItem";
+import { useFocusEffect } from "expo-router";
+const Image = styled(img);
 
 const ConversationsScreen = () => {
   const router = useRouter();
@@ -66,10 +44,7 @@ const ConversationsScreen = () => {
   });
   const getConvosClient = useCallback(async () => {
     setLoading(true);
-    if (user) {
-      setLoading(false);
-      return;
-    }
+
     const data = await getUserSupabase();
     if (!data.user) {
       setError(true);
@@ -94,13 +69,18 @@ const ConversationsScreen = () => {
     }
   }, [setUser, setError, setLoading, setMessage, router, setConvos]);
 
-  useEffect(() => {
+
+useFocusEffect(
+  useCallback(() => {
     const timeout = setTimeout(() => {
       void getConvosClient();
     }, 0);
 
-    return () => clearTimeout(timeout);
-  }, [getConvosClient, convos?.length]);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [])
+);
 
   const handleDelete = (cid: string) => {
     Alert.alert(
@@ -223,89 +203,18 @@ const ConversationsScreen = () => {
           </View>
 
           {/* ── Convo rows ── */}
-          {filtered?.map((convo, i) => {
-            const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
-            const isSeller = convo?.seller?.uid === user?.id;
-
-            const otherUserName = isSeller
-              ? convo?.buyer?.name
-              : convo?.seller?.name;
-            const title = `${otherUserName ?? "Unknown"} • ${convo.listing?.title ?? "Unknown listing"}`;
-            const initials = getInitials(convo?.buyer?.name ?? "");
-            const lastMsg = convo.messages?.[convo.messages.length - 1];
-            const unread = convo.unreadCount ?? 0;
-            const timestamp = convo.updatedAt ?? convo.createdAt;
-            const listing = convo.listing;
-
-            return (
-              <Animated.View
-                key={`${convo.cid}ewfweufhguwbiv`}
-                entering={FadeInDown.duration(300).delay(i * 80)}
-              >
-                <Pressable
-                  onLongPress={() => handleDelete(convo.cid)}
-                  onPress={() => {
-                    setSelectedConvo(convo);
-                    router.push(`/convos/${convo.cid}`);
-                  }}
-                  className="flex-row items-center gap-3 px-4 py-3.5 active:bg-secondary/10"
-                >
-                  {/* Avatar */}
-                  <View
-                    className="w-18  h-18 justify-center items-center rounded-2xl"
-                    style={{
-                      backgroundColor: color.bg,
-                    }}
-                  >
-                    <Image
-                      source={{
-                        uri:
-                          listing?.imageUrls?.length > 0
-                            ? listing?.imageUrls[0]
-                            : "#",
-                      }}
-                      className="flex-1 w-full rounded-2xl"
-                      contentFit="cover"
-                    />
-                  </View>
-
-                  {/* Text */}
-                  <View className="flex-1 gap-0.5 min-w-0">
-                    <Text
-                      className="text-xl font-semibold text-text"
-                      numberOfLines={1}
-                    >
-                      {title}
-                    </Text>
-                    <Text
-                      className="text-[12px] text-secondary/75"
-                      numberOfLines={1}
-                    >
-                      {lastMsg?.text ?? "Most recent message"}
-                    </Text>
-                  </View>
-
-                  {/* Timestamp + unread */}
-                  <View className="items-end gap-1 shrink-0">
-                    <Text className="text-[11px] text-secondary/70">
-                      {timeAgo(timestamp)}
-                    </Text>
-                    {unread > 0 ? (
-                      <View className="w-5 h-5 bg-primary rounded-full items-center justify-center">
-                        <Text className="text-[10px] font-bold text-text">
-                          {unread}
-                        </Text>
-                      </View>
-                    ) : (
-                      <Text className="text-[11px] text-secondary/50">
-                        Delivered
-                      </Text>
-                    )}
-                  </View>
-                </Pressable>
-              </Animated.View>
-            );
-          })}
+          {filtered?.map((convo, i) => (
+            <ConversationItem
+              key={`${convo.cid}ewfweufhguwbiv`}
+              convo={convo}
+              index={i}
+              user={user}
+              handleDelete={handleDelete}
+              setSelectedConvo={setSelectedConvo}
+              setConvos={setConvos}
+              convos={convos}
+            />
+          ))}
         </>
       ) : (
         /* ── Empty state ── */

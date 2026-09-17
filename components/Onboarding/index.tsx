@@ -2,12 +2,14 @@
 import { INTENTS } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { Image as Img } from "expo-image";
 import { Text, View } from "moti";
 import { useEffect } from "react";
 import { ActivityIndicator, Pressable } from "react-native";
+import { styled } from "react-native-css";
 import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from "react-native-reanimated";
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
+const Image = styled(Img)
 export const SectionRow = ({
   icon, label, sublabel, open, onPress, iconBg,
 }: {
@@ -221,8 +223,8 @@ export const AvatarPlaceholder = ({
         {/* Avatar circle */}
         <View className="w-24 h-24 rounded-full bg-primary/10 items-center justify-center border-2 border-primary/20">
           {initials ? (
-            <Text className="text-3xl font-bold text-primary">{initials}</Text>
-          ) : (
+            <Image  className="w-full h-full rounded-full" source={{uri: uri ?? ""}} />
+        ) : (
             <FontAwesome6 name="user" size={32} color={colors.primary} />
           )}
         </View>

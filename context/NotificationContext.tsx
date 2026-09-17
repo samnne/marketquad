@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, ReactNode } from "react";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { registerPushToken } from "@/utils/notifications";
-import { useUser } from "@/store/zustand";
+import { useMessage, useUser } from "@/store/zustand";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -19,12 +19,13 @@ const NotificationContext = createContext({});
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useUser();
   const router = useRouter();
+  const {setMessage, setSuccess} = useMessage()
 
   // Register push token when user logs in
 
   useEffect(() => {
     if (user?.id) {
-    
+     
       registerPushToken(user?.id);
     }
   }, [user]);
@@ -33,10 +34,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const tapSub = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        const { screen, conversationId } =
+        const data=
           response.notification.request.content.data;
-        if (screen === "convos" && conversationId) {
-          router.push(`/convos/${conversationId}`);
+        if (data && data.screen === "convos" && data.conversationId) {
+          router.push(`/convos/${data.conversationId}`);
+        }
+        if (data && data.screen === "listing" && data.lid){
+          router.push(`/listings/${data.lid}`)
         }
       },
     );
@@ -44,6 +48,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     // Optional: handle notification arriving while app is foregrounded
     const foregroundSub = Notifications.addNotificationReceivedListener(
       (notification) => {
+        setMessage(notification.request.content.title)
+        setSuccess(true)
         console.log("Notification received in foreground:", notification);
         // You could trigger an in-app toast/banner here instead
       },

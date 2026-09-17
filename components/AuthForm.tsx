@@ -154,14 +154,14 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
   useEffect(() => {
     const mountSession = async () => {
       const { user, app_user } = await getUserSupabase();
-      if (user ) {
+      if (user) {
         setUser({ ...user, app_user });
         router.replace("/home");
       }
     };
     mountSession();
   }, [router, setUser]);
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCounter((prev) => (prev > 0 ? prev - 1 : 0));
@@ -202,13 +202,13 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         return;
       }
       const cleanEmail = formData.email.trim().toLowerCase();
-      
+
       const { data: userData } = await supabase
         .from("User")
         .select("*")
         .eq("email", cleanEmail)
         .single();
-     
+
       if (!userData) {
         setError(true);
         setMessage("User doesn't match our records.");
@@ -263,18 +263,18 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
         );
         return;
       }
-      const {data, error} = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
       });
-      if (error){
-        setError(true)
-        
-        setMessage(error.message)
+      if (error) {
+        setError(true);
+
+        setMessage(error.message);
+        return;
       }
 
-      if (data){
-        
+      if (data) {
         await sendOTP();
         setCounter(60);
         changeType("otp");
@@ -303,30 +303,28 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
     }
     setLoadingOtp(true);
     try {
-     
       const {
         data: { user: supabaseUser },
         error,
-      } = await supabase.auth.verifyOtp({ email, token: otp, type:"email" });
+      } = await supabase.auth.verifyOtp({ email, token: otp, type: "email" });
       if (error || !supabaseUser) {
         setError(true);
         setMessage("No User, Please Contact us at market-quad.com/contact");
         return;
-
       }
-     
+
       const res = await fetch(`${BASE_URL}/api/auth/login`, {
         method: "PUT",
-    
+
         body: JSON.stringify({ uid: supabaseUser.id, email, name }),
       }).then((r) => r.json());
-   
+
       if (!res.success) {
         setError(true);
         setMessage("Verification failed. Please try again.");
         return;
       }
-      
+
       setUser({ ...supabaseUser, app_user: res.app_user });
       setSuccess(true);
       setMessage("Verification successful!");
@@ -338,7 +336,7 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
     } catch (err) {
       console.error(err);
       setError(true);
-      
+
       setMessage("Invalid OTP. Please try again.");
     } finally {
       setLoadingOtp(false);
@@ -368,7 +366,6 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       handleSignUp();
     }
   };
- 
 
   // ─── OTP View ───────────────────────────────
   if (type === "otp") {
@@ -538,7 +535,11 @@ const AuthForm = ({ type }: { type: "sign-in" | "sign-up" | "otp" }) => {
       </Field>
 
       {isSignIn && (
-        <Pressable onPress={handleForgotPassword} className="mt-30 " style={s.forgotBtn}>
+        <Pressable
+          onPress={handleForgotPassword}
+          className="mt-30 "
+          style={s.forgotBtn}
+        >
           <Text style={s.forgotText}>Forgot password?</Text>
         </Pressable>
       )}

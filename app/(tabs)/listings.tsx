@@ -220,6 +220,7 @@ export function ListingsScreen() {
 
       {/* ── Header row ── */}
       <Animated.View
+      key={1409584742}
         entering={FadeInDown.duration(300).delay(120)}
         className="flex-row items-center justify-between px-4 pb-3"
       >

@@ -4,7 +4,14 @@ import { newSingle, tabs } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
 import * as Haptics from "expo-haptics";
 import { TAB_ORDER } from "@/hooks/useTabDirection";
-import { useMessage, usePrefs, useTabStore } from "@/store/zustand";
+import {
+  useConvos,
+  useMessage,
+  usePrefs,
+  useTabStore,
+  useUnread,
+  useUser,
+} from "@/store/zustand";
 
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -14,11 +21,12 @@ import React, { ReactElement, ReactNode, useEffect, useMemo } from "react";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-
-
 function CustomTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
   const { setTabIndex } = useTabStore();
+  const { user } = useUser();
+  const { unreadCount, setUnreadCount } = useUnread();
+   const { convos } = useConvos();
   const animateNew = useMemo(() => {
     return ({ hovered, pressed }: { hovered: boolean; pressed: boolean }) => {
       "worklet";
@@ -30,10 +38,20 @@ function CustomTabBar({ state, descriptors, navigation }) {
       };
     };
   }, []);
+  useEffect(() => {
+    if (!convos || !user) return;
+
+    const allMessages = convos.flatMap((convo) => convo.messages || []);
+    const urCount = allMessages.filter(
+      (msg) => msg.readAt === null && user.id !== msg.senderId,
+    ).length;
+
+    setUnreadCount(urCount);
+  }, [convos, user?.id]);
   const mainRoutes = state.routes.filter((r) => r.name !== newSingle.name);
   const newRoute = state.routes.find((r) => r.name === newSingle.name);
   const newIndex = state.routes.findIndex((r) => r.name === newSingle.name);
-
+ 
   const handlePress = (route: (typeof state.routes)[number], index: number) => {
     const event = navigation.emit({
       type: "tabPress",
@@ -65,17 +83,14 @@ function CustomTabBar({ state, descriptors, navigation }) {
     >
       {/* ── Pill: 4 main tabs ── */}
       <View
-        className=""
         style={{
           flex: 1,
           height: 65,
           backgroundColor: colors.pill,
           borderRadius: 28,
-
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-around",
-
           paddingVertical: 15,
           borderWidth: 0.5,
           borderColor: "rgba(0,0,0,0.08)",
@@ -84,19 +99,55 @@ function CustomTabBar({ state, descriptors, navigation }) {
         {mainRoutes.map((route, i) => {
           const focused = state.index === state.routes.indexOf(route);
           const tab = tabs.find((t) => t.name === route.name);
+          
           if (!tab) return null;
 
           return (
             <MotiPressable
-            animate={animateNew}
-            from={{
-              height: 65
-            }}
+              animate={animateNew}
+              from={{
+                height: 65,
+              }}
               key={`${route.key}9237136`}
               onPress={() => handlePress(route, state.routes.indexOf(route))}
               style={{ flex: 1, alignItems: "center", gap: 4 }}
             >
-              {tab.icon({ color: focused ? colors.primary : colors.text })}
+              {/* Wrap the icon in a relative view for the badge */}
+              <View style={{ position: "relative" }}>
+                {tab.icon({ color: focused ? colors.primary : colors.text })}
+
+                {/* ── BADGE UI ADDED HERE ── */}
+                {route.name === "convos" && unreadCount !== 0 && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -6,
+                      right: -10,
+                      backgroundColor: "#EF4444", // standard red color
+                      borderRadius: 10,
+                      minWidth: 16,
+                      height: 16,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      paddingHorizontal: 4,
+                      borderWidth: 1.5,
+                      borderColor: colors.pill, // creates a cut-out effect matching pill background
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 8,
+                        fontWeight: "bold",
+                        lineHeight: 10,
+                      }}
+                    >
+                      {unreadCount}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
               <Text
                 style={{
                   fontSize: 10,
@@ -126,10 +177,9 @@ function CustomTabBar({ state, descriptors, navigation }) {
             alignItems: "center",
             justifyContent: "center",
             gap: 2,
-            // lift it slightly above the pill
             marginBottom: 2,
             borderWidth: 3,
-            borderColor: colors.background, // cuts it out from the bg
+            borderColor: colors.background,
           }}
         >
           {newSingle.icon({ color: "#fff" })}
@@ -163,12 +213,12 @@ const TabsLayout = () => {
     title: string;
   }): ReactNode {
     return (
-      <View className={`size-30  items-center pb-2  justify-center`}>
+      <View className={`size-30 items-center pb-2 justify-center`}>
         <View className={`size-10 items-center justify-center rounded-full`}>
           {icon({ color: focused ? colors.primary : colors.text })}
         </View>
         <Text
-          className={`text-xs  ${focused ? "text-primary" : "text-text"} mb-5 font-semibold `}
+          className={`text-xs ${focused ? "text-primary" : "text-text"} mb-5 font-semibold `}
         >
           {title}
         </Text>
@@ -199,20 +249,18 @@ const TabsLayout = () => {
             elevation: 0,
           },
           tabBarItemStyle: {
-            marginVertical: 5, // 3. Nudge items to center or push up
+            marginVertical: 5,
           },
           animation: "none",
-
           tabBarIconStyle: {
             width: tabBar.iconFrame,
-
             height: tabBar.height,
             alignItems: "center",
           },
         }}
         screenListeners={{
           tabPress: (e) => {
-            const route = e.target?.split("-")[0]; // expo-router target format
+            const route = e.target?.split("-")[0];
             const index = TAB_ORDER.findIndex(
               (t) => t === `/${route}` || (route === "home" && t === "/home"),
             );

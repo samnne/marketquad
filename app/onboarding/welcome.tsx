@@ -4,7 +4,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
 import bgImage from "@/assets/images/images.jpg";
 import { StyleSheet, Text, View } from "react-native";
-import { Image } from "expo-image";
+import { Image as Img } from "expo-image";
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -21,9 +21,8 @@ import {
   StatPill,
   SuccessRing,
 } from "@/components/Onboarding";
-import { useEffect } from "react";
-import { db } from "@/db/db";
 import { BASE_URL } from "@/constants/constants";
+const Image = styled(Img)
 
 const SafeAreaView = styled(RNSAV);
 
@@ -74,7 +73,7 @@ const OnboardingWelcome = () => {
           }).wrapper
         }
         contentFit={"cover"}
-        className="w-full h-full  "
+        className="w-full h-full"
       />
 
       <View className="flex-1 gap-5 px-8">

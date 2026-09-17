@@ -13,8 +13,8 @@ export const useType: UseBoundStore<StoreApi<Store>> = create((set) => {
   const store: Store = {
     type: "sign-in",
     changeType: (newType: TYPEAUTH) => {
-      if (newType === 'sign-up'){
-        db.setItem("ONBOARDING", 'false')
+      if (newType === "sign-up") {
+        db.setItem("ONBOARDING", "false");
       }
       set({ type: newType });
     },
@@ -27,7 +27,7 @@ export type ListingStore = {
   setListings: Function;
   selectedListing?: Listing | null;
   setSelectedListing: Function;
-  reset: ()=>void;
+  reset: () => void;
 };
 
 export const useListings: UseBoundStore<StoreApi<ListingStore>> = create(
@@ -43,12 +43,23 @@ export const useListings: UseBoundStore<StoreApi<ListingStore>> = create(
   },
 );
 
+type UnreadStore = {
+  unreadCount: number;
+  setUnreadCount: (count: number) => void;
+};
+export const useUnread: UseBoundStore<StoreApi<UnreadStore>> = create((set) => {
+  return {
+    unreadCount: 0,
+    setUnreadCount: (count: number) => set({ unreadCount: count }),
+  };
+});
+
 export type UserState = {
   user: (ProfileData & User & { app_user: PublicUser & ProfileData }) | null;
   setUser: Function;
   userListings: Listing[];
   setUserListings: Function;
-  reset: ()=> void;
+  reset: () => void;
 };
 export const useUser: UseBoundStore<StoreApi<UserState>> = create((set) => {
   return {
@@ -91,7 +102,6 @@ export const useTabStore = create<{
   tabIndex: 0,
   setTabIndex: (tabIndex) => set({ tabIndex }),
 }));
-
 
 export const useConvos = create<ConvosState>((set) => ({
   convos: [],
