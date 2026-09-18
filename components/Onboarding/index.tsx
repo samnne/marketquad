@@ -34,7 +34,7 @@ export const SectionRow = ({
   </Pressable>
 );
 
-export const SaveButton = ({ onPress, loading }: { onPress: () => void; loading: boolean }) => (
+export const SaveButton = ({ onPress, loading, type = "save" }: { onPress: () => void; loading: boolean, type?: "save" | "reset-password" }) => (
   <SpringButton
     onPress={onPress}
     disabled={loading}
@@ -42,7 +42,7 @@ export const SaveButton = ({ onPress, loading }: { onPress: () => void; loading:
   >
     {loading
       ? <ActivityIndicator color={colors.pill} size="small" />
-      : <Text className="text-sm font-bold text-pill">Reset Password</Text>}
+      : <Text className="text-sm font-bold text-pill">{type === "reset-password" ? "Reset Password" : "Save Changes"}</Text>}
   </SpringButton>
 );
 

@@ -60,7 +60,7 @@ export default function AccountSection(props: Props) {
         </Text>
       </View>
 
-      <SaveButton onPress={handleForgotPassword} loading={props.loading} />
+      <SaveButton type="reset-password" onPress={handleForgotPassword} loading={props.loading}  />
 
       {/* Danger zone */}
       <View className="flex-row items-center gap-3 my-1">

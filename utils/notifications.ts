@@ -78,6 +78,7 @@ export async function registerPushToken(userId: string) {
     },
   ).then((res) => res.json());
   if (!response.ok) return false;
+  
   db.setItem(
     "NOTI_TOKEN",
     JSON.stringify({ userId, token, platform: Platform.OS }),
