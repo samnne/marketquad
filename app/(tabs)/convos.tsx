@@ -34,7 +34,7 @@ const ConversationsScreen = () => {
   const { convos, setConvos, setSelectedConvo, removeConvo } = useConvos();
   const { setError, setMessage } = useMessage();
   const [loading, setLoading] = useState(true);
-  const { user, setUser } = useUser();
+  const { user, setUser, setSession } = useUser();
   const { selectedListing, setSelectedListing } = useListings();
   const [query, setQuery] = useState("");
   const { refreshing, onRefresh } = useRefresh({
@@ -66,6 +66,7 @@ const ConversationsScreen = () => {
     } finally {
       setLoading(false);
       setUser({ ...data.user, app_user: data.app_user });
+      setSession(data.session)
     }
   }, [setUser, setError, setLoading, setMessage, router, setConvos]);
 

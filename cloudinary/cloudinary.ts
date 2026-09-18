@@ -1,15 +1,15 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 import * as ImageManipulator from "expo-image-manipulator";
 import plimit from "p-limit";
 export async function getCloudinarySignature(
   uid: string,
   folder: "listings" | "pfp",
 ) {
+  const { session } = await getUserSupabase();
+  if (!session) throw new Error("User is not authenticated");
   const res = await fetch(`${BASE_URL}/api/cloudinary`, {
-    headers: {
-      Authorization: uid,
-      "x-cloud-folder": folder,
-    },
+    headers: authHeaders(session.access_token, { "x-cloud-folder": folder }),
   });
 
   return await res.json();

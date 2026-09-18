@@ -1,6 +1,6 @@
 import ListingCard from "@/components/Listings/ListingCard";
 
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
 import { useRefresh } from "@/hooks/useRefresh";
 import { useListings, useMessage } from "@/store/zustand";
@@ -70,6 +70,7 @@ export function ListingsScreen() {
 
   useEffect(() => {
     const loadListings = async () => {
+    
       if (!searchQuery && listings?.length > 0) {
         setLoading(false);
         return;
@@ -77,15 +78,18 @@ export function ListingsScreen() {
       try {
         setLoading(true);
         if (searchQuery) {
-          const { user, app_user } = await getUserSupabase();
+          const { session } = await getUserSupabase();
+          if(!session){
+            setLoading(false)
+            return 
 
+          }
           const response = await fetch(
             `${BASE_URL}/api/listings/search?q=${encodeURIComponent(searchQuery)}`,
             {
-              headers: {
-                Authorization: app_user?.uid,
-                "x-user-id": app_user.uid,
-              },
+              headers: 
+                authHeaders(session?.access_token)
+              ,
             },
           );
           if (!response.ok) {
@@ -140,7 +144,7 @@ export function ListingsScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <View className="flex-row flex-wrap items-start w-full p-2">
+      {/* <View className="flex-row flex-wrap items-start w-full p-2">
         {[
           { name: "Housing", image: housing },
           { name: "Textbooks", image: textbooks },
@@ -173,8 +177,8 @@ export function ListingsScreen() {
             </View>
           </Pressable>
         ))}
-      </View>
-      <View className="gap-2 w-full h-40 p-4 justify-center items-center">
+      </View> */}
+      <View className="gap-2 mt-12 w-full h-40 p-4 justify-center items-center">
         <Text className="text-4xl font-black text-center ">
           Buy Local. Sell Better. <MarketQuad className="text-primary" />
         </Text>

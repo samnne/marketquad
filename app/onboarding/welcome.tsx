@@ -21,7 +21,8 @@ import {
   StatPill,
   SuccessRing,
 } from "@/components/Onboarding";
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 const Image = styled(Img)
 
 const SafeAreaView = styled(RNSAV);
@@ -32,12 +33,11 @@ const OnboardingWelcome = () => {
   const { user, setUser } = useUser();
   const { setError, setMessage } = useMessage();
   async function handleIt() {
+    const { session } = await getUserSupabase();
+    if (!session) return;
     const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
       method: "PATCH",
-      headers: {
-        Authorization: user?.id!,
-        "Content-Type": "application/json",
-      },
+      headers: authHeaders(session.access_token),
       body: JSON.stringify({
         onboarding_completed: true,
         username: user?.app_user?.username,

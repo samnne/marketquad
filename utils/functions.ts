@@ -1,7 +1,8 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { safeJson } from "@/lib/listing.lib";
 
 import { supabase } from "@/supabase/supabase";
+import { Session, User } from "@supabase/supabase-js";
 
 import {Filter} from "bad-words"
 
@@ -37,12 +38,12 @@ export function matchUVIC(email: string) {
 
 export async function fetchConvos({ setter }: { setter: Function }) {
   const user = await getUserSupabase();
-  if (!user) {
+  if (!user || !user.session) {
     return false;
   } else {
     const temp = await fetch(`${BASE_URL}/api/conversations`, {
       method: "get",
-      headers: { Authorization: user.user?.id! },
+      headers: authHeaders(user.session.access_token),
     }).then((res) => res.json());
     setter(temp.convos);
 
@@ -62,7 +63,7 @@ export const fetchListings = async ({ setter }: { setter: Function }) => {
   } else {
     const temp = await fetch(`${BASE_URL}/api/listings`, {
       method: "get",
-      headers: { Authorization: user.user?.id ? user.user.id : "" },
+      headers: user.session ? authHeaders(user.session.access_token) : {},
     }).then((res) => res.json());
 
     setter(temp?.listings);
@@ -72,25 +73,26 @@ export const fetchListings = async ({ setter }: { setter: Function }) => {
 };
 
 export async function getUserSupabase() {
-  const { data, error } = await supabase.auth.getUser();
-  if (error) {
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session?.user) {
     return { user: null, error, app_user: null };
   }
+  
   const res = await fetch(`${BASE_URL}/api/account`, {
     method: "GET",
-    headers: { Authorization: data.user.id },
+    headers: authHeaders(data.session.access_token),
   }).then(res => res.json());
-
-  const supa_user = data.user;
-  return { user: supa_user, app_user: res?.user };
+  const session: Session = data.session
+  const supa_user: User = session?.user;
+  return { user: supa_user, app_user: res?.user, session };
 }
 
 export const deleteConvo = async (cid: string, userId: string) => {
+  const { session } = await getUserSupabase();
+  if (!session) return;
   const response = await fetch(`${BASE_URL}/api/conversations/${cid}`, {
     method: "DELETE",
-    headers: {
-      Authorization: userId,
-    },
+    headers: authHeaders(session.access_token),
   });
 
   return safeJson(response);

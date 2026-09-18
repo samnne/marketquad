@@ -1,7 +1,7 @@
 import Carousel from "@/components/Carousel";
 import LocationPreview from "@/components/Listings/ListingMap";
 import StarRating from "@/components/StarRating";
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { createConvo } from "@/lib/conversations.lib";
 import { deleteListingAction } from "@/lib/listing.lib";
 import { useConvos, useListings, useMessage, useUser } from "@/store/zustand";
@@ -83,11 +83,7 @@ export default function ListingPage() {
     count,
     toggle,
     loading: likeLoading,
-  } = useLike(
-    selectedListing?.lid ?? "",
-    expression,
-    selectedListing?._count?.likes ?? 0,
-  );
+  } = useLike(selectedListing, expression, selectedListing?._count?.likes ?? 0);
   const [message, setFirstMessage] = useState(getRandomMsg());
   const [expandDesc, setExpandDesc] = useState(false);
   const [localReviews, setLocalReviews] = useState<number | null>(null);
@@ -118,27 +114,29 @@ export default function ListingPage() {
   useEffect(() => {
     const mount = async () => {
       if (selectedListing?.lid === lid) setListing(selectedListing);
-      const { user: u, app_user } = await getUserSupabase();
-      if (!u) return;
+      const { user: u, app_user, session } = await getUserSupabase();
+      if (!u || !session) return;
       setUser({ ...u, app_user });
 
       const [listRes] = await Promise.all([
         fetch(`${BASE_URL}/api/listings/${lid}`, {
-          headers: { Authorization: u.id },
+          headers: authHeaders(session.access_token),
         }),
-        
       ]);
       const listData = await listRes.json();
-      
+
       if (listData?.listing) {
         setListing(listData.listing);
         setSelectedListing(listData.listing);
       }
-      const revRes = await fetch(`${BASE_URL}/api/reviews/count?uid=${listData?.listing?.sellerId}`, {
-          headers: { Authorization: u.id },
-        })
+      const revRes = await fetch(
+        `${BASE_URL}/api/reviews/count?uid=${listData?.listing?.sellerId}`,
+        {
+          headers: authHeaders(session.access_token),
+        },
+      );
       const revData = await revRes.json();
-      
+
       setLocalReviews(revData.count ?? 0);
     };
     mount();
@@ -223,13 +221,15 @@ export default function ListingPage() {
 
   const handleToggle = async (field: "archived" | "sold") => {
     if (!user || !listing) return;
+    const { session } = await getUserSupabase();
+    if (!session) return;
     setActionLoading(field);
     try {
       const updated = { ...listing, [field]: !listing[field] };
 
       const res = await fetch(`${BASE_URL}/api/listings`, {
         method: "PUT",
-        headers: { Authorization: user.id, "Content-Type": "application/json" },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify(updated),
       }).then((r) => r.json());
       if (!res.success) {
@@ -252,7 +252,6 @@ export default function ListingPage() {
     setReportModal(val);
   }
 
-
   if (!listing?.title) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
@@ -266,14 +265,13 @@ export default function ListingPage() {
     (c: any) => c.buyerId === user?.id,
   );
   const safeImages = (listing.imageUrls ?? [])
-  .filter((url: any) => typeof url === "string" && url.startsWith("http"))
-  .map((url: string) =>
-    url.includes("res.cloudinary.com")
-  ? url.replace("/upload/", "/upload/f_auto/")
-  : url,
-);
-const sellerConvos = listing.conversations ?? [];
-
+    .filter((url: any) => typeof url === "string" && url.startsWith("http"))
+    .map((url: string) =>
+      url.includes("res.cloudinary.com")
+        ? url.replace("/upload/", "/upload/f_auto/")
+        : url,
+    );
+  const sellerConvos = listing.conversations ?? [];
 
   return (
     <View className="flex-1 bg-white" style={{}}>

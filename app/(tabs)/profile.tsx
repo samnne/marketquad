@@ -1,12 +1,18 @@
 import UserListings from "@/components/UserListings";
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { colors, components } from "@/constants/theme";
 
 import { useRefresh } from "@/hooks/useRefresh";
 import { getConvos } from "@/lib/conversations.lib";
 import { getUserListings } from "@/lib/listing.lib";
 
-import { useConvos, useListings, useMessage, useUnread, useUser } from "@/store/zustand";
+import {
+  useConvos,
+  useListings,
+  useMessage,
+  useUnread,
+  useUser,
+} from "@/store/zustand";
 import { supabase } from "@/supabase/supabase";
 import { cleanUP, getUserSupabase } from "@/utils/functions";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -54,11 +60,13 @@ function ProfileScreen() {
     userListings,
     setUserListings,
     setUser,
+    session,
+    setSession,
     reset: userReset,
   } = useUser();
   const { reset: convoReset, setConvos, convos } = useConvos();
   const { reset: lisReset } = useListings();
-  const {unreadCount, setUnreadCount}= useUnread();
+  const { unreadCount, setUnreadCount } = useUnread();
   const { setError, setSuccess, setMessage } = useMessage();
 
   // Derive unread count from convos store
@@ -68,14 +76,14 @@ function ProfileScreen() {
       const { user: u, app_user } = await getUserSupabase();
 
       if (!u) return;
+      if (!session) return;
       const ulst = await getUserListings(u.id);
       setUserListings(ulst.listings);
 
       const convos = await getConvos(u.id);
       if (convos) setConvos(convos);
-
       const res = await fetch(`${BASE_URL}/api/reviews/count`, {
-        headers: { Authorization: u.id },
+        headers: authHeaders(session.access_token),
       });
       const data = await res.json();
 
@@ -86,15 +94,21 @@ function ProfileScreen() {
 
   const mountSession = useCallback(async () => {
     try {
-      const { user: u, error, app_user } = await getUserSupabase();
+      const {
+        user: u,
+        error,
+        app_user,
+        session: sesh,
+      } = await getUserSupabase();
 
-      if (!u || error) {
+      if (!u || error || !sesh) {
         setError(true);
         setMessage("Logged Out!");
         router.replace("/sign-in");
         return;
       }
       setUser({ ...u, app_user });
+      setSession(sesh);
       const tempListings = await getUserListings(u.id);
       if (!tempListings?.listings) {
         setError(true);
@@ -110,7 +124,6 @@ function ProfileScreen() {
 
   useEffect(() => {
     mountSession();
-   
   }, [mountSession]);
 
   const handleLogout = async () => {
@@ -120,7 +133,9 @@ function ProfileScreen() {
         text: "Log out",
         style: "destructive",
         onPress: async () => {
-          await supabase.auth.signOut();
+          await supabase.auth.signOut({
+            scope: "global",
+          });
           cleanUP(
             { reset: lisReset },
             { reset: userReset },
@@ -293,7 +308,6 @@ function ProfileScreen() {
 
           <Pressable
             onPress={() => {
-              
               router.push({ pathname: "/convos" });
             }}
             className="bg-pill rounded-[20px] border border-primary/25 flex-row items-center justify-between px-4 py-4 active:opacity-70"

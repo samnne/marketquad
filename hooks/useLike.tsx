@@ -1,9 +1,10 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { getUserSupabase } from "@/utils/functions";
+import { sendListingLikeNotification } from "@/utils/notifications";
 import { useState } from "react";
 
 export function useLike(
-  listingId: string,
+  listing: Listing | null | undefined,
   initialLiked: boolean | undefined | object,
   initialCount: number,
 ) {
@@ -12,6 +13,9 @@ export function useLike(
   const [loading, setLoading] = useState(false);
 
   const toggle = async () => {
+    if (!listing) {
+      return
+    }
     if (loading) return;
     // optimistic update
     setLiked((prev) => !prev);
@@ -19,13 +23,18 @@ export function useLike(
     setLoading(true);
 
     try {
-      const { user } = await getUserSupabase();
-      const res = await fetch(`${BASE_URL}/api/listings/${listingId}/like`, {
+      const { user, session } = await getUserSupabase();
+      if (!user || !session) throw new Error("User is not authenticated");
+      const res = await fetch(`${BASE_URL}/api/listings/${listing.lid}/like`, {
         method: "POST",
-        headers: { Authorization: user?.id! },
+        headers: authHeaders(session.access_token),
       });
       const data = await res.json();
-      
+      if (data.liked === true){
+
+        sendListingLikeNotification(listing, count);
+        
+      } 
       // reconcile with server truth
       setLiked(data.liked);
     } catch {

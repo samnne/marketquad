@@ -4,6 +4,8 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { supabase } from "@/supabase/supabase";
+import { useMessage } from "@/store/zustand";
 
 type Props = {
   open: boolean;
@@ -17,9 +19,23 @@ export default function AccountSection(props: Props) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-
+  const {setError, setMessage, setSuccess} = useMessage()
   if (!props.open) return null;
-
+  const handleForgotPassword = async () => {
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      props.email,
+      {
+        redirectTo: `${process.env.EXPO_PUBLIC_BASE_URL}/update-password`,
+      },
+    );
+    if (error) {
+      setError(true);
+      setMessage("Failed to send password reset email.");
+    } else {
+      setSuccess(true);
+      setMessage("Password reset email sent, sometimes it takes about 60s.");
+    }
+  };
   return (
     <Animated.View
       entering={FadeInDown.springify().damping(100)}
@@ -38,52 +54,13 @@ export default function AccountSection(props: Props) {
       </Field>
 
       {/* New password */}
-      <Field label="New password" hint="Minimum 8 characters">
-        <View className="relative">
-          <TextInput
-            className="h-12 px-4 pr-12 border border-secondary/20 rounded-xl bg-background text-text text-sm"
-            value={newPassword}
-            onChangeText={setNewPassword}
-            secureTextEntry={!showPw}
-            placeholder="New password"
-            placeholderTextColor={colors.secondary + "60"}
-            autoCapitalize="none"
-          />
-          <Pressable
-            onPress={() => setShowPw((p) => !p)}
-            className="absolute right-4 top-3.5"
-            hitSlop={8}
-          >
-            <FontAwesome6
-              name={showPw ? "eye-slash" : "eye"}
-              size={14}
-              color={colors.secondary}
-            />
-          </Pressable>
-        </View>
-      </Field>
+      <View>
+        <Text className="text-sm font-semibold tracking-widest uppercase text-text">
+          Reset Password?
+        </Text>
+      </View>
 
-      {/* Confirm password */}
-      <Field label="Confirm password">
-        <TextInput
-          className={`h-12 px-4 border rounded-xl bg-background text-text text-sm ${
-            confirmPassword.length > 0 && confirmPassword !== newPassword
-              ? "border-red-400/60"
-              : "border-secondary/20"
-          }`}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry={!showPw}
-          placeholder="Confirm new password"
-          placeholderTextColor={colors.secondary + "60"}
-          autoCapitalize="none"
-        />
-      </Field>
-
-      <SaveButton
-        onPress={() => props.save(newPassword)}
-        loading={props.loading}
-      />
+      <SaveButton onPress={handleForgotPassword} loading={props.loading} />
 
       {/* Danger zone */}
       <View className="flex-row items-center gap-3 my-1">
@@ -100,7 +77,6 @@ export default function AccountSection(props: Props) {
           Delete account
         </Text>
       </Pressable>
-     
     </Animated.View>
   );
 }

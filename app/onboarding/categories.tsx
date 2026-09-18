@@ -1,5 +1,5 @@
 import { useUser } from "@/store/zustand";
-import { BASE_URL, categories, onboardingTotal } from "@/constants/constants";
+import { authHeaders, BASE_URL, categories, onboardingTotal } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
@@ -22,6 +22,7 @@ import {
 } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { SpringButton, StepDots } from "@/components/Onboarding";
+import { getUserSupabase } from "@/utils/functions";
 const SafeAreaView = styled(RNSAV);
 // ── Re-used primitives ───────────────────────────────────────────
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -140,12 +141,14 @@ const OnboardingCategories = () => {
   const handleContinue = async () => {
  
     if (!canContinue) return;
+    const { session } = await getUserSupabase();
+    if (!session) return;
     setLoading(true);
     setError("");
     try {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/categories`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: user?.id! },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({ categories: selected }),
       }).then((r) => r.json());
 

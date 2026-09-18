@@ -1,5 +1,5 @@
 import { useUser, useMessage } from "@/store/zustand";
-import { BASE_URL, YEARS } from "@/constants/constants";
+import { authHeaders, BASE_URL, YEARS } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
@@ -36,7 +36,7 @@ type Intent = "buying" | "selling" | "both";
 const SettingsPage = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user, setUser } = useUser();
+  const { user, setUser, session, setSession } = useUser();
   const [deleteUser, setDeleteUser] = useState(false);
   const { setError, setSuccess, setMessage } = useMessage();
   const u = user?.app_user;
@@ -72,16 +72,11 @@ const SettingsPage = () => {
   const [notifSales, setNotifSales] = useState(u?.notif_sales ?? true);
   const [savingNotif, setSavingNotif] = useState(false);
 
-  const authHeaders = {
-    "Content-Type": "application/json",
-    Authorization: user?.id ?? "",
-  };
-
   // ─────────────────────────────────────────────
   // Handlers
   // ─────────────────────────────────────────────
   const saveProfile = async () => {
-    if (!user) {
+    if (!user || !session) {
       router.replace("/sign-in");
       return;
     }
@@ -100,10 +95,10 @@ const SettingsPage = () => {
       const url = isNewImage
         ? await uploadPFP(profileURL, user.id)
         : (profileURL ?? "");
-
+      const token = session.access_token;
       const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
         method: "PATCH",
-        headers: authHeaders,
+        headers: authHeaders(token),
         body: JSON.stringify({
           name,
           username,
@@ -116,7 +111,7 @@ const SettingsPage = () => {
       if (isNewImage && user.app_user?.profileURL) {
         const deleteRes = await fetch(`${BASE_URL}/api/cloudinary`, {
           method: "DELETE",
-          headers: authHeaders,
+          headers: authHeaders(token),
           body: JSON.stringify([user.app_user.profileURL]),
         }).then((r) => r.json());
 
@@ -145,11 +140,15 @@ const SettingsPage = () => {
   };
 
   const saveStudent = async () => {
+    if (!session) {
+      return;
+    }
     setSavingStudent(true);
     try {
+      const token = session?.access_token;
       const res = await fetch(`${BASE_URL}/api/users/onboarding/verification`, {
         method: "PATCH",
-        headers: authHeaders,
+        headers: authHeaders(token),
         body: JSON.stringify({ faculty, year }),
       }).then((r) => r.json());
       if (!res.success) {
@@ -169,11 +168,14 @@ const SettingsPage = () => {
   };
 
   const savePreferences = async () => {
+    if (!session) {
+      return;
+    }
     setSavingPrefs(true);
     try {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/intent`, {
         method: "PATCH",
-        headers: authHeaders,
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({ intent }),
       }).then((r) => r.json());
       if (!res.success) {
@@ -185,7 +187,7 @@ const SettingsPage = () => {
         `${BASE_URL}/api/users/onboarding/categories`,
         {
           method: "PATCH",
-          headers: authHeaders,
+          headers: authHeaders(session.access_token),
           body: JSON.stringify({ categories }),
         },
       ).then((r) => r.json());
@@ -228,6 +230,9 @@ const SettingsPage = () => {
   };
 
   const saveNotifications = async () => {
+    if (!session) {
+      return;
+    }
     setSavingNotif(true);
     try {
       const response = await registerPushToken(
@@ -240,7 +245,7 @@ const SettingsPage = () => {
         `${BASE_URL}/api/users/onboarding/notifications`,
         {
           method: "PATCH",
-          headers: authHeaders,
+          headers: authHeaders(session?.access_token),
           body: JSON.stringify({
             notif_messages: notifMessages,
             notif_listings: notifListings,
@@ -267,7 +272,9 @@ const SettingsPage = () => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({
+      scope: "global",
+    });
     router.replace("/");
   };
 

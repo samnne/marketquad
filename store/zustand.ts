@@ -1,7 +1,7 @@
 import { create, StoreApi, UseBoundStore } from "zustand";
 
 import { db, STORAGE_KEY } from "@/db/db";
-import { User } from "@supabase/supabase-js";
+import { Session, User } from "@supabase/supabase-js";
 
 type TYPEAUTH = "sign-in" | "sign-up" | "otp";
 
@@ -60,6 +60,8 @@ export type UserState = {
   userListings: Listing[];
   setUserListings: Function;
   reset: () => void;
+  session: Session | null,
+  setSession: (session: Session) => void
 };
 export const useUser: UseBoundStore<StoreApi<UserState>> = create((set) => {
   return {
@@ -70,6 +72,8 @@ export const useUser: UseBoundStore<StoreApi<UserState>> = create((set) => {
     userListings: [],
     setUserListings: (listings: Listing[]) => set({ userListings: listings }),
     reset: () => set({ user: null, userListings: [] }),
+    session: null,
+    setSession: (session: Session)=> set({session: session})
   };
 });
 

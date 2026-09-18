@@ -11,6 +11,8 @@ import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { colors } from "@/constants/theme";
 import { useListings, useMessage, useUser } from "@/store/zustand";
 import { Redirect } from "expo-router";
+import { authHeaders } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 const REASONS = [
   { value: "SPAM", label: "Spam" },
@@ -54,14 +56,14 @@ export function ReportUserSheet({
 
     setLoading(true);
     try {
+      const { session } = await getUserSupabase();
+      if (!session) return;
       const res = await fetch(
         `${process.env.EXPO_PUBLIC_BASE_URL}/api/reports`,
         {
           method: "POST",
 
-          headers: {
-            Authorization: user?.app_user?.uid! ?? user?.id,
-          },
+          headers: authHeaders(session.access_token),
           body: JSON.stringify({
             targetUserId,
             reason: selectedReason,

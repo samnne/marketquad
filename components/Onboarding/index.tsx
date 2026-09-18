@@ -42,7 +42,7 @@ export const SaveButton = ({ onPress, loading }: { onPress: () => void; loading:
   >
     {loading
       ? <ActivityIndicator color={colors.pill} size="small" />
-      : <Text className="text-sm font-bold text-pill">Save changes</Text>}
+      : <Text className="text-sm font-bold text-pill">Reset Password</Text>}
   </SpringButton>
 );
 

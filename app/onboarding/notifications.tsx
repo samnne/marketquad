@@ -15,6 +15,8 @@ import { SpringButton, StepDots } from "@/components/Onboarding";
 import { styled } from "nativewind";
 import { registerPushToken } from "@/utils/notifications";
 import { onboardingTotal } from "@/constants/constants";
+import { authHeaders } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 const SafeAreaView = styled(RNSAV);
 
@@ -87,6 +89,8 @@ const OnboardingNotifications = () => {
       if (!user) {
         return;
       }
+      const { session } = await getUserSupabase();
+      if (!session) return;
       const didItWork = await registerPushToken(user?.id || user?.app_user?.uid)
       
       if (!didItWork) {
@@ -99,10 +103,7 @@ const OnboardingNotifications = () => {
           `${process.env.EXPO_PUBLIC_BASE_URL}/api/users/onboarding/notifications`,
           {
             method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: user.id!,
-            },
+            headers: authHeaders(session.access_token),
             body: JSON.stringify({ notifications_enabled: didItWork }),
           },
         );

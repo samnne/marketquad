@@ -70,14 +70,15 @@ function HomeScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const { user, setUser } = useUser();
+  const { user, setUser, setSession } = useUser();
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     const mount = async () => {
-      const { user, app_user } = await getUserSupabase();
-      if (!user) router.navigate("/(auth)/sign-up");
+      const { user, app_user,session } = await getUserSupabase();
+      if (!user || !session) router.navigate("/(auth)/sign-up");
       setUser({ ...user, app_user });
+      setSession(session)
     };
     mount();
   }, [router, setUser]);

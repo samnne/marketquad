@@ -14,7 +14,8 @@ import { colors } from "@/constants/theme";
 import { useMessage, useUser } from "@/store/zustand";
 
 import StarRating from "@/components/StarRating";
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 type Props = {
   visible: boolean;
@@ -36,10 +37,10 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
   useEffect(() => {
     const getHasUserReviewed = async () => {
       try {
+        const { session } = await getUserSupabase();
+        if (!session) return;
         const response = await fetch(`${BASE_URL}/api/reviews`, {
-          headers: {
-            Authorization: user?.id!,
-          },
+          headers: authHeaders(session.access_token),
         });
 
         const data = await response.json();
@@ -78,12 +79,11 @@ const ReviewModal = ({ visible, onClose, otherUser, isBuyer, role }: Props) => {
     }
     setSubmitting(true);
     try {
+      const { session } = await getUserSupabase();
+      if (!session) return;
       const res = await fetch(`${BASE_URL}/api/reviews`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: user?.id!,
-        },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({
           rating,
           comment: reviewText,

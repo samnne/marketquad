@@ -9,6 +9,7 @@ import { colors, components } from "@/constants/theme";
 import { editListingAction, newListingAction } from "@/lib/listing.lib";
 import { useListings, useMessage, usePrefs, useUser } from "@/store/zustand";
 import { getUserSupabase } from "@/utils/functions";
+import { authHeaders } from "@/constants/constants";
 import { File } from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { usePathname, useRouter } from "expo-router";
@@ -364,12 +365,15 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
           selectedListing.imageUrls?.filter(
             (url: string) => !images.find((img) => img.uri === url),
           ) ?? [];
-        if (toDelete?.length > 0)
+        if (toDelete?.length > 0) {
+          const { session } = await getUserSupabase();
+          if (!session) throw new Error("User is not authenticated");
           await fetch(`${BASE_URL}/api/cloudinary`, {
             method: "delete",
             body: JSON.stringify(toDelete),
-            headers: { Authorization: user.id },
+            headers: authHeaders(session.access_token),
           });
+        }
         const res = await editListingAction(
           {
             title,

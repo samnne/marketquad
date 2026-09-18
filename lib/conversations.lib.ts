@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { getUserSupabase } from "@/utils/functions";
 
 interface NewConvo {
@@ -9,13 +9,11 @@ interface NewConvo {
 }
 
 export async function getConvo(cid: string) {
-  const { user } = await getUserSupabase();
+  const { user, session } = await getUserSupabase();
 
-  if (!user) return;
+  if (!user || !session) return;
   const response = await fetch(`${BASE_URL}/api/conversations/${cid}`, {
-    headers: {
-      Authorization: user?.id,
-    },
+    headers: authHeaders(session.access_token),
     method: "GET",
   }).then((res) => res.json());
 
@@ -27,11 +25,11 @@ export async function createConvo(
   { listingId, buyerId, sellerId, initialMessage }: NewConvo,
   existing: Conversation | null,
 ) {
+  const { session } = await getUserSupabase();
+  if (!session) return;
 
   const convo = await fetch(`${BASE_URL}/api/conversations`, {
-    headers: {
-      Authorization: buyerId,
-    },
+    headers: authHeaders(session.access_token),
     body: JSON.stringify({
       listingId,
       buyerId,
@@ -46,10 +44,10 @@ export async function createConvo(
 }
 
 export async function getConvos(uid: string) {
+  const { session } = await getUserSupabase();
+  if (!session) return;
   const convos = await fetch(`${BASE_URL}/api/conversations`, {
-    headers: {
-      Authorization: uid,
-    },
+    headers: authHeaders(session.access_token),
   }).then((res) => res.json());
 
   if (!convos) return false;

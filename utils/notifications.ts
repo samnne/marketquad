@@ -3,6 +3,8 @@ import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { db } from "@/db/db";
+import { authHeaders } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -18,7 +20,7 @@ export async function sendListingLikeNotification(
   count: number,
 ) {
   try {
-    
+  
     await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
       headers: {
@@ -63,12 +65,14 @@ export async function registerPushToken(userId: string) {
     Constants.easConfig?.projectId;
 
   const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+  const { session } = await getUserSupabase();
+  if (!session) return false;
 
   const response = await fetch(
     `${process.env.EXPO_PUBLIC_BASE_URL}/api/notis`,
     {
       method: "POST",
-      headers: { Authorization: userId, "Content-Type": "application/json" },
+      headers: authHeaders(session.access_token),
 
       body: JSON.stringify({ userId, token, platform: Platform.OS }),
     },

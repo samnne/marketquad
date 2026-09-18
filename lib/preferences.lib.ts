@@ -1,4 +1,5 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 export type PreferencesPayload = {
   defaultCategory?: string | null;
@@ -10,10 +11,10 @@ export type PreferencesPayload = {
 
 export async function getPreferences(userId: string) {
   try {
+    const { session } = await getUserSupabase();
+    if (!session) return { success: false, preferences: null };
     const preferences = await fetch(`${BASE_URL}/api/account/prefs`, {
-      headers: {
-        Authorization: userId
-      }
+      headers: authHeaders(session.access_token),
     }).then(
       (res) => res.json(),
     );

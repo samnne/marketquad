@@ -1,8 +1,9 @@
 import { View, Text, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { useMessage, useUser } from "@/store/zustand";
 import { useRouter } from "expo-router";
+import { getUserSupabase } from "@/utils/functions";
 
 const BlockUserModal = ({
   showModal,
@@ -30,11 +31,11 @@ const BlockUserModal = ({
     }
     setCantBlock(true);
     try {
+      const { session } = await getUserSupabase();
+      if (!session) return;
       const res = await fetch(`${BASE_URL}/api/users/${userToBlock.id}`, {
         method: "PUT",
-        headers: {
-          Authorization: user?.app_user?.uid,
-        },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({
           type: type,
           blockId: userToBlock?.blockId || null,

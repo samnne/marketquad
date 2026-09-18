@@ -1,5 +1,5 @@
 import { useUser } from "@/store/zustand";
-import { BASE_URL, INTENTS, onboardingTotal } from "@/constants/constants";
+import { authHeaders, BASE_URL, INTENTS, onboardingTotal } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
@@ -13,6 +13,7 @@ import {
 import { IntentCard, SpringButton, StepDots } from "@/components/Onboarding";
 import { styled } from "nativewind";
 import { ScrollView } from "moti";
+import { getUserSupabase } from "@/utils/functions";
 
 type Intent = "buying" | "selling" | "both";
 
@@ -29,14 +30,15 @@ const OnboardingIntent = () => {
   const [error, setError] = useState("");
 
   const handleContinue = async () => {
-
     if (!intent) return;
+    const { session } = await getUserSupabase();
+    if (!session) return;
     setLoading(true);
     setError("");
     try {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/intent`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: user?.id! },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({ intent }),
       }).then((r) => r.json());
 
@@ -84,7 +86,10 @@ const OnboardingIntent = () => {
         </View>
 
         {/* ── Cards ── */}
-        <ScrollView showsVerticalScrollIndicator={false}  className="gap-4 p-4  flex-1">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="gap-4 p-4  flex-1"
+        >
           {INTENTS.map((item) => (
             <IntentCard
               key={item.value}

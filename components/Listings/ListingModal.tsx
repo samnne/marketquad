@@ -1,6 +1,6 @@
 import Carousel from "@/components/Carousel";
 import StarRating from "@/components/StarRating";
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import { createConvo } from "@/lib/conversations.lib";
 import { deleteListingAction } from "@/lib/listing.lib";
@@ -65,11 +65,11 @@ const ListingModal = ({ listing }: { listing: any }) => {
     setMessage(getRandomFirstMessage());
 
     const mount = async () => {
-      const { user: u, app_user } = await getUserSupabase();
-      if (!u) return;
+      const { user: u, app_user, session } = await getUserSupabase();
+      if (!u || !session) return;
       setUser({ ...u, app_user });
       const res = await fetch(`${BASE_URL}/api/reviews/count`, {
-        headers: { Authorization: u.id },
+        headers: authHeaders(session.access_token),
       });
 
       const data = await res.json();
@@ -134,10 +134,12 @@ const ListingModal = ({ listing }: { listing: any }) => {
 
   const handleToggle = async (field: "archived" | "sold") => {
     if (!user) return;
+    const { session } = await getUserSupabase();
+    if (!session) return;
     const updated = { ...listing, [field]: !listing[field] };
     const res = await fetch(`${BASE_URL}/api/listings`, {
       method: "PUT",
-      headers: { Authorization: user.id, "Content-Type": "application/json" },
+      headers: authHeaders(session.access_token),
       body: JSON.stringify(updated),
     }).then((r) => r.json());
 

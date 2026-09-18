@@ -31,7 +31,7 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
     };
   });
   const { count, liked, loading, toggle } = useLike(
-    listing?.lid,
+    listing,
     expression,
     listing._count?.likes,
   );

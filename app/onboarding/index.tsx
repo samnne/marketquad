@@ -1,5 +1,5 @@
 import { useUser } from "@/store/zustand";
-import { BASE_URL, onboardingTotal } from "@/constants/constants";
+import { authHeaders, BASE_URL, onboardingTotal } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -29,6 +29,7 @@ import {
 } from "@/components/Onboarding";
 import { styled } from "nativewind";
 import { uploadPFP } from "@/cloudinary/cloudinary";
+import { getUserSupabase } from "@/utils/functions";
 const SafeAreaView = styled(RNSAV);
 
 const USERNAME_RE = /^[a-z0-9._]{3,20}$/;
@@ -84,6 +85,8 @@ const OnboardingProfile = () => {
 
   const handleContinue = async () => {
     if (!canContinue) return;
+    const { session } = await getUserSupabase();
+      if (!session) return;
     setLoading(true);
     setError("");
 
@@ -96,10 +99,7 @@ const OnboardingProfile = () => {
 
       const res = await fetch(`${BASE_URL}/api/users/onboarding/profile`, {
         method: "PATCH",
-        headers: {
-          Authorization: user?.id!,
-          "Content-Type": "application/json",
-        },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({
           name: name.trim(),
           username: username.trim().toLowerCase(),

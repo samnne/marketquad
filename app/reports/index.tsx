@@ -12,6 +12,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMessage, useType, useUser } from "@/store/zustand";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
+import { authHeaders } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 const STATUS_CONFIG: Record<
   string,
@@ -70,13 +72,13 @@ export default function MyReportsScreen() {
       return;
     }
     try {
+      const { session } = await getUserSupabase();
+      if (!session) return;
       const res = await fetch(
         `${process.env.EXPO_PUBLIC_BASE_URL}/api/reports`,
         {
           method: "get",
-          headers: {
-            Authorization: user.id,
-          },
+          headers: authHeaders(session.access_token),
         },
       );
       const data = await res.json();

@@ -39,6 +39,15 @@ export const AVATAR_COLORS = [
   { bg: colors.pill, text: colors.primary, border: colors.secondary },
 ] as const;
 
+export function authHeaders(token: string, extraHeaders: Record<string, string> = {}, ContentType = "application/json"){
+
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": ContentType,
+    ...extraHeaders
+  }
+}
+
 export function getInitials(name: string) {
   return name
     .split(" ")

@@ -1,4 +1,5 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 export const safeJson = async (response: Response) => {
   if (!response.ok) {
@@ -21,12 +22,12 @@ export const getClientListings = async () => {
   return safeJson(response);
 };
 export const getUserListings = async (uid: string) => {
+  const { session } = await getUserSupabase();
+  if (!session) return;
  
   const response = await fetch(`${BASE_URL}/api/account`, {
     method: "POST",
-    headers: {
-      Authorization: uid,
-    },
+    headers: authHeaders(session.access_token),
   });
 
   return safeJson(response);
@@ -40,10 +41,10 @@ export const getClientListingsWithCategory = async (cat: string) => {
   return safeJson(response);
 };
 export const getClientListingsNotUsers = async (uid: string) => {
+  const { session } = await getUserSupabase();
+  if (!session) return;
   const response = await fetch(`${BASE_URL}/api/listings`, {
-    headers: {
-      Authorization: uid,
-    },
+    headers: authHeaders(session.access_token),
     method: "GET",
   });
 
@@ -54,13 +55,12 @@ export const newListingAction = async (
   sellerId: string,
 ) => {
   if (!sellerId) throw new Error("No seller ID provided");
+  const { session } = await getUserSupabase();
+  if (!session) throw new Error("User is not authenticated");
 
   const response = await fetch(`${BASE_URL}/api/listings`, {
     method: "POST",
-    headers: {
-      Authorization: sellerId,
-      "Content-Type": "application/json", // ← also missing this
-    },
+    headers: authHeaders(session.access_token),
     body: JSON.stringify({ ...newListing, sellerId }),
   });
 
@@ -70,13 +70,12 @@ export const editListingAction = async (
   listingToEdit: listingFormData & {lid: string},
   sellerId: string,
 ) => {
+  const { session } = await getUserSupabase();
+  if (!session) throw new Error("User is not authenticated");
   const response = await fetch(
     `${BASE_URL}/api/listings/${listingToEdit?.lid}`,
     {
-     headers: {
-  Authorization: sellerId,
-  "Content-Type": "application/json",
-},
+      headers: authHeaders(session.access_token),
       method: "PUT",
       body: JSON.stringify({ ...listingToEdit, sellerId }),
     },
@@ -87,10 +86,10 @@ export const editListingAction = async (
 
 export const deleteListingAction = async (lid: string, sellerId: string) => {
   if (!sellerId) return;
+  const { session } = await getUserSupabase();
+  if (!session) return;
   const response = await fetch(`${BASE_URL}/api/listings/${lid}`, {
-    headers: {
-      Authorization: sellerId,
-    },
+    headers: authHeaders(session.access_token),
     method: "DELETE",
   });
 

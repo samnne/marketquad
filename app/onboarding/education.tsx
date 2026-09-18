@@ -1,5 +1,11 @@
 import { useUser } from "@/store/zustand";
-import { BASE_URL, FACULTIES, onboardingTotal, YEARS } from "@/constants/constants";
+import {
+  authHeaders,
+  BASE_URL,
+  FACULTIES,
+  onboardingTotal,
+  YEARS,
+} from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
@@ -17,13 +23,16 @@ import {
   SafeAreaView as RNSAV,
 } from "react-native-safe-area-context";
 
-import { FacultyPill, Field, SpringButton, StepDots, YearChip } from "@/components/Onboarding";
+import {
+  FacultyPill,
+  Field,
+  SpringButton,
+  StepDots,
+  YearChip,
+} from "@/components/Onboarding";
 import { styled } from "nativewind";
+import { getUserSupabase } from "@/utils/functions";
 const SafeAreaView = styled(RNSAV);
-
-
-
-
 
 // ── Main screen ──────────────────────────────────────────────────
 const OnboardingVerification = () => {
@@ -40,17 +49,14 @@ const OnboardingVerification = () => {
 
   const handleContinue = async () => {
     if (!canContinue) return;
+    const { session } = await getUserSupabase();
+    if (!session) return;
     setLoading(true);
     setError("");
     try {
-        
       const res = await fetch(`${BASE_URL}/api/users/onboarding/verification`, {
         method: "PATCH",
-        headers: {
-          Authorization: user?.id!,
-
-          "Content-Type": "application/json",
-        },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({
           faculty,
           year,
@@ -103,8 +109,8 @@ const OnboardingVerification = () => {
               Your student info
             </Text>
             <Text className="text-lg font-light text-text/70 leading-5">
-              This shows up on your listings and helps buyers trust who they&apos;re
-              buying from.
+              This shows up on your listings and helps buyers trust who
+              they&apos;re buying from.
             </Text>
           </View>
 

@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import { components, colors } from "@/constants/theme";
 import { useUser } from "@/store/zustand";
 import { Ionicons } from "@expo/vector-icons";
@@ -237,14 +237,13 @@ export default function PublicProfileScreen() {
   );
 
   const fetchProfile = useCallback(
-    async (authId?: string) => {
+    async () => {
       if (!uid || typeof uid !== "string") return;
       try {
+        const { session } = await getUserSupabase();
+        if (!session) return;
         const res = await fetch(`${BASE_URL}/api/users/${uid}`, {
-          headers: {
-            Authorization:
-              authId ?? currentUser?.id ?? currentUser?.app_user?.uid ?? "",
-          },
+          headers: authHeaders(session.access_token),
         });
         if (!res.ok) throw new Error("Failed to fetch profile");
         const json = await res.json();
@@ -255,14 +254,12 @@ export default function PublicProfileScreen() {
         console.error(err);
       }
     },
-    [currentUser?.id, uid, currentUser?.app_user?.uid],
+    [uid],
   );
 
   const { refreshing, onRefresh } = useRefresh({
     func: async () => {
-      const { user: u } = await getUserSupabase();
-      if (!u) return;
-      await fetchProfile(u.id);
+      await fetchProfile();
     },
   });
 

@@ -1,4 +1,4 @@
-import { BASE_URL, onboardingTotal } from "@/constants/constants";
+import { authHeaders, BASE_URL, onboardingTotal } from "@/constants/constants";
 import { colors } from "@/constants/theme";
 import { SpringButton, StepDots } from "@/components/Onboarding";
 import { useUser } from "@/store/zustand";
@@ -21,6 +21,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { styled } from "nativewind";
+import { getUserSupabase } from "@/utils/functions";
 
 const SafeAreaView = styled(RNSAV);
 
@@ -106,16 +107,15 @@ const AcceptGuidelines = () => {
 
   const handleContinue = async () => {
     if (!canContinue) return;
+    const { session } = await getUserSupabase();
+    if (!session) return;
     setLoading(true);
     setError("");
 
     try {
       const res = await fetch(`${BASE_URL}/api/users/onboarding/eula`, {
         method: "PATCH",
-        headers: {
-          Authorization: user?.id!,
-          "Content-Type": "application/json",
-        },
+        headers: authHeaders(session.access_token),
         body: JSON.stringify({ accepted_eula: true }),
       }).then((r) => r.json());
 
@@ -203,9 +203,7 @@ const AcceptGuidelines = () => {
           {/* ── Scroll nudge ── */}
           {!scrolledToBottom && (
             <Pressable
-              onPress={() =>
-                scrollRef.current?.scrollToEnd({ animated: true })
-              }
+              onPress={() => scrollRef.current?.scrollToEnd({ animated: true })}
               className="flex-row items-center justify-center gap-2"
             >
               <Text className="text-sm text-text/40">Scroll to continue</Text>
@@ -245,19 +243,15 @@ const AcceptGuidelines = () => {
               onPress={() => Linking.openURL(EULA_URL)}
             >
               End User License Agreement
-            </Text>
-            {" "}and understand that MarketQuad is a student-only platform.
+            </Text>{" "}
+            and understand that MarketQuad is a student-only platform.
           </Text>
         </Pressable>
 
         {/* Error */}
         {error ? (
           <View className="flex-row items-center gap-2 bg-red-500/10 px-4 py-3 rounded-2xl">
-            <FontAwesome6
-              name="circle-exclamation"
-              size={13}
-              color="#f87171"
-            />
+            <FontAwesome6 name="circle-exclamation" size={13} color="#f87171" />
             <Text className="text-sm text-red-400 flex-1">{error}</Text>
           </View>
         ) : null}
@@ -275,11 +269,7 @@ const AcceptGuidelines = () => {
               <Text className="text-base font-bold text-pill">
                 I Agree &amp; Continue
               </Text>
-              <FontAwesome6
-                name="arrow-right"
-                size={13}
-                color={colors.pill}
-              />
+              <FontAwesome6 name="arrow-right" size={13} color={colors.pill} />
             </View>
           )}
         </SpringButton>

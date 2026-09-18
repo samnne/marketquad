@@ -1,4 +1,4 @@
-import { BASE_URL } from "@/constants/constants";
+import { authHeaders, BASE_URL } from "@/constants/constants";
 import {
   useConvos,
   useListings,
@@ -7,7 +7,7 @@ import {
   useUser,
 } from "@/store/zustand";
 import { supabase } from "@/supabase/supabase";
-import { cleanUP } from "@/utils/functions";
+import { cleanUP, getUserSupabase } from "@/utils/functions";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -41,14 +41,14 @@ const DeleteModal = ({
         return;
       }
       try {
+        const { session: authSession } = await getUserSupabase();
+        if (!authSession) return;
         const response = await fetch(`${BASE_URL}/api/auth`, {
-          headers: {
-            Authorization: session.id ?? session.app_user.uid,
-          },
+          headers: authHeaders(authSession.access_token),
         });
 
         const data = await response.json();
-  
+
         const reports = data.reports;
 
         const notResolved = reports?.filter(
@@ -71,11 +71,11 @@ const DeleteModal = ({
     if (cantDelete) return;
     if (session) {
       try {
+        const { session: authSession } = await getUserSupabase();
+        if (!authSession) return;
         const response = await fetch(`${BASE_URL}/api/auth`, {
           method: "DELETE",
-          headers: {
-            Authorization: session.id,
-          },
+          headers: authHeaders(authSession.access_token),
         });
         const data = await response.json();
         const success = data.success;
@@ -89,7 +89,9 @@ const DeleteModal = ({
         }
         if (success) {
           await supabase.auth.admin.deleteUser(session.id);
-          await supabase.auth.signOut();
+          await supabase.auth.signOut({
+            scope: "global",
+          });
         }
         cleanUP(
           { reset: lisReset },
