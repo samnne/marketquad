@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import { usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -34,7 +35,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LocationInput from "../Inputs/LocationInput";
 import { Image } from "expo-image";
-
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -271,6 +271,28 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
     setDisabled(!result.success);
   }, [formData]);
 
+  const takePhotoWithCamera = async () => {
+    const { granted } = await ImagePicker.requestCameraPermissionsAsync();
+    if (!granted) {
+      Alert.alert(
+        "Permission Denied",
+        "Camera access is required to take photos.",
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      quality: 0.8,
+      exif: false,
+    });
+
+    if (!result.canceled) {
+      const uri = await toJpegUri(result.assets[0].uri);
+      setImages((prev) => [...prev, { uri, isRemote: false }].slice(0, 10));
+    }
+  };
+
   const pickImages = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -279,6 +301,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsMultipleSelection: true,
+      selectionLimit: Math.max(1, 10 - images.length),
       quality: 0.8,
       base64: false,
       exif: false,
@@ -424,7 +447,13 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
       setImages([]);
     }
   };
-
+  const showAddPhotoOptions = () => {
+    Alert.alert("Add Photo", undefined, [
+      { text: "Take Photo", onPress: takePhotoWithCamera },
+      { text: "Choose from Library", onPress: pickImages },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
   return (
     <ScrollView
       className="flex-1 bg-background"
@@ -457,7 +486,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
                   style={{
                     width: "100%",
                     height: "100%",
-                    flex: 1
+                    flex: 1,
                   }}
                 />
                 <Pressable
@@ -470,7 +499,7 @@ const ListingFormPage = ({ type }: { type: "new" | "edit" }) => {
             ))}
             {images?.length < 10 && (
               <Pressable
-                onPress={pickImages}
+                onPress={showAddPhotoOptions}
                 className="w-24 h-24 rounded-xl border border-dashed border-text/30 bg-background items-center justify-center gap-1"
               >
                 <Ionicons name="add" size={24} color={colors.text + "60"} />

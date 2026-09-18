@@ -2,7 +2,7 @@
   "expo": {
     "name": "MarketQuad",
     "slug": "marketquad",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/icons/ios-light.png",
     "scheme": "mqphone",
