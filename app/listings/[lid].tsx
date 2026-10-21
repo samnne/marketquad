@@ -141,7 +141,6 @@ export default function ListingPage() {
     };
     mount();
   }, [lid]);
-
   const createConversation = async () => {
     if (!listing) return;
     setCreatingConvo(true);

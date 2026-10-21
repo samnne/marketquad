@@ -8,10 +8,11 @@ import {
 import React, { useState, useCallback } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { db } from "@/db/db";
 import ListingCard from "@/components/Listings/ListingCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@/store/zustand";
+import { authHeaders, BASE_URL } from "@/constants/constants";
+import { getUserSupabase } from "@/utils/functions";
 
 const FavsScreen = () => {
   const [savedItems, setSavedItems] = useState<any[]>([]);
@@ -21,11 +22,11 @@ const FavsScreen = () => {
   const { user } = useUser();
 
   // Re-load favorites whenever this screen comes into focus
-  const loadFavs = useCallback(() => {
-    const data = JSON.parse(db.getItem("SAVED_LISTINGS") ?? "[]");
-
-    const savedItems = data.filter((val: Listing) => val.sellerId !== user?.id);
-    setSavedItems(savedItems);
+  const loadFavs = useCallback(async () => {
+    const { session } = await getUserSupabase()
+    if (!session?.access_token) return
+    const res = await fetch(`${BASE_URL}/api/listings/liked`, { headers: authHeaders(session.access_token) })
+    console.log(await res.json())
   }, []);
 
   useFocusEffect(

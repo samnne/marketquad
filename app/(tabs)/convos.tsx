@@ -43,8 +43,7 @@ const ConversationsScreen = () => {
     },
   });
   const getConvosClient = useCallback(async () => {
-    setLoading(true);
-
+    if (convos ) return
     const data = await getUserSupabase();
     if (!data.user) {
       setError(true);
@@ -52,6 +51,7 @@ const ConversationsScreen = () => {
       router.replace("/sign-in");
       return;
     }
+    setLoading(true);
     try {
       const tempConvos: Conversation[] = await getConvos(data.user.id);
       setConvos(tempConvos);
