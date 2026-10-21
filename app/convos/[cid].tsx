@@ -142,7 +142,9 @@ const CID = () => {
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
-      handleOpenConvo();
+      if (isConnected) {
+        handleOpenConvo();
+      }
     }
     function onDisconnect() {
       setIsConnected(false);

@@ -33,7 +33,7 @@ const ConversationsScreen = () => {
 
   const { convos, setConvos, setSelectedConvo, removeConvo } = useConvos();
   const { setError, setMessage } = useMessage();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(convos ? false : true);
   const { user, setUser, setSession } = useUser();
   const { selectedListing, setSelectedListing } = useListings();
   const [query, setQuery] = useState("");
@@ -43,7 +43,7 @@ const ConversationsScreen = () => {
     },
   });
   const getConvosClient = useCallback(async () => {
-    if (convos ) return
+    if (convos) return
     const data = await getUserSupabase();
     if (!data.user) {
       setError(true);
